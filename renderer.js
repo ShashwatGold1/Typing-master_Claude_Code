@@ -81,6 +81,7 @@ class TypingTest {
         this.timeValue = document.getElementById('time-value');
         this.resetBtn = document.getElementById('reset-btn');
         this.timeSelector = document.getElementById('time-selector');
+        this.resultsBanner = document.getElementById('results-banner');
 
         this.setupEventListeners();
         this.renderText();
@@ -268,13 +269,47 @@ class TypingTest {
     }
 
     showResults() {
-        // This would show a results modal or update the display with final results
+        // Show non-blocking results banner instead of alert
+        const wpm = this.wpmValue.textContent;
+        const accuracy = this.accuracyValue.textContent;
+        
+        this.showResultsBanner(`Test Complete! WPM: ${wpm}, Accuracy: ${accuracy}`);
+        
+        // Keep input ready for next test
         setTimeout(() => {
-            alert(`Test Complete!\nFinal WPM: ${this.wpmValue.textContent}\nAccuracy: ${this.accuracyValue.textContent}`);
-            
-            // Re-enable input after showing results using robust method
             this.forceInputFocus();
         }, 100);
+    }
+
+    showResultsBanner(message) {
+        const banner = document.getElementById('results-banner');
+        const text = document.getElementById('results-text');
+        const closeBtn = document.getElementById('results-close');
+        
+        if (banner && text) {
+            text.textContent = message;
+            banner.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            const hideTimeout = setTimeout(() => {
+                this.hideResultsBanner();
+            }, 5000);
+            
+            // Close button handler
+            closeBtn.onclick = () => {
+                clearTimeout(hideTimeout);
+                this.hideResultsBanner();
+            };
+        }
+    }
+
+    hideResultsBanner() {
+        const banner = document.getElementById('results-banner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
+        // Ensure input stays focused
+        this.forceInputFocus();
     }
 }
 
