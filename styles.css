@@ -231,6 +231,12 @@ body {
     border: 1px solid #e5e7eb;
     min-height: 120px;
     user-select: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.text-display:hover {
+    background: #f3f4f6;
 }
 
 .text-to-type {
@@ -250,10 +256,17 @@ body {
     outline: none;
     transition: border-color 0.15s ease;
     background: #ffffff;
+    cursor: text;
 }
 
 .typing-input:focus {
     border-color: #2563eb;
+}
+
+.typing-input:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
 }
 
 .typing-input::placeholder {

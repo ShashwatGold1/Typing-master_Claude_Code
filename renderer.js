@@ -45,6 +45,17 @@ class NavigationManager {
         document.getElementById(`${page}-page`).classList.add('active');
 
         this.currentPage = page;
+
+        // Focus on typing input when navigating to quick-test page
+        if (page === 'quick-test') {
+            setTimeout(() => {
+                const typingInput = document.getElementById('typing-input');
+                if (typingInput) {
+                    typingInput.disabled = false;
+                    typingInput.focus();
+                }
+            }, 100);
+        }
     }
 }
 
@@ -102,6 +113,24 @@ class TypingTest {
         this.typingInput.addEventListener('blur', () => {
             this.typingInput.style.borderColor = '#e5e7eb';
         });
+
+        // Add click handler to typing area to ensure input gets focus
+        const typingArea = document.querySelector('.typing-area');
+        if (typingArea) {
+            typingArea.addEventListener('click', () => {
+                this.ensureInputReady();
+            });
+        }
+
+        // Add click handler to text display to focus input
+        this.textDisplay.addEventListener('click', () => {
+            this.ensureInputReady();
+        });
+    }
+
+    ensureInputReady() {
+        this.typingInput.disabled = false;
+        this.typingInput.focus();
     }
 
     renderText() {
@@ -185,7 +214,12 @@ class TypingTest {
         this.renderText();
         this.updateStats();
         this.updateTimeDisplay();
-        this.typingInput.focus();
+        
+        // Ensure input is focusable and focused
+        setTimeout(() => {
+            this.typingInput.disabled = false;
+            this.typingInput.focus();
+        }, 50);
     }
 
     updateStats() {
@@ -212,6 +246,12 @@ class TypingTest {
         // This would show a results modal or update the display with final results
         setTimeout(() => {
             alert(`Test Complete!\nFinal WPM: ${this.wpmValue.textContent}\nAccuracy: ${this.accuracyValue.textContent}`);
+            
+            // Re-enable input after showing results
+            setTimeout(() => {
+                this.typingInput.disabled = false;
+                this.typingInput.focus();
+            }, 100);
         }, 100);
     }
 }
@@ -265,8 +305,19 @@ class LessonManager {
         if (lesson && lesson.unlocked) {
             // Switch to quick test page and load lesson text
             navigationManager.navigateTo('quick-test');
-            typingTest.textToType = lesson.text;
-            typingTest.resetTest();
+            
+            // Small delay to ensure page is loaded before setting lesson
+            setTimeout(() => {
+                typingTest.textToType = lesson.text;
+                typingTest.resetTest();
+                
+                // Ensure input is ready for typing
+                const typingInput = document.getElementById('typing-input');
+                if (typingInput) {
+                    typingInput.disabled = false;
+                    typingInput.focus();
+                }
+            }, 150);
         }
     }
 }
