@@ -102,6 +102,7 @@ class TypingTest {
 
         this.timeSelector.addEventListener('change', (e) => {
             this.timeLimit = parseInt(e.target.value);
+            this.timeRemaining = this.timeLimit;
             this.resetTest();
         });
 
@@ -239,13 +240,19 @@ class TypingTest {
             this.timer = null;
         }
         
+        // Clear the input and hide results banner
         this.typingInput.value = '';
+        this.hideResultsBanner();
+        
+        // Re-render everything
         this.renderText();
         this.updateStats();
         this.updateTimeDisplay();
         
         // Use the robust focus method
-        this.forceInputFocus();
+        setTimeout(() => {
+            this.forceInputFocus();
+        }, 50);
     }
 
     updateStats() {

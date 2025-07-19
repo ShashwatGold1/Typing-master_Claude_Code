@@ -245,6 +245,10 @@ body {
     min-height: 120px;
     user-select: none;
     cursor: pointer;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
     transition: background-color 0.15s ease;
 }
 
@@ -254,6 +258,9 @@ body {
 
 .text-to-type {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .typing-input {
@@ -556,7 +563,7 @@ body {
 }
 
 .char.correct {
-    background-color: #dcfce7;
+    background-color: #d0f0ce;
     color: #166534;
 }
 
@@ -568,6 +575,15 @@ body {
 .char.current {
     background-color: #dbeafe;
     animation: blink 1s infinite;
+    background: linear-gradient(135deg, #0011ff9c, #0011ff9c);
+    color: white;
+    border: 1px solid #2563eb;
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    animation: blinkCursor 1.2s ease-in-out infinite;
+    position: relative;
+    transform: scale(1.05);
+    z-index: 1;
 }
 
 @keyframes blink {
