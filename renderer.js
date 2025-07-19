@@ -83,6 +83,9 @@ class TypingTest {
         this.timeSelector = document.getElementById('time-selector');
         this.resultsBanner = document.getElementById('results-banner');
 
+        // Set initial time display
+        this.updateTimeDisplay();
+        
         this.setupEventListeners();
         this.renderText();
         this.updateStats();
@@ -100,11 +103,17 @@ class TypingTest {
             this.resetTest();
         });
 
-        this.timeSelector.addEventListener('change', (e) => {
-            this.timeLimit = parseInt(e.target.value);
-            this.timeRemaining = this.timeLimit;
-            this.resetTest();
-        });
+        if (this.timeSelector) {
+            this.timeSelector.addEventListener('change', (e) => {
+                const newTimeLimit = parseInt(e.target.value);
+                this.timeLimit = newTimeLimit;
+                this.timeRemaining = newTimeLimit;
+                this.resetTest();
+                console.log('Time selector changed to:', newTimeLimit);
+            });
+        } else {
+            console.error('Time selector element not found!');
+        }
 
         this.typingInput.addEventListener('focus', () => {
             this.typingInput.style.borderColor = '#2563eb';
@@ -272,7 +281,9 @@ class TypingTest {
     }
 
     updateTimeDisplay() {
-        this.timeValue.textContent = this.timeRemaining;
+        if (this.timeValue) {
+            this.timeValue.textContent = this.timeRemaining;
+        }
     }
 
     showResults() {
@@ -623,35 +634,38 @@ class InputFieldMonitor {
 
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize all components
-    window.navigationManager = new NavigationManager();
-    window.typingTest = new TypingTest();
-    window.lessonManager = new LessonManager();
-    window.settingsManager = new SettingsManager();
-    window.statisticsManager = new StatisticsManager();
-    window.animationManager = new AnimationManager();
-    window.inputMonitor = new InputFieldMonitor();
+    // Small delay to ensure all elements are ready
+    setTimeout(() => {
+        // Initialize all components
+        window.navigationManager = new NavigationManager();
+        window.typingTest = new TypingTest();
+        window.lessonManager = new LessonManager();
+        window.settingsManager = new SettingsManager();
+        window.statisticsManager = new StatisticsManager();
+        window.animationManager = new AnimationManager();
+        window.inputMonitor = new InputFieldMonitor();
 
-    // Add some initial animations
-    const pageHeader = document.querySelector('.page-header');
-    const statsContainer = document.querySelector('.stats-container');
-    
-    if (pageHeader) {
-        animationManager.fadeIn(pageHeader);
-    }
-    
-    if (statsContainer) {
-        setTimeout(() => {
-            animationManager.fadeIn(statsContainer);
-        }, 200);
-    }
+        // Add some initial animations
+        const pageHeader = document.querySelector('.page-header');
+        const statsContainer = document.querySelector('.stats-container');
+        
+        if (pageHeader) {
+            animationManager.fadeIn(pageHeader);
+        }
+        
+        if (statsContainer) {
+            setTimeout(() => {
+                animationManager.fadeIn(statsContainer);
+            }, 200);
+        }
 
-    // Focus on typing input when quick test is active
-    if (document.getElementById('quick-test-page').classList.contains('active')) {
-        setTimeout(() => {
-            typingTest.forceInputFocus();
-        }, 300);
-    }
+        // Focus on typing input when quick test is active
+        if (document.getElementById('quick-test-page').classList.contains('active')) {
+            setTimeout(() => {
+                typingTest.forceInputFocus();
+            }, 300);
+        }
+    }, 50);
 });
 
 // Handle window resize for responsive behavior
