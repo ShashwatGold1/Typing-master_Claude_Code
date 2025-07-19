@@ -1,0 +1,529 @@
+const { ipcRenderer } = require('electron');
+
+// Title bar controls
+document.getElementById('minimize-btn').addEventListener('click', () => {
+    ipcRenderer.send('window-minimize');
+});
+
+document.getElementById('maximize-btn').addEventListener('click', () => {
+    ipcRenderer.send('window-maximize');
+});
+
+document.getElementById('close-btn').addEventListener('click', () => {
+    ipcRenderer.send('window-close');
+});
+
+// Navigation system
+class NavigationManager {
+    constructor() {
+        this.currentPage = 'quick-test';
+        this.init();
+    }
+
+    init() {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = item.getAttribute('data-page');
+                this.navigateTo(page);
+            });
+        });
+    }
+
+    navigateTo(page) {
+        // Update active nav item
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        document.querySelector(`[data-page="${page}"]`).classList.add('active');
+
+        // Update active page
+        document.querySelectorAll('.page').forEach(pageEl => {
+            pageEl.classList.remove('active');
+        });
+        document.getElementById(`${page}-page`).classList.add('active');
+
+        this.currentPage = page;
+    }
+}
+
+// Typing Test System
+class TypingTest {
+    constructor() {
+        this.textToType = "Cooking is both an art and a science. It involves understanding ingredients, mastering techniques, and creating delicious meals that nourish the body and bring joy to those who share them.";
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.startTime = null;
+        this.isActive = false;
+        this.timer = null;
+        this.timeLimit = 30;
+        this.timeRemaining = 30;
+        
+        this.init();
+    }
+
+    init() {
+        this.textDisplay = document.getElementById('text-display');
+        this.typingInput = document.getElementById('typing-input');
+        this.wpmValue = document.getElementById('wpm-value');
+        this.accuracyValue = document.getElementById('accuracy-value');
+        this.timeValue = document.getElementById('time-value');
+        this.resetBtn = document.getElementById('reset-btn');
+        this.timeSelector = document.getElementById('time-selector');
+
+        this.setupEventListeners();
+        this.renderText();
+        this.updateStats();
+    }
+
+    setupEventListeners() {
+        this.typingInput.addEventListener('input', (e) => {
+            if (!this.isActive) {
+                this.startTest();
+            }
+            this.handleInput(e);
+        });
+
+        this.resetBtn.addEventListener('click', () => {
+            this.resetTest();
+        });
+
+        this.timeSelector.addEventListener('change', (e) => {
+            this.timeLimit = parseInt(e.target.value);
+            this.resetTest();
+        });
+
+        this.typingInput.addEventListener('focus', () => {
+            this.typingInput.style.borderColor = '#2563eb';
+        });
+
+        this.typingInput.addEventListener('blur', () => {
+            this.typingInput.style.borderColor = '#e5e7eb';
+        });
+    }
+
+    renderText() {
+        const chars = this.textToType.split('');
+        const textToTypeSpan = this.textDisplay.querySelector('.text-to-type');
+        
+        textToTypeSpan.innerHTML = chars.map((char, index) => {
+            let className = 'char';
+            if (index < this.currentIndex) {
+                const typedChar = this.typingInput.value[index];
+                className += typedChar === char ? ' correct' : ' incorrect';
+            } else if (index === this.currentIndex) {
+                className += ' current';
+            }
+            return `<span class="${className}">${char === ' ' ? '&nbsp;' : char}</span>`;
+        }).join('');
+    }
+
+    handleInput(e) {
+        const value = e.target.value;
+        this.currentIndex = value.length;
+        this.totalChars = value.length;
+
+        // Calculate correct characters
+        this.correctChars = 0;
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] === this.textToType[i]) {
+                this.correctChars++;
+            }
+        }
+
+        this.renderText();
+        this.updateStats();
+
+        // Check if test is complete
+        if (value.length >= this.textToType.length) {
+            this.endTest();
+        }
+    }
+
+    startTest() {
+        this.isActive = true;
+        this.startTime = Date.now();
+        this.timeRemaining = this.timeLimit;
+        
+        this.timer = setInterval(() => {
+            this.timeRemaining--;
+            this.updateTimeDisplay();
+            
+            if (this.timeRemaining <= 0) {
+                this.endTest();
+            }
+        }, 1000);
+    }
+
+    endTest() {
+        this.isActive = false;
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        this.typingInput.disabled = true;
+        this.showResults();
+    }
+
+    resetTest() {
+        this.isActive = false;
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.startTime = null;
+        this.timeRemaining = this.timeLimit;
+        
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        this.typingInput.value = '';
+        this.typingInput.disabled = false;
+        this.renderText();
+        this.updateStats();
+        this.updateTimeDisplay();
+        this.typingInput.focus();
+    }
+
+    updateStats() {
+        // Calculate WPM
+        let wpm = 0;
+        if (this.isActive && this.startTime) {
+            const timeElapsed = (Date.now() - this.startTime) / 1000 / 60; // in minutes
+            const wordsTyped = this.correctChars / 5; // standard: 5 characters = 1 word
+            wpm = Math.round(wordsTyped / timeElapsed);
+        }
+
+        // Calculate accuracy
+        const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 100;
+
+        this.wpmValue.textContent = wpm;
+        this.accuracyValue.textContent = `${accuracy}%`;
+    }
+
+    updateTimeDisplay() {
+        this.timeValue.textContent = this.timeRemaining;
+    }
+
+    showResults() {
+        // This would show a results modal or update the display with final results
+        setTimeout(() => {
+            alert(`Test Complete!\nFinal WPM: ${this.wpmValue.textContent}\nAccuracy: ${this.accuracyValue.textContent}`);
+        }, 100);
+    }
+}
+
+// Lesson System
+class LessonManager {
+    constructor() {
+        this.lessons = [
+            {
+                id: 'home-row',
+                title: 'Home Row Basics',
+                description: 'Learn the foundation keys: A, S, D, F, J, K, L, ;',
+                level: 'beginner',
+                targetWPM: 15,
+                targetAccuracy: 90,
+                unlocked: true,
+                text: 'asdf jkl; asdf jkl; sad lad ask dad flask glass'
+            },
+            {
+                id: 'top-row',
+                title: 'Top Row Introduction',
+                description: 'Add the top row keys Q, W, E, R, T, Y, U, I, O, P',
+                level: 'beginner',
+                targetWPM: 20,
+                targetAccuracy: 85,
+                unlocked: false,
+                text: 'qwer tyui op qwer tyui op quest water power quote'
+            }
+        ];
+        this.init();
+    }
+
+    init() {
+        this.setupLessonCards();
+    }
+
+    setupLessonCards() {
+        const lessonCards = document.querySelectorAll('.lesson-card');
+        lessonCards.forEach((card, index) => {
+            const button = card.querySelector('.btn');
+            if (button && !button.classList.contains('btn-disabled')) {
+                button.addEventListener('click', () => {
+                    this.startLesson(index);
+                });
+            }
+        });
+    }
+
+    startLesson(lessonIndex) {
+        const lesson = this.lessons[lessonIndex];
+        if (lesson && lesson.unlocked) {
+            // Switch to quick test page and load lesson text
+            navigationManager.navigateTo('quick-test');
+            typingTest.textToType = lesson.text;
+            typingTest.resetTest();
+        }
+    }
+}
+
+// Settings Manager
+class SettingsManager {
+    constructor() {
+        this.settings = {
+            theme: 'light',
+            soundEffects: true,
+            fontSize: 'medium',
+            keyboardLayout: 'qwerty'
+        };
+        this.init();
+    }
+
+    init() {
+        this.loadSettings();
+        this.setupEventListeners();
+    }
+
+    loadSettings() {
+        // Load settings from localStorage
+        const savedSettings = localStorage.getItem('typing-master-settings');
+        if (savedSettings) {
+            this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+        }
+        this.applySettings();
+    }
+
+    saveSettings() {
+        localStorage.setItem('typing-master-settings', JSON.stringify(this.settings));
+    }
+
+    applySettings() {
+        // Apply theme
+        if (this.settings.theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+
+        // Update UI elements
+        const themeSelect = document.querySelector('#settings-page select');
+        const soundCheckbox = document.querySelector('#settings-page input[type="checkbox"]');
+        
+        if (themeSelect) themeSelect.value = this.settings.theme;
+        if (soundCheckbox) soundCheckbox.checked = this.settings.soundEffects;
+    }
+
+    setupEventListeners() {
+        // Theme selector
+        const themeSelect = document.querySelector('#settings-page select');
+        if (themeSelect) {
+            themeSelect.addEventListener('change', (e) => {
+                this.settings.theme = e.target.value;
+                this.applySettings();
+                this.saveSettings();
+            });
+        }
+
+        // Sound effects checkbox
+        const soundCheckbox = document.querySelector('#settings-page input[type="checkbox"]');
+        if (soundCheckbox) {
+            soundCheckbox.addEventListener('change', (e) => {
+                this.settings.soundEffects = e.target.checked;
+                this.saveSettings();
+            });
+        }
+    }
+}
+
+// Statistics Manager
+class StatisticsManager {
+    constructor() {
+        this.stats = {
+            totalTests: 0,
+            averageWPM: 0,
+            averageAccuracy: 0,
+            bestWPM: 0,
+            totalTime: 0
+        };
+        this.init();
+    }
+
+    init() {
+        this.loadStats();
+        this.updateDisplay();
+    }
+
+    loadStats() {
+        const savedStats = localStorage.getItem('typing-master-stats');
+        if (savedStats) {
+            this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+        }
+    }
+
+    saveStats() {
+        localStorage.setItem('typing-master-stats', JSON.stringify(this.stats));
+    }
+
+    updateDisplay() {
+        // Update statistics display
+        const statCards = document.querySelectorAll('#statistics-page .stat-card');
+        if (statCards.length >= 3) {
+            statCards[0].querySelector('.stat-value').textContent = this.stats.averageWPM;
+            statCards[1].querySelector('.stat-value').textContent = `${this.stats.averageAccuracy}%`;
+            statCards[2].querySelector('.stat-value').textContent = this.stats.totalTests;
+        }
+    }
+
+    recordTest(wpm, accuracy, timeSpent) {
+        this.stats.totalTests++;
+        this.stats.totalTime += timeSpent;
+        
+        // Update averages
+        this.stats.averageWPM = Math.round(
+            (this.stats.averageWPM * (this.stats.totalTests - 1) + wpm) / this.stats.totalTests
+        );
+        this.stats.averageAccuracy = Math.round(
+            (this.stats.averageAccuracy * (this.stats.totalTests - 1) + accuracy) / this.stats.totalTests
+        );
+        
+        // Update best WPM
+        if (wpm > this.stats.bestWPM) {
+            this.stats.bestWPM = wpm;
+        }
+        
+        this.saveStats();
+        this.updateDisplay();
+    }
+}
+
+// Animation and Visual Effects
+class AnimationManager {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.setupHoverEffects();
+        this.setupTransitions();
+    }
+
+    setupHoverEffects() {
+        // Add smooth hover effects to interactive elements
+        const interactiveElements = document.querySelectorAll('.nav-item, .btn, .lesson-card, .game-card, .stat-card');
+        
+        interactiveElements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                element.style.transform = 'translateY(-2px)';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                element.style.transform = 'translateY(0)';
+            });
+        });
+    }
+
+    setupTransitions() {
+        // Page transition effects
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => {
+            page.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        });
+    }
+
+    fadeIn(element, duration = 300) {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            element.style.transition = `opacity ${duration}ms ease, transform ${duration}ms ease`;
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    slideIn(element, direction = 'left', duration = 300) {
+        const translateValue = direction === 'left' ? '-100%' : '100%';
+        element.style.transform = `translateX(${translateValue})`;
+        
+        setTimeout(() => {
+            element.style.transition = `transform ${duration}ms ease`;
+            element.style.transform = 'translateX(0)';
+        }, 10);
+    }
+}
+
+// Initialize all managers when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize all components
+    window.navigationManager = new NavigationManager();
+    window.typingTest = new TypingTest();
+    window.lessonManager = new LessonManager();
+    window.settingsManager = new SettingsManager();
+    window.statisticsManager = new StatisticsManager();
+    window.animationManager = new AnimationManager();
+
+    // Add some initial animations
+    const pageHeader = document.querySelector('.page-header');
+    const statsContainer = document.querySelector('.stats-container');
+    
+    if (pageHeader) {
+        animationManager.fadeIn(pageHeader);
+    }
+    
+    if (statsContainer) {
+        setTimeout(() => {
+            animationManager.fadeIn(statsContainer);
+        }, 200);
+    }
+
+    // Focus on typing input when quick test is active
+    if (document.getElementById('quick-test-page').classList.contains('active')) {
+        setTimeout(() => {
+            document.getElementById('typing-input').focus();
+        }, 300);
+    }
+});
+
+// Handle window resize for responsive behavior
+window.addEventListener('resize', () => {
+    // Adjust layout if needed
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (window.innerWidth < 768) {
+        sidebar.style.width = '100%';
+        mainContent.style.flexDirection = 'column';
+    } else {
+        sidebar.style.width = '240px';
+        mainContent.style.flexDirection = 'row';
+    }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // ESC to reset current test
+    if (e.key === 'Escape' && navigationManager.currentPage === 'quick-test') {
+        typingTest.resetTest();
+    }
+    
+    // Ctrl/Cmd + Number keys for quick navigation
+    if ((e.ctrlKey || e.metaKey) && !isNaN(parseInt(e.key))) {
+        e.preventDefault();
+        const pageMap = {
+            '1': 'quick-test',
+            '2': 'lessons',
+            '3': 'games',
+            '4': 'statistics',
+            '5': 'progress',
+            '6': 'settings'
+        };
+        
+        if (pageMap[e.key]) {
+            navigationManager.navigateTo(pageMap[e.key]);
+        }
+    }
+});
