@@ -49,10 +49,8 @@ class NavigationManager {
         // Focus on typing input when navigating to quick-test page
         if (page === 'quick-test') {
             setTimeout(() => {
-                const typingInput = document.getElementById('typing-input');
-                if (typingInput) {
-                    typingInput.disabled = false;
-                    typingInput.focus();
+                if (window.typingTest) {
+                    window.typingTest.forceInputFocus();
                 }
             }, 100);
         }
@@ -114,23 +112,54 @@ class TypingTest {
             this.typingInput.style.borderColor = '#e5e7eb';
         });
 
-        // Add click handler to typing area to ensure input gets focus
+        // Simplified click handlers for input focus
         const typingArea = document.querySelector('.typing-area');
         if (typingArea) {
-            typingArea.addEventListener('click', () => {
-                this.ensureInputReady();
+            typingArea.addEventListener('click', (e) => {
+                // Only prevent default if not clicking directly on input
+                if (e.target !== this.typingInput) {
+                    e.preventDefault();
+                }
+                this.forceInputFocus();
             });
         }
 
-        // Add click handler to text display to focus input
-        this.textDisplay.addEventListener('click', () => {
-            this.ensureInputReady();
+        this.textDisplay.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.forceInputFocus();
+        });
+
+        // Don't prevent default on direct input clicks
+        this.typingInput.addEventListener('click', (e) => {
+            this.forceInputFocus();
+        });
+
+        this.typingInput.addEventListener('mousedown', (e) => {
+            this.forceInputFocus();
         });
     }
 
-    ensureInputReady() {
+    forceInputFocus() {
+        // Ensure input is enabled and ready
+        this.typingInput.removeAttribute('disabled');
+        this.typingInput.removeAttribute('readonly');
         this.typingInput.disabled = false;
+        this.typingInput.readOnly = false;
+        this.typingInput.style.pointerEvents = 'auto';
+        
+        // Clear any existing timeouts to prevent conflicts
+        if (this.focusTimeout) {
+            clearTimeout(this.focusTimeout);
+        }
+        
+        // Use immediate focus first
         this.typingInput.focus();
+        
+        // Backup focus attempt
+        this.focusTimeout = setTimeout(() => {
+            this.typingInput.focus();
+            this.typingInput.click();
+        }, 10);
     }
 
     renderText() {
@@ -192,7 +221,7 @@ class TypingTest {
             clearInterval(this.timer);
             this.timer = null;
         }
-        this.typingInput.disabled = true;
+        // Don't disable input - just show results
         this.showResults();
     }
 
@@ -210,16 +239,12 @@ class TypingTest {
         }
         
         this.typingInput.value = '';
-        this.typingInput.disabled = false;
         this.renderText();
         this.updateStats();
         this.updateTimeDisplay();
         
-        // Ensure input is focusable and focused
-        setTimeout(() => {
-            this.typingInput.disabled = false;
-            this.typingInput.focus();
-        }, 50);
+        // Use the robust focus method
+        this.forceInputFocus();
     }
 
     updateStats() {
@@ -247,11 +272,8 @@ class TypingTest {
         setTimeout(() => {
             alert(`Test Complete!\nFinal WPM: ${this.wpmValue.textContent}\nAccuracy: ${this.accuracyValue.textContent}`);
             
-            // Re-enable input after showing results
-            setTimeout(() => {
-                this.typingInput.disabled = false;
-                this.typingInput.focus();
-            }, 100);
+            // Re-enable input after showing results using robust method
+            this.forceInputFocus();
         }, 100);
     }
 }
@@ -311,12 +333,8 @@ class LessonManager {
                 typingTest.textToType = lesson.text;
                 typingTest.resetTest();
                 
-                // Ensure input is ready for typing
-                const typingInput = document.getElementById('typing-input');
-                if (typingInput) {
-                    typingInput.disabled = false;
-                    typingInput.focus();
-                }
+                // Ensure input is ready for typing using robust method
+                typingTest.forceInputFocus();
             }, 150);
         }
     }
@@ -507,6 +525,60 @@ class AnimationManager {
     }
 }
 
+// Input Field Monitor - ensures input is always ready
+class InputFieldMonitor {
+    constructor() {
+        this.inputElement = null;
+        this.checkInterval = null;
+        this.init();
+    }
+
+    init() {
+        // Wait for DOM to be ready
+        setTimeout(() => {
+            this.inputElement = document.getElementById('typing-input');
+            this.startMonitoring();
+        }, 100);
+    }
+
+    startMonitoring() {
+        if (!this.inputElement) return;
+        
+        // Check every 500ms if input is ready
+        this.checkInterval = setInterval(() => {
+            this.ensureInputReady();
+        }, 500);
+
+        // Also add mutation observer to catch any DOM changes
+        const observer = new MutationObserver(() => {
+            this.ensureInputReady();
+        });
+
+        observer.observe(this.inputElement, {
+            attributes: true,
+            attributeFilter: ['disabled', 'readonly']
+        });
+    }
+
+    ensureInputReady() {
+        if (!this.inputElement || navigationManager.currentPage !== 'quick-test') return;
+        
+        // Force enable the input
+        this.inputElement.removeAttribute('disabled');
+        this.inputElement.disabled = false;
+        this.inputElement.readOnly = false;
+        this.inputElement.style.pointerEvents = 'auto';
+        this.inputElement.style.userSelect = 'text';
+    }
+
+    stopMonitoring() {
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+            this.checkInterval = null;
+        }
+    }
+}
+
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all components
@@ -516,6 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.settingsManager = new SettingsManager();
     window.statisticsManager = new StatisticsManager();
     window.animationManager = new AnimationManager();
+    window.inputMonitor = new InputFieldMonitor();
 
     // Add some initial animations
     const pageHeader = document.querySelector('.page-header');
@@ -534,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Focus on typing input when quick test is active
     if (document.getElementById('quick-test-page').classList.contains('active')) {
         setTimeout(() => {
-            document.getElementById('typing-input').focus();
+            typingTest.forceInputFocus();
         }, 300);
     }
 });

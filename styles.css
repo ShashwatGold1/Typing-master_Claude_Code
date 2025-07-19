@@ -11,6 +11,15 @@ body {
     user-select: none;
 }
 
+/* Allow text selection in typing areas */
+.typing-area,
+.typing-input {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
+
 .app-container {
     height: 100vh;
     display: flex;
@@ -218,6 +227,10 @@ body {
     border: 1px solid #e5e7eb;
     padding: 32px;
     margin-bottom: 24px;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 .text-display {
@@ -256,7 +269,13 @@ body {
     outline: none;
     transition: border-color 0.15s ease;
     background: #ffffff;
-    cursor: text;
+    cursor: text !important;
+    user-select: text !important;
+    pointer-events: auto !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    -webkit-touch-callout: default;
 }
 
 .typing-input:focus {
@@ -267,6 +286,7 @@ body {
     background: #f9fafb;
     color: #9ca3af;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .typing-input::placeholder {
