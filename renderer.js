@@ -624,78 +624,56 @@ class InputFieldMonitor {
     }
 }
 
-// Debug Dropdown - Let's see what's happening
+// Ultra Simple Reliable Dropdown
 function initDropdown() {
-    console.log('=== DROPDOWN DEBUG START ===');
+    console.log('=== SIMPLE DROPDOWN START ===');
     
     const selected = document.getElementById('dropdown-selected');
     const options = document.getElementById('dropdown-options');
-    const dropdown = document.getElementById('time-dropdown');
-    
-    console.log('Selected element:', selected);
-    console.log('Options element:', options);
-    console.log('Dropdown container:', dropdown);
     
     if (!selected || !options) {
         console.log('❌ Elements not found!');
         return;
     }
     
-    // Remove any existing event listeners first
-    selected.onclick = null;
+    let isOpen = false;
     
-    // Click to toggle with smooth transitions
-    selected.onclick = function(e) {
-        e.stopPropagation(); // Prevent document click from closing immediately
-        const isOpen = options.classList.contains('show');
-        console.log('🖱️ Selected clicked, currently open:', isOpen);
+    // Click selected to toggle
+    selected.onclick = function() {
+        console.log('🖱️ Clicked, isOpen:', isOpen);
         
         if (isOpen) {
-            console.log('📁 Closing dropdown with transition');
+            // Close
             options.classList.remove('show');
             selected.classList.remove('active');
+            isOpen = false;
+            console.log('📁 Closed');
         } else {
-            console.log('📂 Opening dropdown with transition');
+            // Open
             options.classList.add('show');
             selected.classList.add('active');
+            isOpen = true;
+            console.log('📂 Opened');
         }
-        
-        console.log('✅ Show class present:', options.classList.contains('show'));
     };
     
     // Click options
     const optionElements = options.querySelectorAll('.dropdown-option');
-    console.log('Found', optionElements.length, 'option elements');
-    
-    optionElements.forEach(function(option, index) {
-        console.log('Setting up option', index, ':', option.textContent);
-        option.onclick = function(e) {
-            e.stopPropagation(); // Prevent document click from interfering
+    optionElements.forEach(function(option) {
+        option.onclick = function() {
             console.log('🎯 Option clicked:', this.textContent);
             const selectedText = selected.querySelector('.selected-text');
             if (selectedText) {
                 selectedText.textContent = this.textContent;
-                console.log('✅ Text updated to:', this.textContent);
             }
             options.classList.remove('show');
-            selected.classList.remove('active'); // Remove active state when closing
-            console.log('📁 Dropdown closed after selection with transition');
+            selected.classList.remove('active');
+            isOpen = false;
+            console.log('📁 Closed after selection');
         };
     });
     
-    // Add click outside functionality with delay to avoid conflicts
-    setTimeout(function() {
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('time-dropdown');
-            if (dropdown && !dropdown.contains(e.target) && options.classList.contains('show')) {
-                console.log('🌐 Clicked outside - closing dropdown');
-                options.classList.remove('show');
-                selected.classList.remove('active');
-            }
-        });
-    }, 100);
-    
-    console.log('=== DROPDOWN DEBUG COMPLETE ===');
+    console.log('=== SIMPLE DROPDOWN READY ===');
 }
 
 // Also try to run it immediately
