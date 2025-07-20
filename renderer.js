@@ -80,9 +80,7 @@ class TypingTest {
         this.accuracyValue = document.getElementById('accuracy-value');
         this.timeValue = document.getElementById('time-value');
         this.resetBtn = document.getElementById('reset-btn');
-        this.timeDropdown = document.getElementById('time-dropdown');
-        this.dropdownSelected = document.getElementById('dropdown-selected');
-        this.dropdownOptions = document.getElementById('dropdown-options');
+        // Dropdown handled by standalone component
         this.resultsBanner = document.getElementById('results-banner');
 
         // Set initial time display
@@ -105,43 +103,7 @@ class TypingTest {
             this.resetTest();
         });
 
-        // Enhanced Custom Dropdown functionality
-        if (this.timeDropdown && this.dropdownSelected && this.dropdownOptions) {
-            console.log('✅ New dropdown elements found successfully');
-            
-            // Toggle dropdown when clicking trigger
-            this.dropdownSelected.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log('🖱️ Dropdown selected clicked');
-                this.toggleDropdown();
-            });
-
-            // Handle dropdown option selection
-            this.dropdownOptions.addEventListener('click', (e) => {
-                if (e.target.classList.contains('dropdown-option')) {
-                    e.stopPropagation();
-                    const value = parseInt(e.target.dataset.value);
-                    const text = e.target.textContent;
-                    console.log('✨ Dropdown option selected:', text, value);
-                    this.selectTimeOption(value, text);
-                }
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!this.timeDropdown.contains(e.target)) {
-                    this.closeDropdown();
-                }
-            });
-
-            // Set initial time to 60 seconds (1 minute)
-            this.timeLimit = 60;
-            this.timeRemaining = 60;
-            this.updateTimeDisplay();
-            console.log('⏱️ Initial time set to 60 seconds');
-        } else {
-            console.error('❌ New dropdown elements not found!');
-        }
+        // Dropdown functionality moved to standalone component
 
         this.typingInput.addEventListener('focus', () => {
             this.typingInput.style.borderColor = '#2563eb';
@@ -178,44 +140,7 @@ class TypingTest {
         });
     }
 
-    toggleDropdown() {
-        const isOpen = this.dropdownOptions.classList.contains('show');
-        console.log(`🔄 Toggle - currently open: ${isOpen}`);
-        if (isOpen) {
-            this.closeDropdown();
-        } else {
-            this.openDropdown();
-        }
-    }
-
-    openDropdown() {
-        console.log('📂 Opening dropdown options');
-        this.dropdownSelected.classList.add('active');
-        this.dropdownOptions.classList.add('show');
-    }
-
-    closeDropdown() {
-        console.log('📁 Closing dropdown options');
-        this.dropdownSelected.classList.remove('active');
-        this.dropdownOptions.classList.remove('show');
-    }
-
-    selectTimeOption(value, text) {
-        const selectedText = this.dropdownSelected.querySelector('.selected-text');
-        selectedText.textContent = text;
-        
-        // Update time settings
-        this.timeLimit = value;
-        this.timeRemaining = value;
-        
-        // Reset the test with new time
-        this.resetTest();
-        
-        // Close dropdown
-        this.closeDropdown();
-        
-        console.log('⏱️ Time updated:', text, `(${value}s)`);
-    }
+    // Dropdown methods removed - handled by standalone component
 
     forceInputFocus() {
         // Ensure input is enabled and ready
@@ -699,6 +624,80 @@ class InputFieldMonitor {
     }
 }
 
+// Standalone Dropdown Component - Independent UI only
+class StandaloneDropdown {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.timeDropdown = document.getElementById('time-dropdown');
+        this.dropdownSelected = document.getElementById('dropdown-selected');
+        this.dropdownOptions = document.getElementById('dropdown-options');
+        
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        if (this.timeDropdown && this.dropdownSelected && this.dropdownOptions) {
+            console.log('✅ Standalone dropdown initialized');
+            
+            // Toggle dropdown when clicking trigger
+            this.dropdownSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('🖱️ Standalone dropdown clicked');
+                this.toggleDropdown();
+            });
+
+            // Handle dropdown option selection - UI display only
+            this.dropdownOptions.addEventListener('click', (e) => {
+                if (e.target.classList.contains('dropdown-option')) {
+                    e.stopPropagation();
+                    const text = e.target.textContent;
+                    console.log('✨ Standalone dropdown option selected:', text);
+                    this.updateDisplay(text);
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!this.timeDropdown.contains(e.target)) {
+                    this.closeDropdown();
+                }
+            });
+        }
+    }
+
+    toggleDropdown() {
+        const isOpen = this.dropdownOptions.classList.contains('show');
+        console.log(`🔄 Standalone toggle - currently open: ${isOpen}`);
+        if (isOpen) {
+            this.closeDropdown();
+        } else {
+            this.openDropdown();
+        }
+    }
+
+    openDropdown() {
+        console.log('📂 Opening standalone dropdown');
+        this.dropdownSelected.classList.add('active');
+        this.dropdownOptions.classList.add('show');
+    }
+
+    closeDropdown() {
+        console.log('📁 Closing standalone dropdown');
+        this.dropdownSelected.classList.remove('active');
+        this.dropdownOptions.classList.remove('show');
+    }
+
+    updateDisplay(text) {
+        const selectedText = this.dropdownSelected.querySelector('.selected-text');
+        selectedText.textContent = text;
+        this.closeDropdown();
+        console.log('🎨 Standalone dropdown display updated to:', text);
+    }
+}
+
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Small delay to ensure all elements are ready
@@ -711,6 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.statisticsManager = new StatisticsManager();
         window.animationManager = new AnimationManager();
         window.inputMonitor = new InputFieldMonitor();
+        window.standaloneDropdown = new StandaloneDropdown();
 
         // Add some initial animations
         const pageHeader = document.querySelector('.page-header');
