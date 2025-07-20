@@ -624,49 +624,73 @@ class InputFieldMonitor {
     }
 }
 
-// Absolutely Basic Dropdown - NO CLICK OUTSIDE
+// FINAL WORKING DROPDOWN - ALL FEATURES
 function initDropdown() {
-    console.log('=== BASIC DROPDOWN START ===');
+    console.log('=== FINAL WORKING DROPDOWN ===');
     
     const selected = document.getElementById('dropdown-selected');
     const options = document.getElementById('dropdown-options');
+    const dropdown = document.getElementById('time-dropdown');
     
     if (!selected || !options) {
         console.log('❌ Elements not found!');
         return;
     }
     
-    // Simple toggle - NO EVENT STOPPING
-    selected.onclick = function() {
-        console.log('🖱️ Selected clicked');
+    let dropdownOpen = false;
+    
+    // 1. Click to toggle dropdown
+    selected.addEventListener('click', function(e) {
+        e.stopPropagation();
+        console.log('🖱️ Toggle clicked, open:', dropdownOpen);
         
-        if (options.classList.contains('show')) {
+        if (dropdownOpen) {
+            // Close
             options.classList.remove('show');
             selected.classList.remove('active');
+            dropdownOpen = false;
             console.log('📁 Closed');
         } else {
+            // Open
             options.classList.add('show');
             selected.classList.add('active');
+            dropdownOpen = true;
             console.log('📂 Opened');
         }
-    };
+    });
     
-    // Simple option clicks - NO EVENT STOPPING
+    // 2. Click options to select
     const optionElements = options.querySelectorAll('.dropdown-option');
     optionElements.forEach(function(option) {
-        option.onclick = function() {
-            console.log('🎯 Option clicked:', this.textContent);
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log('🎯 Option selected:', this.textContent);
+            
+            // Update display text
             const selectedText = selected.querySelector('.selected-text');
             if (selectedText) {
                 selectedText.textContent = this.textContent;
             }
+            
+            // Close dropdown
             options.classList.remove('show');
             selected.classList.remove('active');
+            dropdownOpen = false;
             console.log('📁 Closed after selection');
-        };
+        });
     });
     
-    console.log('=== BASIC DROPDOWN READY ===');
+    // 3. Click outside to close (reliable method)
+    document.addEventListener('click', function(e) {
+        if (dropdownOpen && !dropdown.contains(e.target)) {
+            console.log('🌐 Clicked outside - closing');
+            options.classList.remove('show');
+            selected.classList.remove('active');
+            dropdownOpen = false;
+        }
+    });
+    
+    console.log('✅ Dropdown ready with all features');
 }
 
 // Also try to run it immediately
