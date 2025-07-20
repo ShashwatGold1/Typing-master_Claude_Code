@@ -644,16 +644,18 @@ function initDropdown() {
     // Remove any existing event listeners first
     selected.onclick = null;
     
-    // Simple click to toggle - no event prevention yet
+    // Click to toggle with arrow rotation
     selected.onclick = function() {
         console.log('🖱️ Selected clicked, current display:', options.style.display);
         
         if (options.style.display === 'block') {
             console.log('📁 Closing dropdown');
             options.style.display = 'none';
+            selected.classList.remove('active'); // Remove active state for arrow rotation
         } else {
             console.log('📂 Opening dropdown');
             options.style.display = 'block';
+            selected.classList.add('active'); // Add active state for arrow rotation
         }
         
         console.log('✅ New display state:', options.style.display);
@@ -673,6 +675,7 @@ function initDropdown() {
                 console.log('✅ Text updated to:', this.textContent);
             }
             options.style.display = 'none';
+            selected.classList.remove('active'); // Remove active state when closing
             console.log('📁 Dropdown closed after selection');
         };
     });
