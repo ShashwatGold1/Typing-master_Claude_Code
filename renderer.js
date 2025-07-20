@@ -665,11 +665,14 @@ function initDropdown() {
         };
     });
     
-    // Click outside to close
-    document.onclick = function() {
-        console.log('Document clicked - closing dropdown');
-        options.style.display = 'none';
-    };
+    // Click outside to close (with proper event handling)
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('time-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            console.log('Clicked outside - closing dropdown');
+            options.style.display = 'none';
+        }
+    });
     
     console.log('Dropdown initialized successfully');
 }
