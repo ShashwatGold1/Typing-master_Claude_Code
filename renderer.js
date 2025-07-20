@@ -68,7 +68,7 @@ class NavigationManager {
 
 // Typing Test System
 class TypingTest {
-    constructor(textDisplayId = 'text-display', typingInputId = 'typing-input', wpmValueId = 'wpm-value', accuracyValueId = 'accuracy-value', timeValueId = 'time-value', resultsBannerId = 'results-banner', finalWpmId = 'final-wpm', finalAccuracyId = 'final-accuracy', finalTimeId = 'final-time') {
+    constructor(textDisplayId = 'text-display', typingInputId = 'typing-input', wpmValueId = 'wpm-value', accuracyValueId = 'accuracy-value', timeValueId = 'time-value', finalWpmId = 'final-wpm', finalAccuracyId = 'final-accuracy', finalTimeId = 'final-time') {
         this.textToType = "Cooking is both an art and a science. It involves understanding ingredients, mastering techniques, and creating delicious meals that nourish the body and bring joy to those who share them.";
         this.currentIndex = 0;
         this.correctChars = 0;
@@ -86,7 +86,6 @@ class TypingTest {
             wpmValue: wpmValueId,
             accuracyValue: accuracyValueId,
             timeValue: timeValueId,
-            resultsBanner: resultsBannerId,
             finalWpm: finalWpmId,
             finalAccuracy: finalAccuracyId,
             finalTime: finalTimeId
@@ -103,7 +102,6 @@ class TypingTest {
         this.timeValue = document.getElementById(this.elementIds.timeValue);
         this.resetBtn = document.getElementById('reset-btn'); // Default reset button for quick-test
         // Dropdown handled by standalone component
-        this.resultsBanner = document.getElementById(this.elementIds.resultsBanner);
 
         // Set initial time display
         this.updateTimeDisplay();
@@ -265,9 +263,8 @@ class TypingTest {
             this.timer = null;
         }
         
-        // Clear the input and hide results banner
+        // Clear the input
         this.typingInput.value = '';
-        this.hideResultsBanner();
         
         // Re-render everything
         this.renderText();
@@ -317,7 +314,7 @@ class TypingTest {
         if (finalAccuracyElement) finalAccuracyElement.textContent = accuracy;
         if (finalTimeElement) finalTimeElement.textContent = time;
         
-        this.showResultsBanner(`Test Complete! WPM: ${wpm}, Accuracy: ${accuracy}`);
+        // Results displayed in existing UI elements only
         
         // Keep input ready for next test
         setTimeout(() => {
@@ -325,36 +322,6 @@ class TypingTest {
         }, 100);
     }
 
-    showResultsBanner(message) {
-        const banner = document.getElementById(this.elementIds.resultsBanner);
-        const text = document.getElementById('results-text');
-        const closeBtn = document.getElementById('results-close');
-        
-        if (banner && text) {
-            text.textContent = message;
-            banner.style.display = 'block';
-            
-            // Auto-hide after 5 seconds
-            const hideTimeout = setTimeout(() => {
-                this.hideResultsBanner();
-            }, 5000);
-            
-            // Close button handler
-            closeBtn.onclick = () => {
-                clearTimeout(hideTimeout);
-                this.hideResultsBanner();
-            };
-        }
-    }
-
-    hideResultsBanner() {
-        const banner = document.getElementById(this.elementIds.resultsBanner);
-        if (banner) {
-            banner.style.display = 'none';
-        }
-        // Ensure input stays focused
-        this.forceInputFocus();
-    }
 }
 
 // Lesson System
@@ -672,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize all components
         window.navigationManager = new NavigationManager();
         window.typingTest = new TypingTest();
-        window.lessonTypingTest = new TypingTest('lesson-text-display', 'lesson-typing-input', 'lesson-wpm-value', 'lesson-accuracy-value', 'lesson-time-value', 'lesson-results-banner', 'lesson-final-wpm', 'lesson-final-accuracy', 'lesson-final-time');
+        window.lessonTypingTest = new TypingTest('lesson-text-display', 'lesson-typing-input', 'lesson-wpm-value', 'lesson-accuracy-value', 'lesson-time-value', 'lesson-final-wpm', 'lesson-final-accuracy', 'lesson-final-time');
         window.lessonManager = new LessonManager();
         window.settingsManager = new SettingsManager();
         window.statisticsManager = new StatisticsManager();
