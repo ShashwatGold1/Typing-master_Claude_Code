@@ -673,6 +673,16 @@ function initDropdown() {
         };
     });
     
+    // Simple click outside - only when dropdown is open
+    document.body.onclick = function(e) {
+        if (isOpen && !selected.contains(e.target) && !options.contains(e.target)) {
+            console.log('🌐 Clicked outside - closing');
+            options.classList.remove('show');
+            selected.classList.remove('active');
+            isOpen = false;
+        }
+    };
+    
     console.log('=== SIMPLE DROPDOWN READY ===');
 }
 
