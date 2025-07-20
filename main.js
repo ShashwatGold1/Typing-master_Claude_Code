@@ -24,7 +24,6 @@ function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true
     },
-    icon: path.join(__dirname, 'assets/icon.svg'),
     show: false
   });
 
