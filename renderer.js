@@ -32,11 +32,14 @@ class NavigationManager {
     }
 
     navigateTo(page) {
-        // Update active nav item
+        // Update active nav item (only for pages with nav items)
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
-        document.querySelector(`[data-page="${page}"]`).classList.add('active');
+        const navItem = document.querySelector(`[data-page="${page}"]`);
+        if (navItem) {
+            navItem.classList.add('active');
+        }
 
         // Update active page
         document.querySelectorAll('.page').forEach(pageEl => {
@@ -46,11 +49,17 @@ class NavigationManager {
 
         this.currentPage = page;
 
-        // Focus on typing input when navigating to quick-test page
+        // Focus on typing input when navigating to typing pages
         if (page === 'quick-test') {
             setTimeout(() => {
                 if (window.typingTest) {
                     window.typingTest.forceInputFocus();
+                }
+            }, 100);
+        } else if (page === 'lesson-interface') {
+            setTimeout(() => {
+                if (window.lessonTypingTest) {
+                    window.lessonTypingTest.forceInputFocus();
                 }
             }, 100);
         }
@@ -59,7 +68,7 @@ class NavigationManager {
 
 // Typing Test System
 class TypingTest {
-    constructor() {
+    constructor(textDisplayId = 'text-display', typingInputId = 'typing-input', wpmValueId = 'wpm-value', accuracyValueId = 'accuracy-value', timeValueId = 'time-value', resultsBannerId = 'results-banner', finalWpmId = 'final-wpm', finalAccuracyId = 'final-accuracy', finalTimeId = 'final-time') {
         this.textToType = "Cooking is both an art and a science. It involves understanding ingredients, mastering techniques, and creating delicious meals that nourish the body and bring joy to those who share them.";
         this.currentIndex = 0;
         this.correctChars = 0;
@@ -70,18 +79,31 @@ class TypingTest {
         this.timeLimit = 30;
         this.timeRemaining = 30;
         
+        // Store element IDs
+        this.elementIds = {
+            textDisplay: textDisplayId,
+            typingInput: typingInputId,
+            wpmValue: wpmValueId,
+            accuracyValue: accuracyValueId,
+            timeValue: timeValueId,
+            resultsBanner: resultsBannerId,
+            finalWpm: finalWpmId,
+            finalAccuracy: finalAccuracyId,
+            finalTime: finalTimeId
+        };
+        
         this.init();
     }
 
     init() {
-        this.textDisplay = document.getElementById('text-display');
-        this.typingInput = document.getElementById('typing-input');
-        this.wpmValue = document.getElementById('wpm-value');
-        this.accuracyValue = document.getElementById('accuracy-value');
-        this.timeValue = document.getElementById('time-value');
-        this.resetBtn = document.getElementById('reset-btn');
+        this.textDisplay = document.getElementById(this.elementIds.textDisplay);
+        this.typingInput = document.getElementById(this.elementIds.typingInput);
+        this.wpmValue = document.getElementById(this.elementIds.wpmValue);
+        this.accuracyValue = document.getElementById(this.elementIds.accuracyValue);
+        this.timeValue = document.getElementById(this.elementIds.timeValue);
+        this.resetBtn = document.getElementById('reset-btn'); // Default reset button for quick-test
         // Dropdown handled by standalone component
-        this.resultsBanner = document.getElementById('results-banner');
+        this.resultsBanner = document.getElementById(this.elementIds.resultsBanner);
 
         // Set initial time display
         this.updateTimeDisplay();
@@ -99,9 +121,11 @@ class TypingTest {
             this.handleInput(e);
         });
 
-        this.resetBtn.addEventListener('click', () => {
-            this.resetTest();
-        });
+        if (this.resetBtn) {
+            this.resetBtn.addEventListener('click', () => {
+                this.resetTest();
+            });
+        }
 
         // Dropdown functionality moved to standalone component
 
@@ -282,6 +306,16 @@ class TypingTest {
         // Show non-blocking results banner instead of alert
         const wpm = this.wpmValue.textContent;
         const accuracy = this.accuracyValue.textContent;
+        const time = this.timeValue.textContent;
+        
+        // Update final results if elements exist
+        const finalWpmElement = document.getElementById(this.elementIds.finalWpm);
+        const finalAccuracyElement = document.getElementById(this.elementIds.finalAccuracy);
+        const finalTimeElement = document.getElementById(this.elementIds.finalTime);
+        
+        if (finalWpmElement) finalWpmElement.textContent = wpm;
+        if (finalAccuracyElement) finalAccuracyElement.textContent = accuracy;
+        if (finalTimeElement) finalTimeElement.textContent = time;
         
         this.showResultsBanner(`Test Complete! WPM: ${wpm}, Accuracy: ${accuracy}`);
         
@@ -292,7 +326,7 @@ class TypingTest {
     }
 
     showResultsBanner(message) {
-        const banner = document.getElementById('results-banner');
+        const banner = document.getElementById(this.elementIds.resultsBanner);
         const text = document.getElementById('results-text');
         const closeBtn = document.getElementById('results-close');
         
@@ -314,7 +348,7 @@ class TypingTest {
     }
 
     hideResultsBanner() {
-        const banner = document.getElementById('results-banner');
+        const banner = document.getElementById(this.elementIds.resultsBanner);
         if (banner) {
             banner.style.display = 'none';
         }
@@ -370,16 +404,21 @@ class LessonManager {
     startLesson(lessonIndex) {
         const lesson = this.lessons[lessonIndex];
         if (lesson && lesson.unlocked) {
-            // Switch to quick test page and load lesson text
-            navigationManager.navigateTo('quick-test');
+            // Switch to lesson interface page
+            navigationManager.navigateTo('lesson-interface');
             
             // Small delay to ensure page is loaded before setting lesson
             setTimeout(() => {
-                typingTest.textToType = lesson.text;
-                typingTest.resetTest();
+                // Update lesson header and description
+                document.getElementById('lesson-title').textContent = lesson.title;
+                document.getElementById('lesson-description').textContent = lesson.description;
                 
-                // Ensure input is ready for typing using robust method
-                typingTest.forceInputFocus();
+                // Initialize lesson typing test
+                lessonTypingTest.textToType = lesson.text;
+                lessonTypingTest.resetTest();
+                
+                // Ensure input is ready for typing
+                lessonTypingTest.forceInputFocus();
             }, 150);
         }
     }
@@ -633,12 +672,45 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize all components
         window.navigationManager = new NavigationManager();
         window.typingTest = new TypingTest();
+        window.lessonTypingTest = new TypingTest('lesson-text-display', 'lesson-typing-input', 'lesson-wpm-value', 'lesson-accuracy-value', 'lesson-time-value', 'lesson-results-banner', 'lesson-final-wpm', 'lesson-final-accuracy', 'lesson-final-time');
         window.lessonManager = new LessonManager();
         window.settingsManager = new SettingsManager();
         window.statisticsManager = new StatisticsManager();
         window.animationManager = new AnimationManager();
         window.inputMonitor = new InputFieldMonitor();
         // Dropdown removed
+
+        // Add lesson interface event listeners
+        const lessonResetBtn = document.getElementById('lesson-reset-btn');
+        const backToLessonsBtn = document.getElementById('back-to-lessons-btn');
+        const lessonTryAgainBtn = document.getElementById('lesson-try-again-btn');
+        const lessonNextBtn = document.getElementById('lesson-next-btn');
+
+        if (lessonResetBtn) {
+            lessonResetBtn.addEventListener('click', () => {
+                lessonTypingTest.resetTest();
+            });
+        }
+
+        if (backToLessonsBtn) {
+            backToLessonsBtn.addEventListener('click', () => {
+                navigationManager.navigateTo('lessons');
+            });
+        }
+
+        if (lessonTryAgainBtn) {
+            lessonTryAgainBtn.addEventListener('click', () => {
+                lessonTypingTest.resetTest();
+                lessonTypingTest.hideResultsBanner();
+            });
+        }
+
+        if (lessonNextBtn) {
+            lessonNextBtn.addEventListener('click', () => {
+                // Logic for next lesson - placeholder for now
+                navigationManager.navigateTo('lessons');
+            });
+        }
 
         // Add some initial animations
         const pageHeader = document.querySelector('.page-header');

@@ -216,6 +216,66 @@
                     </div>
                 </div>
 
+                <!-- Lesson Interface Page -->
+                <div class="page" id="lesson-interface-page">
+                    <div class="page-header">
+                        <h1 id="lesson-title">Lesson</h1>
+                        <p id="lesson-description">Complete this lesson to improve your typing skills</p>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="lesson-wpm-value">0</div>
+                            <div class="stat-label">WPM</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="lesson-accuracy-value">100%</div>
+                            <div class="stat-label">ACCURACY</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="lesson-time-value">0</div>
+                            <div class="stat-label">Time</div>
+                        </div>
+                    </div>
+
+                    <div class="typing-area">
+                        <div class="text-display" id="lesson-text-display">
+                            <span class="text-to-type" id="lesson-text-to-type">Ready to start lesson...</span>
+                        </div>
+                        <textarea class="typing-input" id="lesson-typing-input" placeholder="Start typing here..."></textarea>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-secondary" id="lesson-reset-btn">Reset</button>
+                        <button class="btn btn-primary" id="back-to-lessons-btn">Back to Lessons</button>
+                    </div>
+
+                    <!-- Results Banner -->
+                    <div class="results-banner" id="lesson-results-banner">
+                        <div class="results-content">
+                            <h3>Lesson Complete!</h3>
+                            <div class="results-stats">
+                                <div class="result-stat">
+                                    <span class="result-label">WPM:</span>
+                                    <span class="result-value" id="lesson-final-wpm">0</span>
+                                </div>
+                                <div class="result-stat">
+                                    <span class="result-label">Accuracy:</span>
+                                    <span class="result-value" id="lesson-final-accuracy">0%</span>
+                                </div>
+                                <div class="result-stat">
+                                    <span class="result-label">Time:</span>
+                                    <span class="result-value" id="lesson-final-time">0s</span>
+                                </div>
+                            </div>
+                            <div class="results-actions">
+                                <button class="btn btn-secondary" id="lesson-try-again-btn">Try Again</button>
+                                <button class="btn btn-primary" id="lesson-next-btn">Next Lesson</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Statistics Page -->
                 <div class="page" id="statistics-page">
                     <div class="page-header">
