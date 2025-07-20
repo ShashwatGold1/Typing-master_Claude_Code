@@ -624,9 +624,9 @@ class InputFieldMonitor {
     }
 }
 
-// Ultra Simple Reliable Dropdown
+// Final Working Dropdown
 function initDropdown() {
-    console.log('=== SIMPLE DROPDOWN START ===');
+    console.log('=== FINAL DROPDOWN START ===');
     
     const selected = document.getElementById('dropdown-selected');
     const options = document.getElementById('dropdown-options');
@@ -638,18 +638,17 @@ function initDropdown() {
     
     let isOpen = false;
     
-    // Click selected to toggle
-    selected.onclick = function() {
+    // Click selected to toggle (with event stopping)
+    selected.onclick = function(e) {
+        e.stopPropagation();
         console.log('🖱️ Clicked, isOpen:', isOpen);
         
         if (isOpen) {
-            // Close
             options.classList.remove('show');
             selected.classList.remove('active');
             isOpen = false;
             console.log('📁 Closed');
         } else {
-            // Open
             options.classList.add('show');
             selected.classList.add('active');
             isOpen = true;
@@ -657,10 +656,11 @@ function initDropdown() {
         }
     };
     
-    // Click options
+    // Click options (with event stopping)
     const optionElements = options.querySelectorAll('.dropdown-option');
     optionElements.forEach(function(option) {
-        option.onclick = function() {
+        option.onclick = function(e) {
+            e.stopPropagation();
             console.log('🎯 Option clicked:', this.textContent);
             const selectedText = selected.querySelector('.selected-text');
             if (selectedText) {
@@ -673,17 +673,18 @@ function initDropdown() {
         };
     });
     
-    // Simple click outside - only when dropdown is open
-    document.body.onclick = function(e) {
-        if (isOpen && !selected.contains(e.target) && !options.contains(e.target)) {
+    // Click outside using document listener (safer approach)
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('time-dropdown');
+        if (isOpen && dropdown && !dropdown.contains(e.target)) {
             console.log('🌐 Clicked outside - closing');
             options.classList.remove('show');
             selected.classList.remove('active');
             isOpen = false;
         }
-    };
+    });
     
-    console.log('=== SIMPLE DROPDOWN READY ===');
+    console.log('=== FINAL DROPDOWN READY ===');
 }
 
 // Also try to run it immediately
