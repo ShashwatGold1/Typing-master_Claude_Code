@@ -640,7 +640,8 @@ function initDropdown() {
     }
     
     // Click selected to toggle
-    selected.onclick = function() {
+    selected.onclick = function(e) {
+        e.stopPropagation(); // Prevent document click from closing immediately
         console.log('Selected clicked');
         if (options.style.display === 'block') {
             options.style.display = 'none';
@@ -663,6 +664,12 @@ function initDropdown() {
             options.style.display = 'none';
         };
     });
+    
+    // Click outside to close
+    document.onclick = function() {
+        console.log('Document clicked - closing dropdown');
+        options.style.display = 'none';
+    };
     
     console.log('Dropdown initialized successfully');
 }
