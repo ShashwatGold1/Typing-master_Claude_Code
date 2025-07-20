@@ -300,7 +300,6 @@ class TypingTest {
     }
 
     showResults() {
-        // Show non-blocking results banner instead of alert
         const wpm = this.wpmValue.textContent;
         const accuracy = this.accuracyValue.textContent;
         const time = this.timeValue.textContent;
@@ -314,12 +313,107 @@ class TypingTest {
         if (finalAccuracyElement) finalAccuracyElement.textContent = accuracy;
         if (finalTimeElement) finalTimeElement.textContent = time;
         
-        // Results displayed in existing UI elements only
+        // Show results popup with performance feedback
+        const accuracyNum = parseInt(accuracy);
+        const wpmNum = parseInt(wpm);
+        
+        let popupType = 'info';
+        let title = 'Test Complete!';
+        let message = `Your Results:\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds`;
+        
+        // Determine popup type and message based on performance
+        if (accuracyNum >= 95 && wpmNum >= 40) {
+            popupType = 'success';
+            title = 'Excellent Performance! 🎉';
+            message = `Outstanding results!\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds\n\nYou're typing like a pro!`;
+        } else if (accuracyNum >= 85 && wpmNum >= 25) {
+            popupType = 'success';
+            title = 'Great Job! 👏';
+            message = `Good progress!\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds\n\nKeep practicing to improve further!`;
+        } else if (accuracyNum < 70) {
+            popupType = 'warning';
+            title = 'Focus on Accuracy';
+            message = `Your Results:\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds\n\nTry typing slower to improve accuracy.`;
+        }
+        
+        // Show popup if popupManager is available
+        if (window.popupManager) {
+            // Check if this is a lesson completion
+            if (this.currentLesson && this.lessonIndex !== undefined) {
+                this.handleLessonCompletion(wpmNum, accuracyNum, popupType, title, message);
+            } else {
+                // Regular typing test completion
+                window.popupManager.show({
+                    title: title,
+                    content: message.replace(/\n/g, '<br>'),
+                    type: popupType,
+                    showCancel: false,
+                    confirmText: 'Try Again',
+                    onConfirm: () => {
+                        this.resetTest();
+                    }
+                });
+            }
+        }
         
         // Keep input ready for next test
         setTimeout(() => {
             this.forceInputFocus();
         }, 100);
+    }
+
+    handleLessonCompletion(wpm, accuracy, popupType, title, message) {
+        const lesson = this.currentLesson;
+        const targetMet = wpm >= lesson.targetWPM && accuracy >= lesson.targetAccuracy;
+        
+        let completionTitle, completionMessage, completionType;
+        
+        if (targetMet) {
+            completionType = 'success';
+            completionTitle = `${lesson.title} Complete! 🎉`;
+            completionMessage = `Congratulations! You've successfully completed this lesson.<br><br>
+                <strong>Your Results:</strong><br>
+                • Speed: ${wpm} WPM (Target: ${lesson.targetWPM})<br>
+                • Accuracy: ${accuracy}% (Target: ${lesson.targetAccuracy}%)<br><br>
+                You're ready to move on to the next lesson!`;
+            
+            // Unlock next lesson if available
+            if (window.lessonManager && this.lessonIndex < window.lessonManager.lessons.length - 1) {
+                window.lessonManager.lessons[this.lessonIndex + 1].unlocked = true;
+            }
+        } else {
+            completionType = 'warning';
+            completionTitle = 'Keep Practicing!';
+            completionMessage = `You've completed the lesson, but haven't quite reached the targets yet.<br><br>
+                <strong>Your Results:</strong><br>
+                • Speed: ${wpm} WPM (Target: ${lesson.targetWPM})<br>
+                • Accuracy: ${accuracy}% (Target: ${lesson.targetAccuracy}%)<br><br>
+                Don't worry - practice makes perfect! Try again to improve your scores.`;
+        }
+        
+        window.popupManager.show({
+            title: completionTitle,
+            content: completionMessage,
+            type: completionType,
+            showCancel: targetMet,
+            confirmText: targetMet ? 'Next Lesson' : 'Try Again',
+            cancelText: 'Back to Lessons',
+            onConfirm: () => {
+                if (targetMet && this.lessonIndex < window.lessonManager.lessons.length - 1) {
+                    // Start next lesson
+                    window.lessonManager.startLesson(this.lessonIndex + 1);
+                } else if (targetMet) {
+                    // All lessons complete
+                    window.navigationManager.navigateTo('lessons');
+                } else {
+                    // Try again
+                    this.resetTest();
+                }
+            },
+            onCancel: () => {
+                window.navigationManager.navigateTo('lessons');
+            }
+        });
     }
 
 }
@@ -380,13 +474,25 @@ class LessonManager {
                 document.getElementById('lesson-title').textContent = lesson.title;
                 document.getElementById('lesson-description').textContent = lesson.description;
                 
-                // Initialize lesson typing test
+                // Initialize lesson typing test with lesson completion handler
                 lessonTypingTest.textToType = lesson.text;
+                lessonTypingTest.currentLesson = lesson;
+                lessonTypingTest.lessonIndex = lessonIndex;
                 lessonTypingTest.resetTest();
                 
                 // Ensure input is ready for typing
                 lessonTypingTest.forceInputFocus();
             }, 150);
+        } else if (lesson && !lesson.unlocked && window.popupManager) {
+            // Show locked lesson popup
+            window.popupManager.warning(
+                'Lesson Locked',
+                'Complete the previous lessons to unlock this one. Practice makes perfect!',
+                {
+                    showCancel: false,
+                    confirmText: 'Got it'
+                }
+            );
         }
     }
 }
@@ -409,16 +515,38 @@ class SettingsManager {
     }
 
     loadSettings() {
-        // Load settings from localStorage
-        const savedSettings = localStorage.getItem('typing-master-settings');
-        if (savedSettings) {
-            this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+        try {
+            // Load settings from localStorage
+            const savedSettings = localStorage.getItem('typing-master-settings');
+            if (savedSettings) {
+                this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+            }
+            this.applySettings();
+        } catch (error) {
+            console.error('Error loading settings:', error);
+            if (window.popupManager) {
+                window.popupManager.error(
+                    'Settings Error',
+                    'There was an issue loading your saved settings. Default settings will be used.',
+                    { showCancel: false, confirmText: 'OK' }
+                );
+            }
         }
-        this.applySettings();
     }
 
     saveSettings() {
-        localStorage.setItem('typing-master-settings', JSON.stringify(this.settings));
+        try {
+            localStorage.setItem('typing-master-settings', JSON.stringify(this.settings));
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            if (window.popupManager) {
+                window.popupManager.error(
+                    'Save Error',
+                    'Unable to save your settings. Please check if your browser has sufficient storage space.',
+                    { showCancel: false, confirmText: 'OK' }
+                );
+            }
+        }
     }
 
     applySettings() {
@@ -442,9 +570,40 @@ class SettingsManager {
         const themeSelect = document.querySelector('#settings-page select');
         if (themeSelect) {
             themeSelect.addEventListener('change', (e) => {
-                this.settings.theme = e.target.value;
-                this.applySettings();
-                this.saveSettings();
+                const newTheme = e.target.value;
+                
+                if (window.popupManager && this.settings.theme !== newTheme) {
+                    window.popupManager.confirm(
+                        'Change Theme?',
+                        `Are you sure you want to change the theme to ${newTheme}? This will refresh the appearance of the app.`,
+                        {
+                            confirmText: 'Change Theme',
+                            cancelText: 'Keep Current',
+                            onConfirm: () => {
+                                this.settings.theme = newTheme;
+                                this.applySettings();
+                                this.saveSettings();
+                                
+                                // Show success message
+                                setTimeout(() => {
+                                    window.popupManager.success(
+                                        'Theme Changed!',
+                                        `Successfully changed to ${newTheme} theme.`,
+                                        { showCancel: false, confirmText: 'Great!' }
+                                    );
+                                }, 300);
+                            },
+                            onCancel: () => {
+                                // Reset the select to previous value
+                                themeSelect.value = this.settings.theme;
+                            }
+                        }
+                    );
+                } else {
+                    this.settings.theme = newTheme;
+                    this.applySettings();
+                    this.saveSettings();
+                }
             });
         }
 
@@ -452,8 +611,39 @@ class SettingsManager {
         const soundCheckbox = document.querySelector('#settings-page input[type="checkbox"]');
         if (soundCheckbox) {
             soundCheckbox.addEventListener('change', (e) => {
-                this.settings.soundEffects = e.target.checked;
-                this.saveSettings();
+                const newSetting = e.target.checked;
+                
+                if (window.popupManager) {
+                    const action = newSetting ? 'enable' : 'disable';
+                    window.popupManager.confirm(
+                        `${action.charAt(0).toUpperCase() + action.slice(1)} Sound Effects?`,
+                        `Are you sure you want to ${action} sound effects during typing?`,
+                        {
+                            confirmText: action.charAt(0).toUpperCase() + action.slice(1),
+                            cancelText: 'Cancel',
+                            onConfirm: () => {
+                                this.settings.soundEffects = newSetting;
+                                this.saveSettings();
+                                
+                                // Show success message
+                                setTimeout(() => {
+                                    window.popupManager.success(
+                                        'Settings Updated!',
+                                        `Sound effects have been ${newSetting ? 'enabled' : 'disabled'}.`,
+                                        { showCancel: false, confirmText: 'Got it' }
+                                    );
+                                }, 300);
+                            },
+                            onCancel: () => {
+                                // Reset checkbox to previous value
+                                soundCheckbox.checked = this.settings.soundEffects;
+                            }
+                        }
+                    );
+                } else {
+                    this.settings.soundEffects = newSetting;
+                    this.saveSettings();
+                }
             });
         }
     }
@@ -478,14 +668,36 @@ class StatisticsManager {
     }
 
     loadStats() {
-        const savedStats = localStorage.getItem('typing-master-stats');
-        if (savedStats) {
-            this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+        try {
+            const savedStats = localStorage.getItem('typing-master-stats');
+            if (savedStats) {
+                this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+            }
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+            if (window.popupManager) {
+                window.popupManager.error(
+                    'Statistics Error',
+                    'There was an issue loading your typing statistics. Your stats will be reset.',
+                    { showCancel: false, confirmText: 'OK' }
+                );
+            }
         }
     }
 
     saveStats() {
-        localStorage.setItem('typing-master-stats', JSON.stringify(this.stats));
+        try {
+            localStorage.setItem('typing-master-stats', JSON.stringify(this.stats));
+        } catch (error) {
+            console.error('Error saving statistics:', error);
+            if (window.popupManager) {
+                window.popupManager.error(
+                    'Save Error',
+                    'Unable to save your typing statistics. Your progress may not be preserved.',
+                    { showCancel: false, confirmText: 'OK' }
+                );
+            }
+        }
     }
 
     updateDisplay() {
@@ -630,7 +842,210 @@ class InputFieldMonitor {
     }
 }
 
-// Dropdown functionality removed - now just static display
+// Popup Manager
+class PopupManager {
+    constructor() {
+        this.overlay = null;
+        this.popup = null;
+        this.title = null;
+        this.content = null;
+        this.footer = null;
+        this.closeBtn = null;
+        this.cancelBtn = null;
+        this.confirmBtn = null;
+        this.currentOptions = null;
+        this.init();
+    }
+
+    init() {
+        this.overlay = document.getElementById('popup-overlay');
+        this.popup = document.getElementById('popup');
+        this.title = document.getElementById('popup-title');
+        this.content = document.getElementById('popup-content');
+        this.footer = document.getElementById('popup-footer');
+        this.closeBtn = document.getElementById('popup-close');
+        this.cancelBtn = document.getElementById('popup-cancel');
+        this.confirmBtn = document.getElementById('popup-confirm');
+
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Close popup when clicking overlay
+        this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+                this.close();
+            }
+        });
+
+        // Close button
+        this.closeBtn.addEventListener('click', () => {
+            this.close();
+        });
+
+        // Cancel button
+        this.cancelBtn.addEventListener('click', () => {
+            if (this.currentOptions && this.currentOptions.onCancel) {
+                this.currentOptions.onCancel();
+            }
+            this.close();
+        });
+
+        // Confirm button
+        this.confirmBtn.addEventListener('click', () => {
+            if (this.currentOptions && this.currentOptions.onConfirm) {
+                this.currentOptions.onConfirm();
+            }
+            this.close();
+        });
+
+        // ESC key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
+                this.close();
+            }
+        });
+    }
+
+    show(options = {}) {
+        this.currentOptions = options;
+        
+        // Set title
+        this.title.textContent = options.title || 'Message';
+        
+        // Set content
+        if (typeof options.content === 'string') {
+            this.content.innerHTML = `<p>${options.content}</p>`;
+        } else {
+            this.content.innerHTML = options.content || '<p>No content provided</p>';
+        }
+        
+        // Set popup type/variant
+        this.popup.className = 'popup';
+        if (options.type) {
+            this.popup.classList.add(options.type);
+        }
+        
+        // Configure buttons
+        this.setupButtons(options);
+        
+        // Show popup
+        this.overlay.classList.add('active');
+        
+        // Focus management
+        setTimeout(() => {
+            if (options.focusConfirm !== false) {
+                this.confirmBtn.focus();
+            }
+        }, 100);
+        
+        return this;
+    }
+
+    setupButtons(options) {
+        // Hide footer if no buttons needed
+        if (options.showButtons === false) {
+            this.footer.style.display = 'none';
+            return;
+        }
+        
+        this.footer.style.display = 'flex';
+        
+        // Configure cancel button
+        if (options.showCancel === false) {
+            this.cancelBtn.style.display = 'none';
+        } else {
+            this.cancelBtn.style.display = 'inline-flex';
+            this.cancelBtn.textContent = options.cancelText || 'Cancel';
+        }
+        
+        // Configure confirm button
+        this.confirmBtn.textContent = options.confirmText || 'OK';
+        
+        // Button styling based on type
+        if (options.type === 'error') {
+            this.confirmBtn.className = 'btn btn-primary';
+            this.confirmBtn.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+        } else if (options.type === 'warning') {
+            this.confirmBtn.className = 'btn btn-primary';
+            this.confirmBtn.style.background = 'linear-gradient(135deg, #d97706 0%, #b45309 100%)';
+        } else if (options.type === 'success') {
+            this.confirmBtn.className = 'btn btn-primary';
+            this.confirmBtn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+        } else {
+            this.confirmBtn.className = 'btn btn-primary';
+            this.confirmBtn.style.background = '';
+        }
+    }
+
+    close() {
+        this.overlay.classList.remove('active');
+        this.currentOptions = null;
+        
+        // Reset button styles
+        this.confirmBtn.style.background = '';
+        
+        return this;
+    }
+
+    // Convenience methods for different popup types
+    alert(title, content, options = {}) {
+        return this.show({
+            title,
+            content,
+            type: 'info',
+            showCancel: false,
+            confirmText: 'OK',
+            ...options
+        });
+    }
+
+    confirm(title, content, options = {}) {
+        return this.show({
+            title,
+            content,
+            type: 'warning',
+            showCancel: true,
+            confirmText: 'Confirm',
+            cancelText: 'Cancel',
+            ...options
+        });
+    }
+
+    success(title, content, options = {}) {
+        return this.show({
+            title,
+            content,
+            type: 'success',
+            showCancel: false,
+            confirmText: 'Great!',
+            ...options
+        });
+    }
+
+    error(title, content, options = {}) {
+        return this.show({
+            title,
+            content,
+            type: 'error',
+            showCancel: false,
+            confirmText: 'OK',
+            ...options
+        });
+    }
+
+    warning(title, content, options = {}) {
+        return this.show({
+            title,
+            content,
+            type: 'warning',
+            showCancel: true,
+            confirmText: 'Proceed',
+            cancelText: 'Cancel',
+            ...options
+        });
+    }
+}
 
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -645,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.statisticsManager = new StatisticsManager();
         window.animationManager = new AnimationManager();
         window.inputMonitor = new InputFieldMonitor();
-        // Dropdown removed
+        window.popupManager = new PopupManager();
 
         // Add lesson interface event listeners
         const lessonResetBtn = document.getElementById('lesson-reset-btn');
@@ -699,6 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 typingTest.forceInputFocus();
             }, 300);
         }
+
     }, 50);
 });
 
