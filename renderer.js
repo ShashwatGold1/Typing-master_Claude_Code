@@ -624,78 +624,42 @@ class InputFieldMonitor {
     }
 }
 
-// Standalone Dropdown Component - Independent UI only
-class StandaloneDropdown {
-    constructor() {
-        this.init();
-    }
-
-    init() {
-        this.timeDropdown = document.getElementById('time-dropdown');
-        this.dropdownSelected = document.getElementById('dropdown-selected');
-        this.dropdownOptions = document.getElementById('dropdown-options');
-        
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        if (this.timeDropdown && this.dropdownSelected && this.dropdownOptions) {
-            console.log('✅ Standalone dropdown initialized');
-            
-            // Toggle dropdown when clicking trigger
-            this.dropdownSelected.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log('🖱️ Standalone dropdown clicked');
-                this.toggleDropdown();
-            });
-
-            // Handle dropdown option selection - UI display only
-            this.dropdownOptions.addEventListener('click', (e) => {
-                if (e.target.classList.contains('dropdown-option')) {
-                    e.stopPropagation();
-                    const text = e.target.textContent;
-                    console.log('✨ Standalone dropdown option selected:', text);
-                    this.updateDisplay(text);
-                }
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!this.timeDropdown.contains(e.target)) {
-                    this.closeDropdown();
-                }
-            });
-        }
-    }
-
-    toggleDropdown() {
-        const isOpen = this.dropdownOptions.classList.contains('show');
-        console.log(`🔄 Standalone toggle - currently open: ${isOpen}`);
-        if (isOpen) {
-            this.closeDropdown();
+// Minimal Dropdown - Simple and Working
+function initMinimalDropdown() {
+    const dropdown = document.getElementById('time-dropdown');
+    const selected = document.getElementById('dropdown-selected');
+    const options = document.getElementById('dropdown-options');
+    
+    if (!dropdown || !selected || !options) return;
+    
+    // Click to toggle dropdown
+    selected.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (options.style.display === 'block') {
+            options.style.display = 'none';
+            selected.classList.remove('active');
         } else {
-            this.openDropdown();
+            options.style.display = 'block';
+            selected.classList.add('active');
         }
-    }
-
-    openDropdown() {
-        console.log('📂 Opening standalone dropdown');
-        this.dropdownSelected.classList.add('active');
-        this.dropdownOptions.classList.add('show');
-    }
-
-    closeDropdown() {
-        console.log('📁 Closing standalone dropdown');
-        this.dropdownSelected.classList.remove('active');
-        this.dropdownOptions.classList.remove('show');
-    }
-
-    updateDisplay(text) {
-        const selectedText = this.dropdownSelected.querySelector('.selected-text');
-        selectedText.textContent = text;
-        this.closeDropdown();
-        console.log('🎨 Standalone dropdown display updated to:', text);
-    }
+    });
+    
+    // Select option
+    options.addEventListener('click', function(e) {
+        if (e.target.classList.contains('dropdown-option')) {
+            const text = e.target.textContent;
+            const selectedText = selected.querySelector('.selected-text');
+            selectedText.textContent = text;
+            options.style.display = 'none';
+            selected.classList.remove('active');
+        }
+    });
+    
+    // Close when clicking outside
+    document.addEventListener('click', function() {
+        options.style.display = 'none';
+        selected.classList.remove('active');
+    });
 }
 
 // Initialize all managers when DOM is loaded
@@ -710,7 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.statisticsManager = new StatisticsManager();
         window.animationManager = new AnimationManager();
         window.inputMonitor = new InputFieldMonitor();
-        window.standaloneDropdown = new StandaloneDropdown();
+        initMinimalDropdown();
 
         // Add some initial animations
         const pageHeader = document.querySelector('.page-header');
