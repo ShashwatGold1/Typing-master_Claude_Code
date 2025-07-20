@@ -342,9 +342,9 @@ body {
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
-    color: #1a73e8;
-    border: 2px solid #1a73e8;
+    background: linear-gradient(135deg, #6e64f556 0%, #6e64f58f 100%);
+    color: #117b86;
+    border: 2px solid #3a8fff;
     font-weight: 600;
     min-width: 100px;
 }
