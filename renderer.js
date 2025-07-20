@@ -683,7 +683,17 @@ function initDropdown() {
         };
     });
     
-    // Temporarily remove click outside - let's get basic functionality working first
+    // Add click outside functionality with delay to avoid conflicts
+    setTimeout(function() {
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('time-dropdown');
+            if (dropdown && !dropdown.contains(e.target) && options.classList.contains('show')) {
+                console.log('🌐 Clicked outside - closing dropdown');
+                options.classList.remove('show');
+                selected.classList.remove('active');
+            }
+        });
+    }, 100);
     
     console.log('=== DROPDOWN DEBUG COMPLETE ===');
 }
