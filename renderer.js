@@ -644,21 +644,22 @@ function initDropdown() {
     // Remove any existing event listeners first
     selected.onclick = null;
     
-    // Click to toggle with arrow rotation
+    // Click to toggle with smooth transitions
     selected.onclick = function() {
-        console.log('🖱️ Selected clicked, current display:', options.style.display);
+        const isOpen = options.classList.contains('show');
+        console.log('🖱️ Selected clicked, currently open:', isOpen);
         
-        if (options.style.display === 'block') {
-            console.log('📁 Closing dropdown');
-            options.style.display = 'none';
-            selected.classList.remove('active'); // Remove active state for arrow rotation
+        if (isOpen) {
+            console.log('📁 Closing dropdown with transition');
+            options.classList.remove('show');
+            selected.classList.remove('active');
         } else {
-            console.log('📂 Opening dropdown');
-            options.style.display = 'block';
-            selected.classList.add('active'); // Add active state for arrow rotation
+            console.log('📂 Opening dropdown with transition');
+            options.classList.add('show');
+            selected.classList.add('active');
         }
         
-        console.log('✅ New display state:', options.style.display);
+        console.log('✅ Show class present:', options.classList.contains('show'));
     };
     
     // Click options
@@ -674,9 +675,9 @@ function initDropdown() {
                 selectedText.textContent = this.textContent;
                 console.log('✅ Text updated to:', this.textContent);
             }
-            options.style.display = 'none';
+            options.classList.remove('show');
             selected.classList.remove('active'); // Remove active state when closing
-            console.log('📁 Dropdown closed after selection');
+            console.log('📁 Dropdown closed after selection with transition');
         };
     });
     
