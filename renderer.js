@@ -80,7 +80,9 @@ class TypingTest {
         this.accuracyValue = document.getElementById('accuracy-value');
         this.timeValue = document.getElementById('time-value');
         this.resetBtn = document.getElementById('reset-btn');
-        this.timeSelector = document.getElementById('time-selector');
+        this.timeDropdown = document.getElementById('time-dropdown');
+        this.dropdownSelected = document.getElementById('dropdown-selected');
+        this.dropdownOptions = document.getElementById('dropdown-options');
         this.resultsBanner = document.getElementById('results-banner');
 
         // Set initial time display
@@ -103,16 +105,42 @@ class TypingTest {
             this.resetTest();
         });
 
-        if (this.timeSelector) {
-            this.timeSelector.addEventListener('change', (e) => {
-                const newTimeLimit = parseInt(e.target.value);
-                this.timeLimit = newTimeLimit;
-                this.timeRemaining = newTimeLimit;
-                this.resetTest();
-                console.log('Time selector changed to:', newTimeLimit);
+        // Enhanced Custom Dropdown functionality
+        if (this.timeDropdown && this.dropdownSelected && this.dropdownOptions) {
+            console.log('✅ New dropdown elements found successfully');
+            
+            // Toggle dropdown when clicking trigger
+            this.dropdownSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('🖱️ Dropdown selected clicked');
+                this.toggleDropdown();
             });
+
+            // Handle dropdown option selection
+            this.dropdownOptions.addEventListener('click', (e) => {
+                if (e.target.classList.contains('dropdown-option')) {
+                    e.stopPropagation();
+                    const value = parseInt(e.target.dataset.value);
+                    const text = e.target.textContent;
+                    console.log('✨ Dropdown option selected:', text, value);
+                    this.selectTimeOption(value, text);
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!this.timeDropdown.contains(e.target)) {
+                    this.closeDropdown();
+                }
+            });
+
+            // Set initial time to 60 seconds (1 minute)
+            this.timeLimit = 60;
+            this.timeRemaining = 60;
+            this.updateTimeDisplay();
+            console.log('⏱️ Initial time set to 60 seconds');
         } else {
-            console.error('Time selector element not found!');
+            console.error('❌ New dropdown elements not found!');
         }
 
         this.typingInput.addEventListener('focus', () => {
@@ -148,6 +176,45 @@ class TypingTest {
         this.typingInput.addEventListener('mousedown', (e) => {
             this.forceInputFocus();
         });
+    }
+
+    toggleDropdown() {
+        const isOpen = this.dropdownOptions.classList.contains('show');
+        console.log(`🔄 Toggle - currently open: ${isOpen}`);
+        if (isOpen) {
+            this.closeDropdown();
+        } else {
+            this.openDropdown();
+        }
+    }
+
+    openDropdown() {
+        console.log('📂 Opening dropdown options');
+        this.dropdownSelected.classList.add('active');
+        this.dropdownOptions.classList.add('show');
+    }
+
+    closeDropdown() {
+        console.log('📁 Closing dropdown options');
+        this.dropdownSelected.classList.remove('active');
+        this.dropdownOptions.classList.remove('show');
+    }
+
+    selectTimeOption(value, text) {
+        const selectedText = this.dropdownSelected.querySelector('.selected-text');
+        selectedText.textContent = text;
+        
+        // Update time settings
+        this.timeLimit = value;
+        this.timeRemaining = value;
+        
+        // Reset the test with new time
+        this.resetTest();
+        
+        // Close dropdown
+        this.closeDropdown();
+        
+        console.log('⏱️ Time updated:', text, `(${value}s)`);
     }
 
     forceInputFocus() {
