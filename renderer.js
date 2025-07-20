@@ -624,43 +624,51 @@ class InputFieldMonitor {
     }
 }
 
-// Minimal Dropdown - Simple and Working
-function initMinimalDropdown() {
-    const dropdown = document.getElementById('time-dropdown');
+// Super Simple Dropdown
+function initDropdown() {
+    console.log('Dropdown init started');
+    
     const selected = document.getElementById('dropdown-selected');
     const options = document.getElementById('dropdown-options');
     
-    if (!dropdown || !selected || !options) return;
+    console.log('Selected element:', selected);
+    console.log('Options element:', options);
     
-    // Click to toggle dropdown
-    selected.addEventListener('click', function(e) {
-        e.stopPropagation();
+    if (!selected || !options) {
+        console.log('Elements not found!');
+        return;
+    }
+    
+    // Click selected to toggle
+    selected.onclick = function() {
+        console.log('Selected clicked');
         if (options.style.display === 'block') {
             options.style.display = 'none';
-            selected.classList.remove('active');
         } else {
             options.style.display = 'block';
-            selected.classList.add('active');
         }
-    });
+    };
     
-    // Select option
-    options.addEventListener('click', function(e) {
-        if (e.target.classList.contains('dropdown-option')) {
-            const text = e.target.textContent;
+    // Click options
+    const optionElements = options.querySelectorAll('.dropdown-option');
+    console.log('Found options:', optionElements.length);
+    
+    optionElements.forEach(function(option) {
+        option.onclick = function() {
+            console.log('Option clicked:', this.textContent);
             const selectedText = selected.querySelector('.selected-text');
-            selectedText.textContent = text;
+            if (selectedText) {
+                selectedText.textContent = this.textContent;
+            }
             options.style.display = 'none';
-            selected.classList.remove('active');
-        }
+        };
     });
     
-    // Close when clicking outside
-    document.addEventListener('click', function() {
-        options.style.display = 'none';
-        selected.classList.remove('active');
-    });
+    console.log('Dropdown initialized successfully');
 }
+
+// Also try to run it immediately
+setTimeout(initDropdown, 1000);
 
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -674,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.statisticsManager = new StatisticsManager();
         window.animationManager = new AnimationManager();
         window.inputMonitor = new InputFieldMonitor();
-        initMinimalDropdown();
+        initDropdown();
 
         // Add some initial animations
         const pageHeader = document.querySelector('.page-header');
