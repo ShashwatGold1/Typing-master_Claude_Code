@@ -680,15 +680,17 @@ function initDropdown() {
         });
     });
     
-    // 3. Click outside to close (reliable method)
-    document.addEventListener('click', function(e) {
-        if (dropdownOpen && !dropdown.contains(e.target)) {
-            console.log('🌐 Clicked outside - closing');
-            options.classList.remove('show');
-            selected.classList.remove('active');
-            dropdownOpen = false;
-        }
-    });
+    // 3. Click outside to close (with delay to prevent immediate closing)
+    setTimeout(function() {
+        document.addEventListener('click', function(e) {
+            if (dropdownOpen && !dropdown.contains(e.target)) {
+                console.log('🌐 Clicked outside - closing');
+                options.classList.remove('show');
+                selected.classList.remove('active');
+                dropdownOpen = false;
+            }
+        });
+    }, 200);
     
     console.log('✅ Dropdown ready with all features');
 }
