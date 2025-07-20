@@ -62,6 +62,13 @@ class NavigationManager {
                     window.lessonTypingTest.forceInputFocus();
                 }
             }, 100);
+        } else if (page === 'lessons') {
+            // Update lesson cards when navigating to lessons page
+            setTimeout(() => {
+                if (window.lessonManager) {
+                    window.lessonManager.updateAllLessonCards();
+                }
+            }, 100);
         }
     }
 }
@@ -379,7 +386,14 @@ class TypingTest {
             
             // Unlock next lesson if available
             if (window.lessonManager && this.lessonIndex < window.lessonManager.lessons.length - 1) {
-                window.lessonManager.lessons[this.lessonIndex + 1].unlocked = true;
+                const nextLessonIndex = this.lessonIndex + 1;
+                window.lessonManager.lessons[nextLessonIndex].unlocked = true;
+                
+                // Save lesson progress
+                window.lessonManager.saveLessonProgress();
+                
+                // Update the UI to show the unlocked lesson
+                window.lessonManager.updateLessonCardUI(nextLessonIndex);
             }
         } else {
             completionType = 'warning';
@@ -441,13 +455,81 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 text: 'qwer tyui op qwer tyui op quest water power quote'
+            },
+            {
+                id: 'bottom-row',
+                title: 'Bottom Row Mastery',
+                description: 'Complete the alphabet with Z, X, C, V, B, N, M',
+                level: 'beginner',
+                targetWPM: 20,
+                targetAccuracy: 85,
+                unlocked: false,
+                text: 'zxcv bnm zxcv bnm zoom box cave vibe mango number'
+            },
+            {
+                id: 'capital-letters',
+                title: 'Capital Letters',
+                description: 'Learn to use the Shift key for capital letters',
+                level: 'beginner',
+                targetWPM: 25,
+                targetAccuracy: 90,
+                unlocked: false,
+                text: 'Apple Box Cat Dog Eagle Fish Great Hope Jack King'
             }
         ];
         this.init();
     }
 
     init() {
+        this.loadLessonProgress();
         this.setupLessonCards();
+        // Initialize lesson card UI based on current lesson states
+        this.updateAllLessonCards();
+    }
+
+    loadLessonProgress() {
+        try {
+            const savedProgress = localStorage.getItem('typing-master-lesson-progress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                // Update lesson unlock status based on saved progress
+                this.lessons.forEach((lesson, index) => {
+                    if (progress[lesson.id] && progress[lesson.id].unlocked) {
+                        lesson.unlocked = true;
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading lesson progress:', error);
+            if (window.popupManager) {
+                window.popupManager.error(
+                    'Progress Error',
+                    'There was an issue loading your lesson progress. Some lessons may appear locked.',
+                    { showCancel: false, confirmText: 'OK' }
+                );
+            }
+        }
+    }
+
+    saveLessonProgress() {
+        try {
+            const progress = {};
+            this.lessons.forEach(lesson => {
+                progress[lesson.id] = {
+                    unlocked: lesson.unlocked
+                };
+            });
+            localStorage.setItem('typing-master-lesson-progress', JSON.stringify(progress));
+        } catch (error) {
+            console.error('Error saving lesson progress:', error);
+            if (window.popupManager) {
+                window.popupManager.error(
+                    'Save Error',
+                    'Unable to save your lesson progress. Your progress may not be preserved.',
+                    { showCancel: false, confirmText: 'OK' }
+                );
+            }
+        }
     }
 
     setupLessonCards() {
@@ -459,6 +541,48 @@ class LessonManager {
                     this.startLesson(index);
                 });
             }
+        });
+    }
+
+    updateLessonCardUI(lessonIndex) {
+        const lessonCards = document.querySelectorAll('.lesson-card');
+        if (lessonIndex < lessonCards.length) {
+            const card = lessonCards[lessonIndex];
+            const button = card.querySelector('.btn');
+            
+            if (this.lessons[lessonIndex].unlocked) {
+                // Remove locked styling
+                card.classList.remove('locked');
+                card.classList.add('available');
+                
+                // Update button
+                button.classList.remove('btn-disabled');
+                button.classList.add('btn-primary');
+                button.textContent = 'Start Lesson';
+                
+                // Add click event listener if it doesn't exist
+                if (!button.hasEventListener) {
+                    button.addEventListener('click', () => {
+                        this.startLesson(lessonIndex);
+                    });
+                    button.hasEventListener = true;
+                }
+            } else {
+                // Apply locked styling
+                card.classList.add('locked');
+                card.classList.remove('available');
+                
+                // Update button
+                button.classList.add('btn-disabled');
+                button.classList.remove('btn-primary');
+                button.textContent = 'Locked';
+            }
+        }
+    }
+
+    updateAllLessonCards() {
+        this.lessons.forEach((lesson, index) => {
+            this.updateLessonCardUI(index);
         });
     }
 
