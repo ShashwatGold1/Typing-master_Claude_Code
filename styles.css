@@ -384,11 +384,15 @@ body {
 .dropdown-selected:hover {
     border-color: #6366f1;
     background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-selected.active {
     border-color: #6366f1;
+    background: #f8fafc;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    transform: translateY(0);
 }
 
 .dropdown-arrow {

@@ -645,7 +645,8 @@ function initDropdown() {
     selected.onclick = null;
     
     // Click to toggle with smooth transitions
-    selected.onclick = function() {
+    selected.onclick = function(e) {
+        e.stopPropagation(); // Prevent document click from closing immediately
         const isOpen = options.classList.contains('show');
         console.log('🖱️ Selected clicked, currently open:', isOpen);
         
@@ -668,7 +669,8 @@ function initDropdown() {
     
     optionElements.forEach(function(option, index) {
         console.log('Setting up option', index, ':', option.textContent);
-        option.onclick = function() {
+        option.onclick = function(e) {
+            e.stopPropagation(); // Prevent document click from interfering
             console.log('🎯 Option clicked:', this.textContent);
             const selectedText = selected.querySelector('.selected-text');
             if (selectedText) {
@@ -679,6 +681,16 @@ function initDropdown() {
             selected.classList.remove('active'); // Remove active state when closing
             console.log('📁 Dropdown closed after selection with transition');
         };
+    });
+    
+    // Add click outside to close functionality (properly this time)
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('time-dropdown');
+        if (dropdown && !dropdown.contains(e.target) && options.classList.contains('show')) {
+            console.log('🌐 Clicked outside - closing dropdown');
+            options.classList.remove('show');
+            selected.classList.remove('active');
+        }
     });
     
     console.log('=== DROPDOWN DEBUG COMPLETE ===');
