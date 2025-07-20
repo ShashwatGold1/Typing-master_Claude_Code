@@ -624,57 +624,60 @@ class InputFieldMonitor {
     }
 }
 
-// Super Simple Dropdown
+// Debug Dropdown - Let's see what's happening
 function initDropdown() {
-    console.log('Dropdown init started');
+    console.log('=== DROPDOWN DEBUG START ===');
     
     const selected = document.getElementById('dropdown-selected');
     const options = document.getElementById('dropdown-options');
+    const dropdown = document.getElementById('time-dropdown');
     
     console.log('Selected element:', selected);
     console.log('Options element:', options);
+    console.log('Dropdown container:', dropdown);
     
     if (!selected || !options) {
-        console.log('Elements not found!');
+        console.log('❌ Elements not found!');
         return;
     }
     
-    // Click selected to toggle
-    selected.onclick = function(e) {
-        e.stopPropagation(); // Prevent document click from closing immediately
-        console.log('Selected clicked');
+    // Remove any existing event listeners first
+    selected.onclick = null;
+    
+    // Simple click to toggle - no event prevention yet
+    selected.onclick = function() {
+        console.log('🖱️ Selected clicked, current display:', options.style.display);
+        
         if (options.style.display === 'block') {
+            console.log('📁 Closing dropdown');
             options.style.display = 'none';
         } else {
+            console.log('📂 Opening dropdown');
             options.style.display = 'block';
         }
+        
+        console.log('✅ New display state:', options.style.display);
     };
     
     // Click options
     const optionElements = options.querySelectorAll('.dropdown-option');
-    console.log('Found options:', optionElements.length);
+    console.log('Found', optionElements.length, 'option elements');
     
-    optionElements.forEach(function(option) {
+    optionElements.forEach(function(option, index) {
+        console.log('Setting up option', index, ':', option.textContent);
         option.onclick = function() {
-            console.log('Option clicked:', this.textContent);
+            console.log('🎯 Option clicked:', this.textContent);
             const selectedText = selected.querySelector('.selected-text');
             if (selectedText) {
                 selectedText.textContent = this.textContent;
+                console.log('✅ Text updated to:', this.textContent);
             }
             options.style.display = 'none';
+            console.log('📁 Dropdown closed after selection');
         };
     });
     
-    // Click outside to close (with proper event handling)
-    document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('time-dropdown');
-        if (dropdown && !dropdown.contains(e.target)) {
-            console.log('Clicked outside - closing dropdown');
-            options.style.display = 'none';
-        }
-    });
-    
-    console.log('Dropdown initialized successfully');
+    console.log('=== DROPDOWN DEBUG COMPLETE ===');
 }
 
 // Also try to run it immediately
