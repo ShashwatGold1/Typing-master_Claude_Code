@@ -436,6 +436,7 @@ class TypingTest {
 class LessonManager {
     constructor() {
         this.lessons = [
+            // Foundation - Home Row
             {
                 id: 'home-row',
                 title: 'Home Row Basics',
@@ -444,8 +445,22 @@ class LessonManager {
                 targetWPM: 15,
                 targetAccuracy: 90,
                 unlocked: true,
-                text: 'asdf jkl; asdf jkl; sad lad ask dad flask glass'
+                icon: '🏠',
+                text: 'asdf jkl; asdf jkl; sad lad ask dad flask glass; ask lads; glad flask; dad said; flask ask; lads glass'
             },
+            {
+                id: 'home-row-words',
+                title: 'Home Row Words',
+                description: 'Practice common words using only home row keys',
+                level: 'beginner',
+                targetWPM: 18,
+                targetAccuracy: 88,
+                unlocked: false,
+                icon: '🎯',
+                text: 'ask dad lad sad flask glass fads lads asks glass flasks dads lads sad ask glass dad flask'
+            },
+
+            // Top Row Introduction
             {
                 id: 'top-row',
                 title: 'Top Row Introduction',
@@ -454,8 +469,22 @@ class LessonManager {
                 targetWPM: 20,
                 targetAccuracy: 85,
                 unlocked: false,
-                text: 'qwer tyui op qwer tyui op quest water power quote'
+                icon: '⬆️',
+                text: 'qwer tyui op qwer tyui op quest water power quote riot type pretty output'
             },
+            {
+                id: 'top-row-combo',
+                title: 'Top Row Combinations',
+                description: 'Combine top row with home row keys',
+                level: 'beginner',
+                targetWPM: 22,
+                targetAccuracy: 85,
+                unlocked: false,
+                icon: '🔗',
+                text: 'fast port sweet trade power quest after pretty tools; sister poetry water trade'
+            },
+
+            // Bottom Row
             {
                 id: 'bottom-row',
                 title: 'Bottom Row Mastery',
@@ -464,8 +493,22 @@ class LessonManager {
                 targetWPM: 20,
                 targetAccuracy: 85,
                 unlocked: false,
-                text: 'zxcv bnm zxcv bnm zoom box cave vibe mango number'
+                icon: '⬇️',
+                text: 'zxcv bnm zxcv bnm zoom box cave vibe mango number maze carbon vitamin'
             },
+            {
+                id: 'full-alphabet',
+                title: 'Complete Alphabet',
+                description: 'Practice all letters with smooth transitions',
+                level: 'beginner',
+                targetWPM: 25,
+                targetAccuracy: 88,
+                unlocked: false,
+                icon: '🔤',
+                text: 'the quick brown fox jumps over lazy dog; amazingly complex words; zero maximum boxes; every junction'
+            },
+
+            // Capital Letters & Shift
             {
                 id: 'capital-letters',
                 title: 'Capital Letters',
@@ -474,7 +517,187 @@ class LessonManager {
                 targetWPM: 25,
                 targetAccuracy: 90,
                 unlocked: false,
-                text: 'Apple Box Cat Dog Eagle Fish Great Hope Jack King'
+                icon: '🆙',
+                text: 'Apple Box Cat Dog Eagle Fish Great Hope Jack King Lion Mouse Name Open'
+            },
+            {
+                id: 'shift-practice',
+                title: 'Shift Key Mastery',
+                description: 'Advanced capitalization and sentence structure',
+                level: 'intermediate',
+                targetWPM: 28,
+                targetAccuracy: 90,
+                unlocked: false,
+                icon: '⇧',
+                text: 'The Quick Brown Fox. Every Good Dog Jumps High. Amazing Views From Mountain Tops.'
+            },
+
+            // Numbers Row
+            {
+                id: 'numbers-basic',
+                title: 'Numbers 1-5',
+                description: 'Learn the left side number keys',
+                level: 'intermediate',
+                targetWPM: 20,
+                targetAccuracy: 85,
+                unlocked: false,
+                icon: '🔢',
+                text: '12345 12345 123 234 345 12 23 34 45 51 52 53 54 55 numbers dates'
+            },
+            {
+                id: 'numbers-full',
+                title: 'Complete Number Row',
+                description: 'Master all numbers 0-9',
+                level: 'intermediate',
+                targetWPM: 25,
+                targetAccuracy: 85,
+                unlocked: false,
+                icon: '🔟',
+                text: '1234567890 0987654321 dates like 2024 year 1995 phone 555123 address 42nd street'
+            },
+
+            // Common Punctuation
+            {
+                id: 'basic-punctuation',
+                title: 'Basic Punctuation',
+                description: 'Period, comma, and question mark',
+                level: 'intermediate',
+                targetWPM: 30,
+                targetAccuracy: 88,
+                unlocked: false,
+                icon: '❓',
+                text: 'Hello, world. How are you? Fine, thanks. What time is it? Around noon, I think.'
+            },
+            {
+                id: 'full-punctuation',
+                title: 'Full Punctuation',
+                description: 'All punctuation marks and symbols',
+                level: 'intermediate',
+                targetWPM: 28,
+                targetAccuracy: 85,
+                unlocked: false,
+                icon: '💯',
+                text: 'Hello! How are you? Fine, thanks... What\'s new? "Nothing much," she said. @email.com #hashtag'
+            },
+
+            // Advanced Symbols
+            {
+                id: 'symbols-basic',
+                title: 'Common Symbols',
+                description: 'Learn @, #, $, %, &, *, +, =',
+                level: 'advanced',
+                targetWPM: 25,
+                targetAccuracy: 82,
+                unlocked: false,
+                icon: '💰',
+                text: 'email@domain.com #hashtag $100 50% savings AT&T 2*3=6 1+1=2 100% success'
+            },
+            {
+                id: 'symbols-advanced',
+                title: 'Advanced Symbols',
+                description: 'Master brackets, slashes, and special characters',
+                level: 'advanced',
+                targetWPM: 23,
+                targetAccuracy: 80,
+                unlocked: false,
+                icon: '⚡',
+                text: '[brackets] {curly} <angle> forward/slash back\\slash pipe|symbol ^caret ~tilde'
+            },
+
+            // Programming Basics
+            {
+                id: 'programming-syntax',
+                title: 'Programming Syntax',
+                description: 'Common programming symbols and patterns',
+                level: 'advanced',
+                targetWPM: 30,
+                targetAccuracy: 85,
+                unlocked: false,
+                icon: '💻',
+                text: 'function() { return true; } if (x == 5) { print("hello"); } array[0] = "value";'
+            },
+
+            // Speed Building
+            {
+                id: 'speed-builder-1',
+                title: 'Speed Builder I',
+                description: 'Common words for speed development',
+                level: 'intermediate',
+                targetWPM: 35,
+                targetAccuracy: 90,
+                unlocked: false,
+                icon: '🏃',
+                text: 'the and for you that with have this will been from they know want been'
+            },
+            {
+                id: 'speed-builder-2',
+                title: 'Speed Builder II',
+                description: 'Fast-paced sentence practice',
+                level: 'advanced',
+                targetWPM: 40,
+                targetAccuracy: 88,
+                unlocked: false,
+                icon: '🚀',
+                text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.'
+            },
+            {
+                id: 'speed-builder-3',
+                title: 'Speed Builder III',
+                description: 'Advanced speed training with complex text',
+                level: 'advanced',
+                targetWPM: 45,
+                targetAccuracy: 85,
+                unlocked: false,
+                icon: '⚡',
+                text: 'Advanced typing requires consistent practice and proper technique. Focus on accuracy first, then gradually increase speed while maintaining precision.'
+            },
+
+            // Accuracy Drills
+            {
+                id: 'accuracy-drill-1',
+                title: 'Accuracy Focus I',
+                description: 'Precision training with similar letters',
+                level: 'intermediate',
+                targetWPM: 25,
+                targetAccuracy: 95,
+                unlocked: false,
+                icon: '🎯',
+                text: 'barn born burn; form from firm; calm clam claim; trail trial tribal; angle ankle'
+            },
+            {
+                id: 'accuracy-drill-2',
+                title: 'Accuracy Focus II',
+                description: 'Advanced precision with complex patterns',
+                level: 'advanced',
+                targetWPM: 30,
+                targetAccuracy: 93,
+                unlocked: false,
+                icon: '🏹',
+                text: 'minimum aluminum millennium; statistical statistical; unprecedented unprecedented; accommodate accommodate'
+            },
+
+            // Real-World Applications
+            {
+                id: 'email-writing',
+                title: 'Email Composition',
+                description: 'Practice professional email formatting',
+                level: 'advanced',
+                targetWPM: 35,
+                targetAccuracy: 88,
+                unlocked: false,
+                icon: '📧',
+                text: 'Subject: Meeting Request. Dear John, I hope this email finds you well. Could we schedule a meeting for next Tuesday? Best regards, Sarah'
+            },
+            {
+                id: 'essay-writing',
+                title: 'Essay & Articles',
+                description: 'Long-form writing with proper structure',
+                level: 'advanced',
+                targetWPM: 40,
+                targetAccuracy: 90,
+                unlocked: false,
+                icon: '📝',
+                text: 'Introduction paragraph should clearly state the main thesis. Supporting paragraphs provide evidence and examples. The conclusion summarizes key points and reinforces the argument.'
             }
         ];
         this.init();
@@ -533,57 +756,48 @@ class LessonManager {
     }
 
     setupLessonCards() {
-        const lessonCards = document.querySelectorAll('.lesson-card');
-        lessonCards.forEach((card, index) => {
-            const button = card.querySelector('.btn');
-            if (button && !button.classList.contains('btn-disabled')) {
+        const lessonsGrid = document.getElementById('lessons-grid');
+        if (!lessonsGrid) return;
+
+        lessonsGrid.innerHTML = '';
+
+        this.lessons.forEach((lesson, index) => {
+            const card = document.createElement('div');
+            card.className = lesson.unlocked ? 'lesson-card available' : 'lesson-card locked';
+
+            card.innerHTML = `
+                <div class="lesson-header">
+                    <span class="lesson-icon">${lesson.icon || '📝'}</span>
+                    <div class="lesson-badge ${lesson.level}">${lesson.level.toUpperCase()}</div>
+                </div>
+                <h3>${lesson.title}</h3>
+                <p>${lesson.description}</p>
+                <div class="lesson-stats">
+                    <span>Target WPM: <strong>${lesson.targetWPM}</strong></span>
+                    <span>Target Accuracy: <strong>${lesson.targetAccuracy}%</strong></span>
+                </div>
+                <button class="btn ${lesson.unlocked ? 'btn-primary' : 'btn-disabled'}">${lesson.unlocked ? 'Start Lesson' : 'Locked'}</button>
+            `;
+
+            if (lesson.unlocked) {
+                const button = card.querySelector('.btn');
                 button.addEventListener('click', () => {
                     this.startLesson(index);
                 });
             }
+
+            lessonsGrid.appendChild(card);
         });
     }
 
     updateLessonCardUI(lessonIndex) {
-        const lessonCards = document.querySelectorAll('.lesson-card');
-        if (lessonIndex < lessonCards.length) {
-            const card = lessonCards[lessonIndex];
-            const button = card.querySelector('.btn');
-            
-            if (this.lessons[lessonIndex].unlocked) {
-                // Remove locked styling
-                card.classList.remove('locked');
-                card.classList.add('available');
-                
-                // Update button
-                button.classList.remove('btn-disabled');
-                button.classList.add('btn-primary');
-                button.textContent = 'Start Lesson';
-                
-                // Add click event listener if it doesn't exist
-                if (!button.hasEventListener) {
-                    button.addEventListener('click', () => {
-                        this.startLesson(lessonIndex);
-                    });
-                    button.hasEventListener = true;
-                }
-            } else {
-                // Apply locked styling
-                card.classList.add('locked');
-                card.classList.remove('available');
-                
-                // Update button
-                button.classList.add('btn-disabled');
-                button.classList.remove('btn-primary');
-                button.textContent = 'Locked';
-            }
-        }
+        // Simply regenerate all cards since they're dynamic
+        this.setupLessonCards();
     }
 
     updateAllLessonCards() {
-        this.lessons.forEach((lesson, index) => {
-            this.updateLessonCardUI(index);
-        });
+        // Simply regenerate all cards since they're dynamic
+        this.setupLessonCards();
     }
 
     startLesson(lessonIndex) {
