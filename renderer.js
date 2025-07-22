@@ -312,11 +312,16 @@ class TypingTest {
         // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
         let wpm = 0;
         if (this.isActive && this.startTime) {
-            const timeElapsed = (Date.now() - this.startTime) / 1000 / 60; // in minutes
-            const errors = this.totalChars - this.correctChars;
-            const effectiveChars = this.totalChars - errors;
-            const wordsTyped = effectiveChars / 5; // standard: 5 characters = 1 word
-            wpm = this.customRound(wordsTyped / timeElapsed);
+            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000; // in seconds
+            
+            // Only calculate WPM if at least 1 second has elapsed to avoid unrealistic values
+            if (timeElapsedSeconds >= 1) {
+                const timeElapsedMinutes = timeElapsedSeconds / 60; // convert to minutes
+                const errors = this.totalChars - this.correctChars;
+                const effectiveChars = this.totalChars - errors;
+                const wordsTyped = effectiveChars / 5; // standard: 5 characters = 1 word
+                wpm = this.customRound(wordsTyped / timeElapsedMinutes);
+            }
         }
 
         // Calculate accuracy
