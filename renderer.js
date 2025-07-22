@@ -83,6 +83,7 @@ class TypingTest {
         this.startTime = null;
         this.isActive = false;
         this.timer = null;
+        this.wpmUpdateTimer = null; // Timer for real-time WPM updates
         this.timeLimit = 300; // 5 minutes maximum
         this.timeElapsed = 0; // Count upward from 0
         
@@ -245,6 +246,11 @@ class TypingTest {
                 this.endTest();
             }
         }, 1000);
+
+        // Start real-time WPM updates every second
+        this.wpmUpdateTimer = setInterval(() => {
+            this.updateStats();
+        }, 1000);
     }
 
     endTest() {
@@ -252,6 +258,10 @@ class TypingTest {
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;
+        }
+        if (this.wpmUpdateTimer) {
+            clearInterval(this.wpmUpdateTimer);
+            this.wpmUpdateTimer = null;
         }
         // Don't disable input - just show results
         this.showResults();
@@ -269,6 +279,10 @@ class TypingTest {
             clearInterval(this.timer);
             this.timer = null;
         }
+        if (this.wpmUpdateTimer) {
+            clearInterval(this.wpmUpdateTimer);
+            this.wpmUpdateTimer = null;
+        }
         
         // Clear the input
         this.typingInput.value = '';
@@ -285,11 +299,13 @@ class TypingTest {
     }
 
     updateStats() {
-        // Calculate WPM
+        // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
         let wpm = 0;
         if (this.isActive && this.startTime) {
             const timeElapsed = (Date.now() - this.startTime) / 1000 / 60; // in minutes
-            const wordsTyped = this.correctChars / 5; // standard: 5 characters = 1 word
+            const errors = this.totalChars - this.correctChars;
+            const effectiveChars = this.totalChars - errors;
+            const wordsTyped = effectiveChars / 5; // standard: 5 characters = 1 word
             wpm = Math.round(wordsTyped / timeElapsed);
         }
 
