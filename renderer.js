@@ -83,8 +83,8 @@ class TypingTest {
         this.startTime = null;
         this.isActive = false;
         this.timer = null;
-        this.timeLimit = 30;
-        this.timeRemaining = 30;
+        this.timeLimit = 300; // 5 minutes maximum
+        this.timeElapsed = 0; // Count upward from 0
         
         // Store element IDs
         this.elementIds = {
@@ -235,13 +235,13 @@ class TypingTest {
     startTest() {
         this.isActive = true;
         this.startTime = Date.now();
-        this.timeRemaining = this.timeLimit;
+        this.timeElapsed = 0;
         
         this.timer = setInterval(() => {
-            this.timeRemaining--;
+            this.timeElapsed++;
             this.updateTimeDisplay();
             
-            if (this.timeRemaining <= 0) {
+            if (this.timeElapsed >= this.timeLimit) {
                 this.endTest();
             }
         }, 1000);
@@ -263,7 +263,7 @@ class TypingTest {
         this.correctChars = 0;
         this.totalChars = 0;
         this.startTime = null;
-        this.timeRemaining = this.timeLimit;
+        this.timeElapsed = 0;
         
         if (this.timer) {
             clearInterval(this.timer);
@@ -302,7 +302,9 @@ class TypingTest {
 
     updateTimeDisplay() {
         if (this.timeValue) {
-            this.timeValue.textContent = this.timeRemaining;
+            const minutes = Math.floor(this.timeElapsed / 60);
+            const seconds = this.timeElapsed % 60;
+            this.timeValue.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
     }
 
@@ -326,21 +328,21 @@ class TypingTest {
         
         let popupType = 'info';
         let title = 'Test Complete!';
-        let message = `Your Results:\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds`;
+        let message = `Your Results:\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time}`;
         
         // Determine popup type and message based on performance
         if (accuracyNum >= 95 && wpmNum >= 40) {
             popupType = 'success';
             title = 'Excellent Performance! 🎉';
-            message = `Outstanding results!\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds\n\nYou're typing like a pro!`;
+            message = `Outstanding results!\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time}\n\nYou're typing like a pro!`;
         } else if (accuracyNum >= 85 && wpmNum >= 25) {
             popupType = 'success';
             title = 'Great Job! 👏';
-            message = `Good progress!\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds\n\nKeep practicing to improve further!`;
+            message = `Good progress!\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time}\n\nKeep practicing to improve further!`;
         } else if (accuracyNum < 70) {
             popupType = 'warning';
             title = 'Focus on Accuracy';
-            message = `Your Results:\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time} seconds\n\nTry typing slower to improve accuracy.`;
+            message = `Your Results:\n• Speed: ${wpm} WPM\n• Accuracy: ${accuracy}\n• Time: ${time}\n\nTry typing slower to improve accuracy.`;
         }
         
         // Show popup if popupManager is available
