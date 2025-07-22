@@ -302,9 +302,7 @@ class TypingTest {
 
     updateTimeDisplay() {
         if (this.timeValue) {
-            const minutes = Math.floor(this.timeElapsed / 60);
-            const seconds = this.timeElapsed % 60;
-            this.timeValue.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            this.timeValue.textContent = this.timeElapsed;
         }
     }
 
