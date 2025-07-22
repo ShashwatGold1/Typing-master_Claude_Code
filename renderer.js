@@ -102,6 +102,16 @@ class TypingTest {
         this.init();
     }
 
+    // Custom rounding function: 0.1-0.5 rounds down, 0.6-0.9 rounds up
+    customRound(value) {
+        const decimal = value - Math.floor(value);
+        if (decimal >= 0.6) {
+            return Math.ceil(value);
+        } else {
+            return Math.floor(value);
+        }
+    }
+
     init() {
         this.textDisplay = document.getElementById(this.elementIds.textDisplay);
         this.typingInput = document.getElementById(this.elementIds.typingInput);
@@ -306,7 +316,7 @@ class TypingTest {
             const errors = this.totalChars - this.correctChars;
             const effectiveChars = this.totalChars - errors;
             const wordsTyped = effectiveChars / 5; // standard: 5 characters = 1 word
-            wpm = Math.round(wordsTyped / timeElapsed);
+            wpm = this.customRound(wordsTyped / timeElapsed);
         }
 
         // Calculate accuracy
