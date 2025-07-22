@@ -124,6 +124,11 @@ class TypingTest {
         // Set initial time display
         this.updateTimeDisplay();
         
+        // Set input character limit based on practice text length
+        if (this.typingInput && this.textToType) {
+            this.typingInput.setAttribute('maxlength', this.textToType.length);
+        }
+        
         this.setupEventListeners();
         this.renderText();
         this.updateStats();
@@ -222,7 +227,14 @@ class TypingTest {
     }
 
     handleInput(e) {
-        const value = e.target.value;
+        let value = e.target.value;
+        
+        // Limit input to the length of the practice text
+        if (value.length > this.textToType.length) {
+            value = value.substring(0, this.textToType.length);
+            e.target.value = value; // Update the input field value
+        }
+        
         this.currentIndex = value.length;
         this.totalChars = value.length;
 
@@ -296,6 +308,11 @@ class TypingTest {
         
         // Clear the input
         this.typingInput.value = '';
+        
+        // Set input character limit based on practice text length
+        if (this.typingInput && this.textToType) {
+            this.typingInput.setAttribute('maxlength', this.textToType.length);
+        }
         
         // Re-render everything
         this.renderText();
