@@ -75,7 +75,7 @@ class NavigationManager {
 
 // Typing Test System
 class TypingTest {
-    constructor(textDisplayId = 'text-display', typingInputId = 'typing-input', wpmValueId = 'wpm-value', accuracyValueId = 'accuracy-value', timeValueId = 'time-value', finalWpmId = 'final-wpm', finalAccuracyId = 'final-accuracy', finalTimeId = 'final-time') {
+    constructor(textDisplayId = 'text-display', typingInputId = 'typing-input', wpmValueId = 'wpm-value', accuracyValueId = 'accuracy-value', timeValueId = 'time-value', finalWpmId = 'final-wpm', finalAccuracyId = 'final-accuracy', finalTimeId = 'final-time', virtualKeyboard = null) {
         this.textToType = "Cooking is both an art and a science. It involves understanding ingredients, mastering techniques, and creating delicious meals that nourish the body and bring joy to those who share them.";
         this.currentIndex = 0;
         this.correctChars = 0;
@@ -86,6 +86,7 @@ class TypingTest {
         this.wpmUpdateTimer = null; // Timer for real-time WPM updates
         this.timeLimit = 300; // 5 minutes maximum
         this.timeElapsed = 0; // Count upward from 0
+        this.virtualKeyboard = virtualKeyboard; // Virtual keyboard integration
         
         // Store element IDs
         this.elementIds = {
@@ -224,6 +225,16 @@ class TypingTest {
             }
             return `<span class="${className}">${char === ' ' ? '&nbsp;' : char}</span>`;
         }).join('');
+        
+        // Update virtual keyboard highlighting
+        if (this.virtualKeyboard && this.virtualKeyboard.isVisible) {
+            const nextChar = this.textToType[this.currentIndex];
+            if (nextChar) {
+                this.virtualKeyboard.highlightKey(nextChar);
+            } else {
+                this.virtualKeyboard.clearHighlights();
+            }
+        }
     }
 
     handleInput(e) {
@@ -233,6 +244,18 @@ class TypingTest {
         if (value.length > this.textToType.length) {
             value = value.substring(0, this.textToType.length);
             e.target.value = value; // Update the input field value
+        }
+        
+        // Check for virtual keyboard feedback on last typed character
+        if (this.virtualKeyboard && this.virtualKeyboard.isVisible && value.length > 0) {
+            const lastTypedChar = value[value.length - 1];
+            const expectedChar = this.textToType[value.length - 1];
+            const isCorrect = lastTypedChar === expectedChar;
+            
+            // Only show feedback if this is a new character (not backspace)
+            if (value.length > this.currentIndex) {
+                this.virtualKeyboard.showFeedback(lastTypedChar, isCorrect);
+            }
         }
         
         this.currentIndex = value.length;
@@ -304,6 +327,11 @@ class TypingTest {
         if (this.wpmUpdateTimer) {
             clearInterval(this.wpmUpdateTimer);
             this.wpmUpdateTimer = null;
+        }
+        
+        // Reset virtual keyboard
+        if (this.virtualKeyboard) {
+            this.virtualKeyboard.reset();
         }
         
         // Clear the input
@@ -1439,6 +1467,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Initialize all components
         window.navigationManager = new NavigationManager();
+        // Create typing tests with virtual keyboard integration
+        // Note: Virtual keyboards will be assigned after they're created
         window.typingTest = new TypingTest();
         window.lessonTypingTest = new TypingTest('lesson-text-display', 'lesson-typing-input', 'lesson-wpm-value', 'lesson-accuracy-value', 'lesson-time-value', 'lesson-final-wpm', 'lesson-final-accuracy', 'lesson-final-time');
         window.lessonManager = new LessonManager();
@@ -1542,4 +1572,538 @@ document.addEventListener('keydown', (e) => {
             navigationManager.navigateTo(pageMap[e.key]);
         }
     }
+});
+
+// Virtual Keyboard Component
+class VirtualKeyboard {
+    constructor(containerId) {
+        this.containerId = containerId;
+        this.container = document.getElementById(containerId);
+        this.keyboard = null;
+        this.keys = new Map();
+        this.currentKey = null;
+        this.isVisible = false;
+        this.showFunctionKeys = false;
+        this.showNumpad = false;
+        this.shiftPressed = false;
+        this.fingerMap = {};
+        
+        // Special character mapping for shift combinations
+        this.specialCharMap = {
+            '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+            '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+            '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\',
+            ':': ';', '"': "'", '<': ',', '>': '.', '?': '/'
+        };
+        
+        // Character to key mapping (including special characters)
+        this.charToKeyMap = {
+            // Numbers
+            '1': 'key-1', '2': 'key-2', '3': 'key-3', '4': 'key-4', '5': 'key-5',
+            '6': 'key-6', '7': 'key-7', '8': 'key-8', '9': 'key-9', '0': 'key-0',
+            
+            // Letters
+            'a': 'key-a', 'b': 'key-b', 'c': 'key-c', 'd': 'key-d', 'e': 'key-e',
+            'f': 'key-f', 'g': 'key-g', 'h': 'key-h', 'i': 'key-i', 'j': 'key-j',
+            'k': 'key-k', 'l': 'key-l', 'm': 'key-m', 'n': 'key-n', 'o': 'key-o',
+            'p': 'key-p', 'q': 'key-q', 'r': 'key-r', 's': 'key-s', 't': 'key-t',
+            'u': 'key-u', 'v': 'key-v', 'w': 'key-w', 'x': 'key-x', 'y': 'key-y', 'z': 'key-z',
+            
+            // Special characters
+            ' ': 'key-space', '.': 'key-period', ',': 'key-comma', ';': 'key-semicolon',
+            "'": 'key-apostrophe', '/': 'key-slash', '\\': 'key-backslash',
+            '[': 'key-leftbracket', ']': 'key-rightbracket', '-': 'key-minus', '=': 'key-equals',
+            '`': 'key-backtick'
+        };
+        
+        this.init();
+    }
+
+    init() {
+        if (!this.container) {
+            console.error(`Virtual keyboard container with id "${this.containerId}" not found`);
+            return;
+        }
+        
+        this.setupFingerMapping();
+        this.createKeyboard();
+        this.setupEventListeners();
+    }
+
+    setupFingerMapping() {
+        // Left hand finger assignments
+        const leftPinky = ['q', 'a', 'z', '1', 'backtick', 'tab', 'capslock', 'shift-left', 'ctrl-left'];
+        const leftRing = ['w', 's', 'x', '2'];
+        const leftMiddle = ['e', 'd', 'c', '3'];
+        const leftIndex = ['r', 't', 'f', 'g', 'v', 'b', '4', '5'];
+        
+        // Right hand finger assignments
+        const rightIndex = ['y', 'h', 'n', 'u', 'j', 'm', '6', '7'];
+        const rightMiddle = ['i', 'k', '8', 'comma'];
+        const rightRing = ['o', 'l', '9', 'period'];
+        const rightPinky = ['p', '0', 'minus', 'equals', 'semicolon', 'apostrophe', 'slash', 
+                            'leftbracket', 'rightbracket', 'backslash', 'enter', 'shift-right', 'backspace'];
+        
+        // Thumbs
+        const thumbs = ['space', 'alt-left', 'alt-right', 'win-left'];
+
+        // Assign finger classes
+        leftPinky.forEach(key => this.fingerMap[key] = 'finger-pinky-left');
+        leftRing.forEach(key => this.fingerMap[key] = 'finger-ring-left');
+        leftMiddle.forEach(key => this.fingerMap[key] = 'finger-middle-left');
+        leftIndex.forEach(key => this.fingerMap[key] = 'finger-index-left');
+        
+        rightIndex.forEach(key => this.fingerMap[key] = 'finger-index-right');
+        rightMiddle.forEach(key => this.fingerMap[key] = 'finger-middle-right');
+        rightRing.forEach(key => this.fingerMap[key] = 'finger-ring-right');
+        rightPinky.forEach(key => this.fingerMap[key] = 'finger-pinky-right');
+        
+        thumbs.forEach(key => this.fingerMap[key] = 'finger-thumb');
+    }
+
+    createKeyboard() {
+        if (!this.container) return;
+        
+        this.keyboard = this.container.querySelector('.virtual-keyboard');
+        if (!this.keyboard) return;
+        
+        this.keyboard.innerHTML = `
+            <div class="keyboard-controls">
+                <h4 class="keyboard-title">Virtual Keyboard</h4>
+                <div class="keyboard-toggles">
+                    <button class="keyboard-toggle" data-toggle="function">F-Keys</button>
+                    <button class="keyboard-toggle" data-toggle="numpad">Numpad</button>
+                </div>
+            </div>
+            
+            ${this.createFunctionRow()}
+            ${this.createNumberRow()}
+            ${this.createQwertyRows()}
+            ${this.createSpaceRow()}
+            
+            <div class="keyboard-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ec4899;"></div>
+                    <span>Pinky</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8b5cf6;"></div>
+                    <span>Ring</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3b82f6;"></div>
+                    <span>Middle</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #10b981;"></div>
+                    <span>Index</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f59e0b;"></div>
+                    <span>Thumb</span>
+                </div>
+            </div>
+        `;
+        
+        this.mapKeys();
+        this.setupKeyboardEventListeners();
+    }
+
+    createFunctionRow() {
+        const functionKeys = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'];
+        const specialKeys = ['Esc', 'PrtSc', 'ScrLk', 'Pause'];
+        
+        return `
+            <div class="keyboard-row function-row" style="display: ${this.showFunctionKeys ? 'flex' : 'none'};">
+                ${functionKeys.map(key => 
+                    `<button class="keyboard-key key-function" data-key="${key.toLowerCase()}">${key}</button>`
+                ).join('')}
+                <div style="width: 20px;"></div>
+                ${specialKeys.map(key => 
+                    `<button class="keyboard-key key-function key-special" data-key="${key.toLowerCase()}">${key}</button>`
+                ).join('')}
+            </div>
+        `;
+    }
+
+    createNumberRow() {
+        const keys = [
+            { key: 'backtick', char: '`', shift: '~' },
+            { key: '1', char: '1', shift: '!' },
+            { key: '2', char: '2', shift: '@' },
+            { key: '3', char: '3', shift: '#' },
+            { key: '4', char: '4', shift: '$' },
+            { key: '5', char: '5', shift: '%' },
+            { key: '6', char: '6', shift: '^' },
+            { key: '7', char: '7', shift: '&' },
+            { key: '8', char: '8', shift: '*' },
+            { key: '9', char: '9', shift: '(' },
+            { key: '0', char: '0', shift: ')' },
+            { key: 'minus', char: '-', shift: '_' },
+            { key: 'equals', char: '=', shift: '+' },
+            { key: 'backspace', char: 'Backspace' }
+        ];
+        
+        return `
+            <div class="keyboard-row">
+                ${keys.map(keyData => {
+                    const fingerClass = this.fingerMap[keyData.key] || '';
+                    const keyClass = keyData.key === 'backspace' ? 'key-backspace' : 'key-number';
+                    const displayText = keyData.shift ? `${keyData.shift}<br><small>${keyData.char}</small>` : keyData.char;
+                    
+                    return `<button class="keyboard-key ${keyClass} ${fingerClass}" 
+                                    data-key="${keyData.key}" 
+                                    data-char="${keyData.char}"
+                                    ${keyData.shift ? `data-shift="${keyData.shift}"` : ''}>
+                                ${displayText}
+                            </button>`;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    createQwertyRows() {
+        const topRow = [
+            { key: 'tab', char: 'Tab' },
+            { key: 'q', char: 'q' }, { key: 'w', char: 'w' }, { key: 'e', char: 'e' },
+            { key: 'r', char: 'r' }, { key: 't', char: 't' }, { key: 'y', char: 'y' },
+            { key: 'u', char: 'u' }, { key: 'i', char: 'i' }, { key: 'o', char: 'o' },
+            { key: 'p', char: 'p' },
+            { key: 'leftbracket', char: '[', shift: '{' },
+            { key: 'rightbracket', char: ']', shift: '}' },
+            { key: 'backslash', char: '\\', shift: '|' }
+        ];
+        
+        const homeRow = [
+            { key: 'capslock', char: 'Caps' },
+            { key: 'a', char: 'a' }, { key: 's', char: 's' }, { key: 'd', char: 'd' },
+            { key: 'f', char: 'f' }, { key: 'g', char: 'g' }, { key: 'h', char: 'h' },
+            { key: 'j', char: 'j' }, { key: 'k', char: 'k' }, { key: 'l', char: 'l' },
+            { key: 'semicolon', char: ';', shift: ':' },
+            { key: 'apostrophe', char: "'", shift: '"' },
+            { key: 'enter', char: 'Enter' }
+        ];
+        
+        const bottomRow = [
+            { key: 'shift-left', char: 'Shift' },
+            { key: 'z', char: 'z' }, { key: 'x', char: 'x' }, { key: 'c', char: 'c' },
+            { key: 'v', char: 'v' }, { key: 'b', char: 'b' }, { key: 'n', char: 'n' },
+            { key: 'm', char: 'm' },
+            { key: 'comma', char: ',', shift: '<' },
+            { key: 'period', char: '.', shift: '>' },
+            { key: 'slash', char: '/', shift: '?' },
+            { key: 'shift-right', char: 'Shift' }
+        ];
+        
+        return `
+            <div class="keyboard-row">
+                ${this.createRowKeys(topRow, 'top')}
+            </div>
+            <div class="keyboard-row">
+                ${this.createRowKeys(homeRow, 'home')}
+            </div>
+            <div class="keyboard-row">
+                ${this.createRowKeys(bottomRow, 'bottom')}
+                <div class="arrow-cluster">
+                    <button class="keyboard-key key-arrow key-arrow-up" data-key="arrow-up">↑</button>
+                    <button class="keyboard-key key-arrow key-arrow-left" data-key="arrow-left">←</button>
+                    <button class="keyboard-key key-arrow key-arrow-down" data-key="arrow-down">↓</button>
+                    <button class="keyboard-key key-arrow key-arrow-right" data-key="arrow-right">→</button>
+                </div>
+            </div>
+        `;
+    }
+
+    createRowKeys(keys, rowType) {
+        return keys.map(keyData => {
+            const fingerClass = this.fingerMap[keyData.key] || '';
+            let keyClass = 'key-letter';
+            
+            // Determine key class based on key type
+            if (['tab', 'capslock', 'enter', 'shift-left', 'shift-right'].includes(keyData.key)) {
+                keyClass = `key-${keyData.key.replace('-left', '').replace('-right', '')} key-modifier`;
+            } else if (['leftbracket', 'rightbracket', 'backslash', 'semicolon', 'apostrophe', 'comma', 'period', 'slash'].includes(keyData.key)) {
+                keyClass = 'key-special';
+            }
+            
+            const displayText = keyData.shift ? 
+                `${keyData.shift}<br><small>${keyData.char}</small>` : 
+                keyData.char;
+            
+            return `<button class="keyboard-key ${keyClass} ${fingerClass}" 
+                            data-key="${keyData.key}" 
+                            data-char="${keyData.char}"
+                            ${keyData.shift ? `data-shift="${keyData.shift}"` : ''}>
+                        ${displayText}
+                    </button>`;
+        }).join('');
+    }
+
+    createSpaceRow() {
+        const keys = [
+            { key: 'ctrl-left', char: 'Ctrl' },
+            { key: 'win-left', char: 'Win' },
+            { key: 'alt-left', char: 'Alt' },
+            { key: 'space', char: 'Space' },
+            { key: 'alt-right', char: 'Alt' },
+            { key: 'win-right', char: 'Win' },
+            { key: 'ctrl-right', char: 'Ctrl' }
+        ];
+        
+        return `
+            <div class="keyboard-row">
+                ${keys.map(keyData => {
+                    const fingerClass = this.fingerMap[keyData.key] || '';
+                    const keyClass = keyData.key === 'space' ? 'key-spacebar' : 'key-modifier';
+                    
+                    return `<button class="keyboard-key ${keyClass} ${fingerClass}" 
+                                    data-key="${keyData.key}" 
+                                    data-char="${keyData.char}">
+                                ${keyData.char}
+                            </button>`;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    mapKeys() {
+        this.keys.clear();
+        const keyElements = this.keyboard.querySelectorAll('.keyboard-key[data-key]');
+        keyElements.forEach(keyEl => {
+            const keyName = keyEl.getAttribute('data-key');
+            this.keys.set(keyName, keyEl);
+            
+            // Also map by character for easy lookup
+            const char = keyEl.getAttribute('data-char');
+            if (char && char.length === 1) {
+                this.keys.set(`char-${char.toLowerCase()}`, keyEl);
+            }
+            
+            // Map shift combinations
+            const shiftChar = keyEl.getAttribute('data-shift');
+            if (shiftChar) {
+                this.keys.set(`char-${shiftChar.toLowerCase()}`, keyEl);
+            }
+        });
+    }
+
+    setupEventListeners() {
+        // Toggle button listeners
+        const toggleKeyboardBtn = document.getElementById('toggle-keyboard-btn');
+        const toggleLessonKeyboardBtn = document.getElementById('toggle-lesson-keyboard-btn');
+        
+        if (toggleKeyboardBtn) {
+            toggleKeyboardBtn.addEventListener('click', () => this.toggle());
+        }
+        
+        if (toggleLessonKeyboardBtn) {
+            toggleLessonKeyboardBtn.addEventListener('click', () => this.toggle());
+        }
+    }
+
+    setupKeyboardEventListeners() {
+        if (!this.keyboard) return;
+        
+        // Keyboard control toggles
+        const toggleButtons = this.keyboard.querySelectorAll('.keyboard-toggle');
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const toggle = e.target.getAttribute('data-toggle');
+                this.handleToggle(toggle, e.target);
+            });
+        });
+        
+        // Key click handlers for visual feedback
+        const keyElements = this.keyboard.querySelectorAll('.keyboard-key');
+        keyElements.forEach(keyEl => {
+            keyEl.addEventListener('click', (e) => {
+                const keyName = e.target.getAttribute('data-key');
+                this.simulateKeyPress(keyName);
+            });
+        });
+    }
+
+    handleToggle(toggleType, button) {
+        switch (toggleType) {
+            case 'function':
+                this.showFunctionKeys = !this.showFunctionKeys;
+                const functionRow = this.keyboard.querySelector('.function-row');
+                if (functionRow) {
+                    functionRow.style.display = this.showFunctionKeys ? 'flex' : 'none';
+                }
+                button.classList.toggle('active', this.showFunctionKeys);
+                break;
+                
+            case 'numpad':
+                this.showNumpad = !this.showNumpad;
+                button.classList.toggle('active', this.showNumpad);
+                break;
+        }
+    }
+
+    simulateKeyPress(keyName) {
+        const keyEl = this.keys.get(keyName);
+        if (keyEl) {
+            keyEl.classList.add('active');
+            setTimeout(() => {
+                keyEl.classList.remove('active');
+            }, 150);
+        }
+    }
+
+    highlightKey(char) {
+        this.clearHighlights();
+        this.currentKey = char;
+        
+        if (!char) return;
+        
+        const isShiftRequired = this.isShiftRequired(char);
+        
+        if (isShiftRequired) {
+            const shiftKeys = this.keyboard.querySelectorAll('[data-key="shift-left"], [data-key="shift-right"]');
+            shiftKeys.forEach(key => key.classList.add('next-key'));
+            this.keyboard.classList.add('shift-active');
+        } else {
+            this.keyboard.classList.remove('shift-active');
+        }
+        
+        const keyEl = this.getKeyForCharacter(char);
+        if (keyEl) {
+            keyEl.classList.add('active', 'next-key');
+        }
+    }
+
+    showFeedback(char, isCorrect) {
+        const keyEl = this.getKeyForCharacter(char);
+        if (keyEl) {
+            keyEl.classList.remove('active', 'next-key', 'correct', 'incorrect');
+            keyEl.classList.add(isCorrect ? 'correct' : 'incorrect');
+            
+            setTimeout(() => {
+                keyEl.classList.remove('correct', 'incorrect');
+            }, 500);
+        }
+        
+        if (this.isShiftRequired(char)) {
+            const shiftKeys = this.keyboard.querySelectorAll('[data-key="shift-left"], [data-key="shift-right"]');
+            shiftKeys.forEach(key => {
+                key.classList.remove('next-key');
+                key.classList.add(isCorrect ? 'correct' : 'incorrect');
+                setTimeout(() => {
+                    key.classList.remove('correct', 'incorrect');
+                }, 500);
+            });
+            this.keyboard.classList.remove('shift-active');
+        }
+    }
+
+    getKeyForCharacter(char) {
+        if (!char) return null;
+        
+        const directKey = this.keys.get(`char-${char.toLowerCase()}`);
+        if (directKey) return directKey;
+        
+        const baseChar = this.getBaseCharacter(char);
+        if (baseChar) {
+            return this.keys.get(`char-${baseChar.toLowerCase()}`);
+        }
+        
+        if (this.charToKeyMap[char.toLowerCase()]) {
+            const keyName = this.charToKeyMap[char.toLowerCase()].replace('key-', '');
+            return this.keys.get(keyName);
+        }
+        
+        return null;
+    }
+
+    getBaseCharacter(char) {
+        const shiftMap = {
+            '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+            '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+            '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\',
+            ':': ';', '"': "'", '<': ',', '>': '.', '?': '/',
+            '~': '`'
+        };
+        
+        return shiftMap[char] || null;
+    }
+
+    isShiftRequired(char) {
+        const shiftChars = '!@#$%^&*()_+{}|:"<>?~';
+        return shiftChars.includes(char) || (char >= 'A' && char <= 'Z');
+    }
+
+    clearHighlights() {
+        if (!this.keyboard) return;
+        
+        const highlightedKeys = this.keyboard.querySelectorAll('.active, .next-key, .correct, .incorrect');
+        highlightedKeys.forEach(key => {
+            key.classList.remove('active', 'next-key', 'correct', 'incorrect');
+        });
+        
+        this.keyboard.classList.remove('shift-active');
+    }
+
+    reset() {
+        this.clearHighlights();
+        this.currentKey = null;
+        this.shiftPressed = false;
+    }
+
+    toggle() {
+        if (!this.container) return;
+        
+        this.isVisible = !this.isVisible;
+        this.container.classList.toggle('visible', this.isVisible);
+        
+        const toggleBtn = document.getElementById('toggle-keyboard-btn');
+        const lessonToggleBtn = document.getElementById('toggle-lesson-keyboard-btn');
+        
+        const buttonText = this.isVisible ? 'Hide Keyboard' : 'Show Keyboard';
+        if (toggleBtn && this.containerId === 'virtual-keyboard-container') {
+            toggleBtn.textContent = buttonText;
+        }
+        if (lessonToggleBtn && this.containerId === 'lesson-virtual-keyboard-container') {
+            lessonToggleBtn.textContent = buttonText;
+        }
+    }
+
+    show() {
+        if (!this.isVisible) {
+            this.toggle();
+        }
+    }
+
+    hide() {
+        if (this.isVisible) {
+            this.toggle();
+        }
+    }
+}
+
+// Initialize virtual keyboards and integrate with typing tests
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        // Create virtual keyboard instances
+        window.virtualKeyboard = new VirtualKeyboard('virtual-keyboard-container');
+        window.lessonVirtualKeyboard = new VirtualKeyboard('lesson-virtual-keyboard-container');
+        
+        // Connect virtual keyboards with typing tests
+        if (window.typingTest && window.virtualKeyboard) {
+            window.typingTest.virtualKeyboard = window.virtualKeyboard;
+        }
+        
+        if (window.lessonTypingTest && window.lessonVirtualKeyboard) {
+            window.lessonTypingTest.virtualKeyboard = window.lessonVirtualKeyboard;
+        }
+        
+        // Initial render to highlight first character if keyboards are visible
+        if (window.typingTest && window.virtualKeyboard.isVisible) {
+            window.typingTest.renderText();
+        }
+        
+        if (window.lessonTypingTest && window.lessonVirtualKeyboard.isVisible) {
+            window.lessonTypingTest.renderText();
+        }
+    }, 100); // Small delay to ensure typing tests are initialized
 });
