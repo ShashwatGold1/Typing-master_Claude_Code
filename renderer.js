@@ -1702,10 +1702,15 @@ class VirtualKeyboard {
             </div>
             
             ${this.createFunctionRow()}
-            ${this.createNumberRow()}
-            ${this.createQwertyRows()}
-            <div class="keyboard-row bottom-row">
-                ${this.createSpaceRow()}
+            
+            <div class="keyboard-main">
+                <div class="keyboard-left">
+                    ${this.createNumberRow()}
+                    ${this.createTopRow()}
+                    ${this.createHomeRow()}
+                    ${this.createBottomRow()}
+                    ${this.createSpaceRow()}
+                </div>
                 ${this.createNumpad()}
             </div>
             
@@ -1773,7 +1778,7 @@ class VirtualKeyboard {
         ];
         
         return `
-            <div class="keyboard-row">
+            <div class="keyboard-row number-row">
                 ${keys.map(keyData => {
                     const fingerClass = this.fingerMap[keyData.key] || '';
                     const keyClass = keyData.key === 'backspace' ? 'key-backspace' : 'key-number';
@@ -1790,8 +1795,8 @@ class VirtualKeyboard {
         `;
     }
 
-    createQwertyRows() {
-        const topRow = [
+    createTopRow() {
+        const keys = [
             { key: 'tab', char: 'Tab' },
             { key: 'q', char: 'q' }, { key: 'w', char: 'w' }, { key: 'e', char: 'e' },
             { key: 'r', char: 'r' }, { key: 't', char: 't' }, { key: 'y', char: 'y' },
@@ -1802,7 +1807,15 @@ class VirtualKeyboard {
             { key: 'backslash', char: '\\', shift: '|' }
         ];
         
-        const homeRow = [
+        return `
+            <div class="keyboard-row top-row">
+                ${this.createRowKeys(keys)}
+            </div>
+        `;
+    }
+
+    createHomeRow() {
+        const keys = [
             { key: 'capslock', char: 'Caps' },
             { key: 'a', char: 'a' }, { key: 's', char: 's' }, { key: 'd', char: 'd' },
             { key: 'f', char: 'f' }, { key: 'g', char: 'g' }, { key: 'h', char: 'h' },
@@ -1812,7 +1825,15 @@ class VirtualKeyboard {
             { key: 'enter', char: 'Enter' }
         ];
         
-        const bottomRow = [
+        return `
+            <div class="keyboard-row home-row">
+                ${this.createRowKeys(keys)}
+            </div>
+        `;
+    }
+
+    createBottomRow() {
+        const keys = [
             { key: 'shift-left', char: 'Shift' },
             { key: 'z', char: 'z' }, { key: 'x', char: 'x' }, { key: 'c', char: 'c' },
             { key: 'v', char: 'v' }, { key: 'b', char: 'b' }, { key: 'n', char: 'n' },
@@ -1824,32 +1845,37 @@ class VirtualKeyboard {
         ];
         
         return `
-            <div class="keyboard-row">
-                ${this.createRowKeys(topRow, 'top')}
-            </div>
-            <div class="keyboard-row">
-                ${this.createRowKeys(homeRow, 'home')}
-            </div>
-            <div class="keyboard-row">
-                ${this.createRowKeys(bottomRow, 'bottom')}
-                <div class="arrow-cluster">
-                    <button class="keyboard-key key-arrow key-arrow-up" data-key="arrow-up">↑</button>
-                    <button class="keyboard-key key-arrow key-arrow-left" data-key="arrow-left">←</button>
-                    <button class="keyboard-key key-arrow key-arrow-down" data-key="arrow-down">↓</button>
-                    <button class="keyboard-key key-arrow key-arrow-right" data-key="arrow-right">→</button>
-                </div>
+            <div class="keyboard-row bottom-row">
+                ${this.createRowKeys(keys)}
+                ${this.createArrowKeys()}
             </div>
         `;
     }
 
-    createRowKeys(keys, rowType) {
+    createArrowKeys() {
+        return `
+            <div class="arrow-cluster">
+                <button class="keyboard-key key-arrow key-arrow-up" data-key="arrow-up">↑</button>
+                <button class="keyboard-key key-arrow key-arrow-left" data-key="arrow-left">←</button>
+                <button class="keyboard-key key-arrow key-arrow-down" data-key="arrow-down">↓</button>
+                <button class="keyboard-key key-arrow key-arrow-right" data-key="arrow-right">→</button>
+            </div>
+        `;
+    }
+
+
+    createRowKeys(keys) {
         return keys.map(keyData => {
             const fingerClass = this.fingerMap[keyData.key] || '';
             let keyClass = 'key-letter';
             
             // Determine key class based on key type
-            if (['tab', 'capslock', 'enter', 'shift-left', 'shift-right'].includes(keyData.key)) {
-                keyClass = `key-${keyData.key.replace('-left', '').replace('-right', '')} key-modifier`;
+            if (['tab', 'capslock', 'enter'].includes(keyData.key)) {
+                keyClass = `key-${keyData.key} key-modifier`;
+            } else if (keyData.key === 'shift-left') {
+                keyClass = 'key-shift key-modifier';
+            } else if (keyData.key === 'shift-right') {
+                keyClass = 'key-shift key-shift-right key-modifier';
             } else if (['leftbracket', 'rightbracket', 'backslash', 'semicolon', 'apostrophe', 'comma', 'period', 'slash'].includes(keyData.key)) {
                 keyClass = 'key-special';
             }
@@ -1879,17 +1905,26 @@ class VirtualKeyboard {
         ];
         
         return `
-            <div class="space-section">
-                ${keys.map(keyData => {
-                    const fingerClass = this.fingerMap[keyData.key] || '';
-                    const keyClass = keyData.key === 'space' ? 'key-spacebar' : 'key-modifier';
-                    
-                    return `<button class="keyboard-key ${keyClass} ${fingerClass}" 
-                                    data-key="${keyData.key}" 
-                                    data-char="${keyData.char}">
-                                ${keyData.char}
-                            </button>`;
-                }).join('')}
+            <div class="keyboard-row space-row">
+                <div class="space-section">
+                    ${keys.map(keyData => {
+                        const fingerClass = this.fingerMap[keyData.key] || '';
+                        let keyClass = keyData.key === 'space' ? 'key-spacebar' : 'key-modifier';
+                        
+                        // Add specific classes for left/right variants
+                        if (keyData.key.includes('left')) {
+                            keyClass += ` key-${keyData.key}`;
+                        } else if (keyData.key.includes('right')) {
+                            keyClass += ` key-${keyData.key}`;
+                        }
+                        
+                        return `<button class="keyboard-key ${keyClass} ${fingerClass}" 
+                                        data-key="${keyData.key}" 
+                                        data-char="${keyData.char}">
+                                    ${keyData.char}
+                                </button>`;
+                    }).join('')}
+                </div>
             </div>
         `;
     }
