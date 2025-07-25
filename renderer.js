@@ -1659,6 +1659,31 @@ class VirtualKeyboard {
         rightPinky.forEach(key => this.fingerMap[key] = 'finger-pinky-right');
         
         thumbs.forEach(key => this.fingerMap[key] = 'finger-thumb');
+        
+        // Numpad finger assignments (right hand focused)
+        const numpadKeys = {
+            'numlock': 'finger-index-right',
+            'numpad-divide': 'finger-middle-right',
+            'numpad-multiply': 'finger-ring-right',
+            'numpad-minus': 'finger-pinky-right',
+            'numpad-7': 'finger-index-right',
+            'numpad-8': 'finger-middle-right',
+            'numpad-9': 'finger-ring-right',
+            'numpad-plus': 'finger-pinky-right',
+            'numpad-4': 'finger-index-right',
+            'numpad-5': 'finger-middle-right',
+            'numpad-6': 'finger-ring-right',
+            'numpad-1': 'finger-index-right',
+            'numpad-2': 'finger-middle-right',
+            'numpad-3': 'finger-ring-right',
+            'numpad-enter': 'finger-pinky-right',
+            'numpad-0': 'finger-thumb',
+            'numpad-decimal': 'finger-ring-right'
+        };
+        
+        Object.entries(numpadKeys).forEach(([key, fingerClass]) => {
+            this.fingerMap[key] = fingerClass;
+        });
     }
 
     createKeyboard() {
@@ -1679,7 +1704,10 @@ class VirtualKeyboard {
             ${this.createFunctionRow()}
             ${this.createNumberRow()}
             ${this.createQwertyRows()}
-            ${this.createSpaceRow()}
+            <div class="keyboard-row bottom-row">
+                ${this.createSpaceRow()}
+                ${this.createNumpad()}
+            </div>
             
             <div class="keyboard-legend">
                 <div class="legend-item">
@@ -1851,7 +1879,7 @@ class VirtualKeyboard {
         ];
         
         return `
-            <div class="keyboard-row">
+            <div class="space-section">
                 ${keys.map(keyData => {
                     const fingerClass = this.fingerMap[keyData.key] || '';
                     const keyClass = keyData.key === 'space' ? 'key-spacebar' : 'key-modifier';
@@ -1859,6 +1887,67 @@ class VirtualKeyboard {
                     return `<button class="keyboard-key ${keyClass} ${fingerClass}" 
                                     data-key="${keyData.key}" 
                                     data-char="${keyData.char}">
+                                ${keyData.char}
+                            </button>`;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    createNumpad() {
+        const numpadKeys = [
+            // Row 1: NumLock, /, *, -
+            { key: 'numlock', char: 'Num', position: { col: 1, row: 1 } },
+            { key: 'numpad-divide', char: '/', position: { col: 2, row: 1 } },
+            { key: 'numpad-multiply', char: '*', position: { col: 3, row: 1 } },
+            { key: 'numpad-minus', char: '-', position: { col: 4, row: 1 } },
+            
+            // Row 2: 7, 8, 9, +
+            { key: 'numpad-7', char: '7', position: { col: 1, row: 2 } },
+            { key: 'numpad-8', char: '8', position: { col: 2, row: 2 } },
+            { key: 'numpad-9', char: '9', position: { col: 3, row: 2 } },
+            { key: 'numpad-plus', char: '+', position: { col: 4, row: 2 }, span: 'row' },
+            
+            // Row 3: 4, 5, 6
+            { key: 'numpad-4', char: '4', position: { col: 1, row: 3 } },
+            { key: 'numpad-5', char: '5', position: { col: 2, row: 3 } },
+            { key: 'numpad-6', char: '6', position: { col: 3, row: 3 } },
+            
+            // Row 4: 1, 2, 3, Enter
+            { key: 'numpad-1', char: '1', position: { col: 1, row: 4 } },
+            { key: 'numpad-2', char: '2', position: { col: 2, row: 4 } },
+            { key: 'numpad-3', char: '3', position: { col: 3, row: 4 } },
+            { key: 'numpad-enter', char: 'Enter', position: { col: 4, row: 4 }, span: 'row' },
+            
+            // Row 5: 0, .
+            { key: 'numpad-0', char: '0', position: { col: 1, row: 5 }, span: 'col' },
+            { key: 'numpad-decimal', char: '.', position: { col: 3, row: 5 } }
+        ];
+        
+        return `
+            <div class="numpad" style="display: ${this.showNumpad ? 'grid' : 'none'};">
+                ${numpadKeys.map(keyData => {
+                    const fingerClass = this.fingerMap[keyData.key] || 'finger-index-right';
+                    let keyClass = 'keyboard-key key-numpad';
+                    
+                    if (keyData.key === 'numpad-enter') {
+                        keyClass += ' key-numpad-enter';
+                    } else if (keyData.key === 'numpad-0') {
+                        keyClass += ' key-numpad-zero';
+                    } else if (keyData.key === 'numpad-plus') {
+                        keyClass += ' key-numpad-plus';
+                    }
+                    
+                    const gridStyle = keyData.span === 'row' ? 
+                        `grid-row: ${keyData.position.row} / ${keyData.position.row + 2};` :
+                        keyData.span === 'col' ?
+                        `grid-column: ${keyData.position.col} / ${keyData.position.col + 2};` :
+                        '';
+                    
+                    return `<button class="${keyClass} ${fingerClass}" 
+                                    data-key="${keyData.key}" 
+                                    data-char="${keyData.char}"
+                                    style="grid-column: ${keyData.position.col}; grid-row: ${keyData.position.row}; ${gridStyle}">
                                 ${keyData.char}
                             </button>`;
                 }).join('')}
@@ -1936,6 +2025,10 @@ class VirtualKeyboard {
                 
             case 'numpad':
                 this.showNumpad = !this.showNumpad;
+                const numpad = this.keyboard.querySelector('.numpad');
+                if (numpad) {
+                    numpad.style.display = this.showNumpad ? 'grid' : 'none';
+                }
                 button.classList.toggle('active', this.showNumpad);
                 break;
         }
