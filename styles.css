@@ -948,7 +948,7 @@ select {
 .virtual-keyboard {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     max-width: 1200px;
     margin: 0 auto;
     user-select: none;
@@ -970,7 +970,7 @@ select {
 .keyboard-row {
     display: flex;
     justify-content: flex-start;
-    gap: 2px;
+    gap: 1px;
     align-items: flex-start;
     flex-wrap: nowrap;
 }
@@ -993,12 +993,15 @@ select {
 
 .keyboard-row.space-row {
     margin-left: 0;
+    justify-content: flex-start;
+    gap: 1px;
 }
 
 .space-section {
     display: flex;
-    gap: 2px;
+    gap: 1px;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 .arrow-section {
@@ -1093,14 +1096,14 @@ select {
 }
 
 .key-spacebar {
-    width: 260px;
-    min-width: 260px;
+    width: 240px;
+    min-width: 240px;
     text-align: center;
 }
 
 .key-ctrl, .key-alt, .key-win {
-    width: 48px;
-    min-width: 48px;
+    width: 45px;
+    min-width: 45px;
     font-size: 10px;
 }
 
@@ -1112,11 +1115,11 @@ select {
 
 /* Specific modifier key adjustments */
 .key-ctrl.key-ctrl-left {
-    width: 52px;
+    width: 48px;
 }
 
 .key-ctrl.key-ctrl-right {
-    width: 52px;
+    width: 48px;
 }
 
 /* Key states */
@@ -1333,7 +1336,7 @@ select {
     display: grid;
     grid-template-columns: repeat(3, 32px);
     grid-template-rows: repeat(2, 32px);
-    gap: 2px;
+    gap: 1px;
     align-self: flex-end;
     margin-top: 5px;
     margin-left: 10px;
@@ -1364,7 +1367,7 @@ select {
     display: grid;
     grid-template-columns: repeat(4, 42px);
     grid-template-rows: repeat(5, 42px);
-    gap: 2px;
+    gap: 1px;
     opacity: 1;
     align-self: flex-start;
 }
