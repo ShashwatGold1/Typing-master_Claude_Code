@@ -1573,9 +1573,188 @@ class KeyboardAndHandEffects {
         this.isVisible = false;
         this.currentScale = 1;
         this.handEffectsEnabled = true;
-        this.currentFingerTimeout = null;
         
-        // Key mapping for character to key identification
+        // Complete finger mapping based on the original working implementation
+        this.keyToFingerMap = {
+            // Function keys and system keys
+            'Escape': 'left-pinky',
+            'F1': 'left-pinky',
+            'F2': 'left-ring', 
+            'F3': 'left-middle',
+            'F4': 'left-index',
+            'F5': 'right-index',
+            'F6': 'right-middle',
+            'F7': 'right-ring',
+            'F8': 'right-pinky',
+            'F9': 'right-index',
+            'F10': 'right-middle',
+            'F11': 'right-ring',
+            'F12': 'right-pinky',
+            'PrintScreen': 'right-index',
+            'ScrollLock': 'right-middle',
+            'Pause': 'right-ring',
+            
+            // Number row
+            '`': 'left-pinky',
+            '1': 'left-pinky',
+            '2': 'left-ring',
+            '3': 'left-middle',
+            '4': 'left-index',
+            '5': 'left-index',
+            '6': 'right-index',
+            '7': 'right-index',
+            '8': 'right-middle',
+            '9': 'right-ring',
+            '0': 'right-pinky',
+            '-': 'right-pinky',
+            '=': 'right-pinky',
+            'Backspace': 'right-pinky',
+            
+            // Symbols with shift (same finger as base key)
+            '~': 'left-pinky',
+            '!': 'left-pinky',
+            '@': 'left-ring',
+            '#': 'left-middle',
+            '$': 'left-index',
+            '%': 'left-index',
+            '^': 'right-index',
+            '&': 'right-index',
+            '*': 'right-middle',
+            '(': 'right-ring',
+            ')': 'right-pinky',
+            '_': 'right-pinky',
+            '+': 'right-pinky',
+            
+            // QWERTY row
+            'Tab': 'left-pinky',
+            'q': 'left-pinky',
+            'w': 'left-ring',
+            'e': 'left-middle',
+            'r': 'left-index',
+            't': 'left-index',
+            'y': 'right-index',
+            'u': 'right-index',
+            'i': 'right-middle',
+            'o': 'right-ring',
+            'p': 'right-pinky',
+            '[': 'right-pinky',
+            ']': 'right-pinky',
+            '\\': 'right-pinky',
+            
+            // Capital letters (same finger as lowercase)
+            'Q': 'left-pinky',
+            'W': 'left-ring',
+            'E': 'left-middle',
+            'R': 'left-index',
+            'T': 'left-index',
+            'Y': 'right-index',
+            'U': 'right-index',
+            'I': 'right-middle',
+            'O': 'right-ring',
+            'P': 'right-pinky',
+            '{': 'right-pinky',
+            '}': 'right-pinky',
+            '|': 'right-pinky',
+            
+            // ASDF row
+            'CapsLock': 'left-pinky',
+            'a': 'left-pinky',
+            's': 'left-ring',
+            'd': 'left-middle',
+            'f': 'left-index',
+            'g': 'left-index',
+            'h': 'right-index',
+            'j': 'right-index',
+            'k': 'right-middle',
+            'l': 'right-ring',
+            ';': 'right-pinky',
+            "'": 'right-pinky',
+            'Enter': 'right-pinky',
+            
+            // Capital letters
+            'A': 'left-pinky',
+            'S': 'left-ring',
+            'D': 'left-middle',
+            'F': 'left-index',
+            'G': 'left-index',
+            'H': 'right-index',
+            'J': 'right-index',
+            'K': 'right-middle',
+            'L': 'right-ring',
+            ':': 'right-pinky',
+            '"': 'right-pinky',
+            
+            // ZXCV row
+            'ShiftLeft': 'left-pinky',
+            'z': 'left-pinky',
+            'x': 'left-ring',
+            'c': 'left-middle',
+            'v': 'left-index',
+            'b': 'left-index',
+            'n': 'right-index',
+            'm': 'right-index',
+            ',': 'right-middle',
+            '.': 'right-ring',
+            '/': 'right-pinky',
+            'ShiftRight': 'right-pinky',
+            
+            // Capital letters
+            'Z': 'left-pinky',
+            'X': 'left-ring',
+            'C': 'left-middle',
+            'V': 'left-index',
+            'B': 'left-index',
+            'N': 'right-index',
+            'M': 'right-index',
+            '<': 'right-middle',
+            '>': 'right-ring',
+            '?': 'right-pinky',
+            
+            // Bottom row
+            'ControlLeft': 'left-pinky',
+            'MetaLeft': 'left-pinky',
+            'AltLeft': 'left-pinky',
+            ' ': 'left-thumb',
+            'AltRight': 'right-pinky',
+            'MetaRight': 'right-pinky',
+            'ContextMenu': 'right-pinky',
+            'ControlRight': 'right-pinky',
+            
+            // Navigation cluster
+            'Insert': 'right-index',
+            'Delete': 'right-index',
+            'Home': 'right-middle',
+            'End': 'right-middle',
+            'PageUp': 'right-ring',
+            'PageDown': 'right-ring',
+            
+            // Arrow keys
+            'ArrowUp': 'right-middle',
+            'ArrowDown': 'right-middle',
+            'ArrowLeft': 'right-index',
+            'ArrowRight': 'right-ring',
+            
+            // Numpad
+            'NumLock': 'right-index',
+            'NumpadDivide': 'right-middle',
+            'NumpadMultiply': 'right-ring',
+            'NumpadSubtract': 'right-pinky',
+            'Numpad7': 'right-index',
+            'Numpad8': 'right-middle',
+            'Numpad9': 'right-ring',
+            'NumpadAdd': 'right-pinky',
+            'Numpad4': 'right-index',
+            'Numpad5': 'right-middle',
+            'Numpad6': 'right-ring',
+            'Numpad1': 'right-index',
+            'Numpad2': 'right-middle',
+            'Numpad3': 'right-ring',
+            'NumpadEnter': 'right-pinky',
+            'Numpad0': 'right-index',
+            'NumpadDecimal': 'right-ring'
+        };
+        
+        // Key mapping for finding elements
         this.keyMap = {
             // Letters
             'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g', 'h': 'h',
@@ -1593,46 +1772,6 @@ class KeyboardAndHandEffects {
             // Shifted characters
             '!': '1', '@': '2', '#': '3', '$': '4', '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
             '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/'
-        };
-        
-        // Finger mapping for each key
-        this.fingerMapping = {
-            // Left hand
-            '`': 'pinky', '1': 'pinky', '2': 'ring', '3': 'middle', '4': 'index', '5': 'index',
-            'q': 'pinky', 'w': 'ring', 'e': 'middle', 'r': 'index', 't': 'index',
-            'a': 'pinky', 's': 'ring', 'd': 'middle', 'f': 'index', 'g': 'index',
-            'z': 'pinky', 'x': 'ring', 'c': 'middle', 'v': 'index', 'b': 'index',
-            
-            // Right hand
-            '6': 'index', '7': 'index', '8': 'middle', '9': 'ring', '0': 'pinky', '-': 'pinky', '=': 'pinky',
-            'y': 'index', 'u': 'index', 'i': 'middle', 'o': 'ring', 'p': 'pinky', '[': 'pinky', ']': 'pinky', '\\': 'pinky',
-            'h': 'index', 'j': 'index', 'k': 'middle', 'l': 'ring', ';': 'pinky', "'": 'pinky',
-            'n': 'index', 'm': 'index', ',': 'middle', '.': 'ring', '/': 'pinky',
-            
-            // Space and modifiers
-            ' ': 'thumb', 'Enter': 'pinky', 'Backspace': 'pinky', 'Tab': 'pinky', 'CapsLock': 'pinky',
-            'ShiftLeft': 'pinky', 'ShiftRight': 'pinky', 'ControlLeft': 'pinky', 'ControlRight': 'pinky',
-            'AltLeft': 'pinky', 'AltRight': 'pinky', 'MetaLeft': 'pinky', 'MetaRight': 'pinky'
-        };
-        
-        // Hand mapping for each key
-        this.handMapping = {
-            // Left hand keys
-            '`': 'left', '1': 'left', '2': 'left', '3': 'left', '4': 'left', '5': 'left',
-            'q': 'left', 'w': 'left', 'e': 'left', 'r': 'left', 't': 'left',
-            'a': 'left', 's': 'left', 'd': 'left', 'f': 'left', 'g': 'left',
-            'z': 'left', 'x': 'left', 'c': 'left', 'v': 'left', 'b': 'left',
-            'ShiftLeft': 'left', 'ControlLeft': 'left', 'AltLeft': 'left', 'MetaLeft': 'left', 'Tab': 'left', 'CapsLock': 'left',
-            
-            // Right hand keys
-            '6': 'right', '7': 'right', '8': 'right', '9': 'right', '0': 'right', '-': 'right', '=': 'right',
-            'y': 'right', 'u': 'right', 'i': 'right', 'o': 'right', 'p': 'right', '[': 'right', ']': 'right', '\\': 'right',
-            'h': 'right', 'j': 'right', 'k': 'right', 'l': 'right', ';': 'right', "'": 'right',
-            'n': 'right', 'm': 'right', ',': 'right', '.': 'right', '/': 'right',
-            'Enter': 'right', 'Backspace': 'right', 'ShiftRight': 'right', 'ControlRight': 'right', 'AltRight': 'right', 'MetaRight': 'right',
-            
-            // Space uses both hands but primarily left thumb
-            ' ': 'left'
         };
         
         this.init();
@@ -1679,31 +1818,146 @@ class KeyboardAndHandEffects {
     }
     
     setupPhysicalKeyboardListeners() {
-        // Listen for physical keyboard events
+        // Enhanced physical keyboard listeners matching the original implementation
         document.addEventListener('keydown', (e) => {
             if (!this.isVisible) return;
             
-            // Get the key being pressed
-            let key = e.key;
+            console.log('🎹 Physical keydown:', e.key, e.code);
             
-            // Handle special cases
-            if (key === ' ') key = ' ';
-            else if (key.length === 1) key = key.toLowerCase();
+            // Try to find the key element, prioritizing event.code for reliability
+            let keyElement = this.findKeyElement(e.code);
+            if (!keyElement && e.key) {
+                keyElement = this.findKeyElement(e.key);
+            }
             
-            this.highlightKey(key, e);
+            if (keyElement) {
+                // Use the same logic as virtual keyboard clicks
+                const keyValue = keyElement.dataset.key;
+                console.log('✅ keyValue from element:', keyValue);
+                
+                // Call the same method that virtual clicks use
+                this.highlightKey(keyValue, e);
+            } else {
+                console.log('❌ No keyElement found for:', e.key, e.code);
+                
+                // Fallback: try to use the event.key directly for finger highlighting
+                if (this.handEffectsEnabled) {
+                    this.showFingerHighlight(e.key);
+                }
+            }
+            
+            // Prevent default for certain keys
+            if (['Tab', 'Home', 'End', 'PageUp', 'PageDown', 'F5', 'F12'].includes(e.key)) {
+                e.preventDefault();
+            }
         });
         
         document.addEventListener('keyup', (e) => {
             if (!this.isVisible) return;
-            this.clearKeyHighlight();
+            
+            console.log('🎹 Physical keyup:', e.key, e.code);
+            
+            const keyElement = this.findKeyElement(e.code || e.key);
+            if (keyElement) {
+                keyElement.classList.remove('pressed');
+                // Note: Don't remove finger highlight on key up - let it persist
+            }
         });
+    }
+    
+    findKeyElement(code) {
+        console.log('🔍 Looking for code:', code);
+        
+        // Try common key mappings first
+        const keyMappings = {
+            // Letters: KeyA -> a
+            'KeyA': 'a', 'KeyB': 'b', 'KeyC': 'c', 'KeyD': 'd', 'KeyE': 'e',
+            'KeyF': 'f', 'KeyG': 'g', 'KeyH': 'h', 'KeyI': 'i', 'KeyJ': 'j',
+            'KeyK': 'k', 'KeyL': 'l', 'KeyM': 'm', 'KeyN': 'n', 'KeyO': 'o',
+            'KeyP': 'p', 'KeyQ': 'q', 'KeyR': 'r', 'KeyS': 's', 'KeyT': 't',
+            'KeyU': 'u', 'KeyV': 'v', 'KeyW': 'w', 'KeyX': 'x', 'KeyY': 'y', 'KeyZ': 'z',
+            
+            // Numbers: Digit1 -> 1
+            'Digit1': '1', 'Digit2': '2', 'Digit3': '3', 'Digit4': '4', 'Digit5': '5',
+            'Digit6': '6', 'Digit7': '7', 'Digit8': '8', 'Digit9': '9', 'Digit0': '0',
+            
+            // Special keys
+            'Space': ' ',
+            'Enter': 'Enter',
+            'Backspace': 'Backspace',
+            'Tab': 'Tab',
+            'Escape': 'Escape',
+            'ShiftLeft': 'ShiftLeft',
+            'ShiftRight': 'ShiftRight',
+            'PrintScreen': 'PrintScreen',
+            'Home': 'Home',
+            'End': 'End',
+            'PageUp': 'PageUp',
+            'PageDown': 'PageDown',
+            
+            // Windows keys
+            'MetaLeft': 'MetaLeft',
+            'MetaRight': 'MetaRight',
+            'OSLeft': 'MetaLeft',
+            'OSRight': 'MetaRight',
+            
+            // Control keys
+            'ControlLeft': 'ControlLeft',
+            'ControlRight': 'ControlRight',
+            
+            // Alt keys
+            'AltLeft': 'AltLeft',
+            'AltRight': 'AltRight',
+            'AltGraph': 'AltRight',
+            
+            'ContextMenu': 'ContextMenu',
+            
+            // Symbols
+            'Semicolon': ';',
+            'Quote': "'",
+            'Comma': ',',
+            'Period': '.',
+            'Slash': '/',
+            'Backslash': '\\',
+            'IntlBackslash': '\\',
+            'BracketLeft': '[',
+            'BracketRight': ']',
+            'Minus': '-',
+            'Equal': '=',
+            'Backquote': '`'
+        };
+        
+        // First try direct matching
+        let found = this.container.querySelector(`[data-key="${code}"]`);
+        if (found) {
+            console.log('✅ Direct match found:', code);
+            return found;
+        }
+        
+        // Try mapped key lookup
+        if (keyMappings[code]) {
+            found = this.container.querySelector(`[data-key="${keyMappings[code]}"]`);
+            if (found) {
+                console.log('✅ Mapped match found:', code, '->', keyMappings[code]);
+                return found;
+            }
+        }
+        
+        console.log('❌ No match found for:', code);
+        return null;
     }
     
     highlightKey(character, event = null) {
         if (!this.isVisible) return;
         
-        // Clear any existing highlights
-        this.clearKeyHighlight();
+        // Clear any existing keyboard highlights
+        this.clearKeyboardHighlight();
+        
+        // Clear previous finger highlights and show new one
+        if (this.handEffectsEnabled) {
+            this.clearFingerHighlight();
+            this.showFingerHighlight(character);
+        }
         
         // Map character to key
         const mappedKey = this.keyMap[character.toLowerCase()] || character.toLowerCase();
@@ -1712,11 +1966,6 @@ class KeyboardAndHandEffects {
         const keyElement = this.container.querySelector(`[data-key="${mappedKey}"]`);
         if (keyElement) {
             keyElement.classList.add('pressed');
-        }
-        
-        // Handle hand effects
-        if (this.handEffectsEnabled) {
-            this.showFingerHighlight(character);
         }
         
         // Update status
@@ -1734,31 +1983,82 @@ class KeyboardAndHandEffects {
         }
     }
     
+    clearKeyboardHighlight() {
+        // Only remove pressed class from keyboard keys, don't clear finger highlights
+        const pressedKeys = this.container.querySelectorAll('.enhanced-key.pressed');
+        pressedKeys.forEach(key => key.classList.remove('pressed'));
+    }
+    
     showFingerHighlight(character) {
-        const finger = this.fingerMapping[character.toLowerCase()];
-        const hand = this.handMapping[character.toLowerCase()];
+        // Get finger mapping using the complete finger mapping system
+        const fingerId = this.getFingerForKey(character);
         
-        if (!finger || !hand) return;
-        
-        // Clear existing finger highlights
-        this.clearFingerHighlight();
+        if (!fingerId) return;
         
         // Get the appropriate finger image element
         const prefix = this.isLessonMode ? 'lesson-' : '';
-        const fingerImg = document.getElementById(`${prefix}${hand}-${finger}-img`);
+        const fingerImg = document.getElementById(`${prefix}${fingerId}-img`);
         
         if (fingerImg) {
             fingerImg.classList.add('active');
-            
-            // Auto-clear after a delay
-            if (this.currentFingerTimeout) {
-                clearTimeout(this.currentFingerTimeout);
-            }
-            
-            this.currentFingerTimeout = setTimeout(() => {
-                fingerImg.classList.remove('active');
-            }, 1000);
+            // Finger effect will persist until next key is pressed
         }
+    }
+    
+    getFingerForKey(keyValue, keyCode = null) {
+        // Handle space key special case
+        if (keyValue === ' ') {
+            return 'left-thumb';
+        }
+        
+        // First try keyCode for numpad and special keys
+        if (keyCode && this.keyToFingerMap[keyCode]) {
+            return this.keyToFingerMap[keyCode];
+        }
+        
+        // Direct lookup in the finger mapping
+        if (this.keyToFingerMap[keyValue]) {
+            return this.keyToFingerMap[keyValue];
+        }
+        
+        // Handle shift combinations for symbols and capitals
+        if (this.isShiftCombination(keyValue)) {
+            const baseKey = this.getBaseKeyForSymbol(keyValue);
+            if (baseKey && this.keyToFingerMap[baseKey]) {
+                return this.keyToFingerMap[baseKey];
+            }
+        }
+        
+        return null;
+    }
+    
+    isShiftCombination(keyValue) {
+        const shiftSymbols = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 
+                             '{', '}', '|', ':', '"', '<', '>', '?'];
+        return shiftSymbols.includes(keyValue) || this.isCapitalLetter(keyValue);
+    }
+    
+    getBaseKeyForSymbol(keyValue) {
+        const symbolToBaseMap = {
+            '~': '`', '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+            '^': '6', '&': '7', '*': '8', '(': '9', ')': '0', '_': '-', '+': '=',
+            '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/'
+        };
+        
+        if (symbolToBaseMap[keyValue]) {
+            return symbolToBaseMap[keyValue];
+        }
+        
+        // For capital letters, return lowercase
+        if (this.isCapitalLetter(keyValue)) {
+            return keyValue.toLowerCase();
+        }
+        
+        return null;
+    }
+    
+    isCapitalLetter(char) {
+        return char.length === 1 && char >= 'A' && char <= 'Z';
     }
     
     clearFingerHighlight() {
@@ -1775,21 +2075,26 @@ class KeyboardAndHandEffects {
                 }
             });
         });
-        
-        if (this.currentFingerTimeout) {
-            clearTimeout(this.currentFingerTimeout);
-            this.currentFingerTimeout = null;
-        }
     }
     
     getFingerName(character) {
-        const finger = this.fingerMapping[character.toLowerCase()];
-        return finger ? finger.charAt(0).toUpperCase() + finger.slice(1) : 'Unknown';
+        const fingerId = this.getFingerForKey(character);
+        if (fingerId) {
+            const [hand, finger] = fingerId.split('-');
+            const handName = hand.charAt(0).toUpperCase() + hand.slice(1);
+            const fingerName = finger.charAt(0).toUpperCase() + finger.slice(1);
+            return `${handName} ${fingerName}`;
+        }
+        return 'Unknown';
     }
     
     getHandName(character) {
-        const hand = this.handMapping[character.toLowerCase()];
-        return hand ? hand.charAt(0).toUpperCase() + hand.slice(1) : 'Unknown';
+        const fingerId = this.getFingerForKey(character);
+        if (fingerId) {
+            const [hand] = fingerId.split('-');
+            return hand.charAt(0).toUpperCase() + hand.slice(1);
+        }
+        return 'Unknown';
     }
     
     updateStatus(message) {
