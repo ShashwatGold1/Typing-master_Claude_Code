@@ -258,6 +258,16 @@ class TypingTest {
             }
         }
         
+        // Enhanced keyboard effects integration
+        if (this.enhancedKeyboard && this.enhancedKeyboard.isVisible && value.length > 0) {
+            const lastTypedChar = value[value.length - 1];
+            
+            // Only show feedback if this is a new character (not backspace)
+            if (value.length > this.currentIndex) {
+                this.enhancedKeyboard.onInputChange(lastTypedChar);
+            }
+        }
+        
         this.currentIndex = value.length;
         this.totalChars = value.length;
 
@@ -332,6 +342,11 @@ class TypingTest {
         // Reset virtual keyboard
         if (this.virtualKeyboard) {
             this.virtualKeyboard.reset();
+        }
+        
+        // Reset enhanced keyboard
+        if (this.enhancedKeyboard) {
+            this.enhancedKeyboard.reset();
         }
         
         // Clear the input
@@ -2209,20 +2224,307 @@ class VirtualKeyboard {
     }
 }
 
+// Enhanced Keyboard and Hand Effects System
+class KeyboardAndHandEffects {
+    constructor(containerId, isLessonMode = false) {
+        this.containerId = containerId;
+        this.isLessonMode = isLessonMode;
+        this.container = document.getElementById(containerId);
+        this.isVisible = false;
+        this.currentScale = 1;
+        this.handEffectsEnabled = true;
+        this.currentFingerTimeout = null;
+        
+        // Key mapping for character to key identification
+        this.keyMap = {
+            // Letters
+            'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g', 'h': 'h',
+            'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n', 'o': 'o', 'p': 'p',
+            'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u', 'v': 'v', 'w': 'w', 'x': 'x',
+            'y': 'y', 'z': 'z',
+            
+            // Numbers
+            '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+            
+            // Special characters
+            ' ': ' ', '.': '.', ',': ',', ';': ';', "'": "'", '/': '/', '\\': '\\',
+            '[': '[', ']': ']', '-': '-', '=': '=', '`': '`',
+            
+            // Shifted characters
+            '!': '1', '@': '2', '#': '3', '$': '4', '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+            '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/'
+        };
+        
+        // Finger mapping for each key
+        this.fingerMapping = {
+            // Left hand
+            '`': 'pinky', '1': 'pinky', '2': 'ring', '3': 'middle', '4': 'index', '5': 'index',
+            'q': 'pinky', 'w': 'ring', 'e': 'middle', 'r': 'index', 't': 'index',
+            'a': 'pinky', 's': 'ring', 'd': 'middle', 'f': 'index', 'g': 'index',
+            'z': 'pinky', 'x': 'ring', 'c': 'middle', 'v': 'index', 'b': 'index',
+            
+            // Right hand
+            '6': 'index', '7': 'index', '8': 'middle', '9': 'ring', '0': 'pinky', '-': 'pinky', '=': 'pinky',
+            'y': 'index', 'u': 'index', 'i': 'middle', 'o': 'ring', 'p': 'pinky', '[': 'pinky', ']': 'pinky', '\\': 'pinky',
+            'h': 'index', 'j': 'index', 'k': 'middle', 'l': 'ring', ';': 'pinky', "'": 'pinky',
+            'n': 'index', 'm': 'index', ',': 'middle', '.': 'ring', '/': 'pinky',
+            
+            // Space and modifiers
+            ' ': 'thumb', 'Enter': 'pinky', 'Backspace': 'pinky', 'Tab': 'pinky', 'CapsLock': 'pinky',
+            'ShiftLeft': 'pinky', 'ShiftRight': 'pinky', 'ControlLeft': 'pinky', 'ControlRight': 'pinky',
+            'AltLeft': 'pinky', 'AltRight': 'pinky', 'MetaLeft': 'pinky', 'MetaRight': 'pinky'
+        };
+        
+        // Hand mapping for each key
+        this.handMapping = {
+            // Left hand keys
+            '`': 'left', '1': 'left', '2': 'left', '3': 'left', '4': 'left', '5': 'left',
+            'q': 'left', 'w': 'left', 'e': 'left', 'r': 'left', 't': 'left',
+            'a': 'left', 's': 'left', 'd': 'left', 'f': 'left', 'g': 'left',
+            'z': 'left', 'x': 'left', 'c': 'left', 'v': 'left', 'b': 'left',
+            'ShiftLeft': 'left', 'ControlLeft': 'left', 'AltLeft': 'left', 'MetaLeft': 'left', 'Tab': 'left', 'CapsLock': 'left',
+            
+            // Right hand keys
+            '6': 'right', '7': 'right', '8': 'right', '9': 'right', '0': 'right', '-': 'right', '=': 'right',
+            'y': 'right', 'u': 'right', 'i': 'right', 'o': 'right', 'p': 'right', '[': 'right', ']': 'right', '\\': 'right',
+            'h': 'right', 'j': 'right', 'k': 'right', 'l': 'right', ';': 'right', "'": 'right',
+            'n': 'right', 'm': 'right', ',': 'right', '.': 'right', '/': 'right',
+            'Enter': 'right', 'Backspace': 'right', 'ShiftRight': 'right', 'ControlRight': 'right', 'AltRight': 'right', 'MetaRight': 'right',
+            
+            // Space uses both hands but primarily left thumb
+            ' ': 'left'
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        if (!this.container) {
+            console.warn(`Enhanced keyboard container ${this.containerId} not found`);
+            return;
+        }
+        
+        this.setupEventListeners();
+        this.setupPhysicalKeyboardListeners();
+        this.updateStatus('Ready to type! Press any key to see finger highlighting.');
+    }
+    
+    setupEventListeners() {
+        // Toggle keyboard button
+        const toggleBtn = document.getElementById(this.isLessonMode ? 'toggle-lesson-keyboard-btn' : 'toggle-keyboard-btn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => this.toggleKeyboard());
+        }
+        
+        // Scale slider
+        const scaleSlider = document.getElementById(this.isLessonMode ? 'lesson-scale-slider' : 'scale-slider');
+        const scaleDisplay = document.getElementById(this.isLessonMode ? 'lesson-scale-display' : 'scale-display');
+        
+        if (scaleSlider && scaleDisplay) {
+            scaleSlider.addEventListener('input', (e) => {
+                this.currentScale = parseFloat(e.target.value);
+                scaleDisplay.textContent = Math.round(this.currentScale * 100) + '%';
+                this.updateKeyboardScale();
+            });
+        }
+        
+        // Hand effects toggle
+        const handToggle = document.getElementById(this.isLessonMode ? 'lesson-hand-effects-toggle' : 'hand-effects-toggle');
+        if (handToggle) {
+            handToggle.addEventListener('change', (e) => {
+                this.handEffectsEnabled = e.target.checked;
+                this.updateHandEffectsVisibility();
+            });
+        }
+    }
+    
+    setupPhysicalKeyboardListeners() {
+        // Listen for physical keyboard events
+        document.addEventListener('keydown', (e) => {
+            if (!this.isVisible) return;
+            
+            // Get the key being pressed
+            let key = e.key;
+            
+            // Handle special cases
+            if (key === ' ') key = ' ';
+            else if (key.length === 1) key = key.toLowerCase();
+            
+            this.highlightKey(key, e);
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (!this.isVisible) return;
+            this.clearKeyHighlight();
+        });
+    }
+    
+    highlightKey(character, event = null) {
+        if (!this.isVisible) return;
+        
+        // Clear any existing highlights
+        this.clearKeyHighlight();
+        
+        // Map character to key
+        const mappedKey = this.keyMap[character.toLowerCase()] || character.toLowerCase();
+        
+        // Find the key element
+        const keyElement = this.container.querySelector(`[data-key="${mappedKey}"]`);
+        if (keyElement) {
+            keyElement.classList.add('pressed');
+        }
+        
+        // Handle hand effects
+        if (this.handEffectsEnabled) {
+            this.showFingerHighlight(character);
+        }
+        
+        // Update status
+        this.updateStatus(`Typed: ${character} - ${this.getFingerName(character)} finger, ${this.getHandName(character)} hand`);
+    }
+    
+    clearKeyHighlight() {
+        // Remove pressed class from all keys
+        const pressedKeys = this.container.querySelectorAll('.enhanced-key.pressed');
+        pressedKeys.forEach(key => key.classList.remove('pressed'));
+        
+        // Clear finger highlights
+        if (this.handEffectsEnabled) {
+            this.clearFingerHighlight();
+        }
+    }
+    
+    showFingerHighlight(character) {
+        const finger = this.fingerMapping[character.toLowerCase()];
+        const hand = this.handMapping[character.toLowerCase()];
+        
+        if (!finger || !hand) return;
+        
+        // Clear existing finger highlights
+        this.clearFingerHighlight();
+        
+        // Get the appropriate finger image element
+        const prefix = this.isLessonMode ? 'lesson-' : '';
+        const fingerImg = document.getElementById(`${prefix}${hand}-${finger}-img`);
+        
+        if (fingerImg) {
+            fingerImg.classList.add('active');
+            
+            // Auto-clear after a delay
+            if (this.currentFingerTimeout) {
+                clearTimeout(this.currentFingerTimeout);
+            }
+            
+            this.currentFingerTimeout = setTimeout(() => {
+                fingerImg.classList.remove('active');
+            }, 1000);
+        }
+    }
+    
+    clearFingerHighlight() {
+        // Clear all finger highlights
+        const prefix = this.isLessonMode ? 'lesson-' : '';
+        const hands = ['left', 'right'];
+        const fingers = ['thumb', 'index', 'middle', 'ring', 'pinky'];
+        
+        hands.forEach(hand => {
+            fingers.forEach(finger => {
+                const fingerImg = document.getElementById(`${prefix}${hand}-${finger}-img`);
+                if (fingerImg) {
+                    fingerImg.classList.remove('active');
+                }
+            });
+        });
+        
+        if (this.currentFingerTimeout) {
+            clearTimeout(this.currentFingerTimeout);
+            this.currentFingerTimeout = null;
+        }
+    }
+    
+    getFingerName(character) {
+        const finger = this.fingerMapping[character.toLowerCase()];
+        return finger ? finger.charAt(0).toUpperCase() + finger.slice(1) : 'Unknown';
+    }
+    
+    getHandName(character) {
+        const hand = this.handMapping[character.toLowerCase()];
+        return hand ? hand.charAt(0).toUpperCase() + hand.slice(1) : 'Unknown';
+    }
+    
+    updateStatus(message) {
+        const statusElement = document.getElementById(this.isLessonMode ? 'lesson-status-text' : 'status-text');
+        if (statusElement) {
+            statusElement.textContent = message;
+        }
+    }
+    
+    updateKeyboardScale() {
+        if (this.container) {
+            this.container.style.transform = `scale(${this.currentScale})`;
+        }
+    }
+    
+    updateHandEffectsVisibility() {
+        const handsContainer = document.getElementById(this.isLessonMode ? 'lesson-hands-container' : 'hands-container');
+        if (handsContainer) {
+            handsContainer.style.display = this.handEffectsEnabled ? 'block' : 'none';
+        }
+    }
+    
+    toggleKeyboard() {
+        this.isVisible = !this.isVisible;
+        
+        if (this.container) {
+            this.container.style.display = this.isVisible ? 'block' : 'none';
+        }
+        
+        // Update button text
+        const toggleBtn = document.getElementById(this.isLessonMode ? 'toggle-lesson-keyboard-btn' : 'toggle-keyboard-btn');
+        if (toggleBtn) {
+            toggleBtn.textContent = this.isVisible ? 'Hide Keyboard' : 'Show Keyboard';
+        }
+        
+        // Update hand effects visibility
+        this.updateHandEffectsVisibility();
+        
+        this.updateStatus(this.isVisible ? 'Keyboard visible - start typing!' : 'Keyboard hidden');
+    }
+    
+    // Method to be called when typing input changes
+    onInputChange(character) {
+        if (character && this.isVisible) {
+            this.highlightKey(character);
+        }
+    }
+    
+    // Reset method
+    reset() {
+        this.clearKeyHighlight();
+        this.updateStatus('Ready to type! Press any key to see finger highlighting.');
+    }
+}
+
 // Initialize virtual keyboards and integrate with typing tests
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        // Create virtual keyboard instances
+        // Create virtual keyboard instances (original)
         window.virtualKeyboard = new VirtualKeyboard('virtual-keyboard-container');
         window.lessonVirtualKeyboard = new VirtualKeyboard('lesson-virtual-keyboard-container');
+        
+        // Create enhanced keyboard instances
+        window.enhancedKeyboard = new KeyboardAndHandEffects('enhanced-keyboard-container', false);
+        window.lessonEnhancedKeyboard = new KeyboardAndHandEffects('lesson-enhanced-keyboard-container', true);
         
         // Connect virtual keyboards with typing tests
         if (window.typingTest && window.virtualKeyboard) {
             window.typingTest.virtualKeyboard = window.virtualKeyboard;
+            window.typingTest.enhancedKeyboard = window.enhancedKeyboard;
         }
         
         if (window.lessonTypingTest && window.lessonVirtualKeyboard) {
             window.lessonTypingTest.virtualKeyboard = window.lessonVirtualKeyboard;
+            window.lessonTypingTest.enhancedKeyboard = window.lessonEnhancedKeyboard;
         }
         
         // Initial render to highlight first character if keyboards are visible
