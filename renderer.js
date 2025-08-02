@@ -69,6 +69,13 @@ class NavigationManager {
                     window.lessonManager.updateAllLessonCards();
                 }
             }, 100);
+        } else if (page === 'touch-typing') {
+            // Initialize touch typing page when navigating to it
+            setTimeout(() => {
+                if (window.touchTypingManager) {
+                    window.touchTypingManager.init();
+                }
+            }, 100);
         }
     }
 }
@@ -237,16 +244,6 @@ class TypingTest {
         }
         
         
-        // Enhanced keyboard effects integration
-        if (this.enhancedKeyboard && this.enhancedKeyboard.isVisible && value.length > 0) {
-            const lastTypedChar = value[value.length - 1];
-            
-            // Only show feedback if this is a new character (not backspace)
-            if (value.length > this.currentIndex) {
-                this.enhancedKeyboard.onInputChange(lastTypedChar);
-            }
-        }
-        
         this.currentIndex = value.length;
         this.totalChars = value.length;
 
@@ -318,11 +315,6 @@ class TypingTest {
             this.wpmUpdateTimer = null;
         }
         
-        
-        // Reset enhanced keyboard
-        if (this.enhancedKeyboard) {
-            this.enhancedKeyboard.reset();
-        }
         
         // Clear the input
         this.typingInput.value = '';
@@ -496,6 +488,553 @@ class TypingTest {
         });
     }
 
+}
+
+// Touch Typing System
+class TouchTypingManager {
+    constructor() {
+        this.currentLesson = 1;
+        this.currentStep = 1;
+        this.totalSteps = 4;
+        this.isActive = false;
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.startTime = null;
+        this.timer = null;
+        
+        this.lessons = {
+            1: {
+                title: "F & J Keys Foundation",
+                steps: [
+                    {
+                        instruction: "Place your left index finger on F and right index finger on J. These are your anchor keys.",
+                        text: "fff jjj fff jjj",
+                        highlightKeys: ['f', 'j']
+                    },
+                    {
+                        instruction: "Alternate between F and J keys. Keep your fingers anchored to their home positions.",
+                        text: "fjf jfj fjf jfj",
+                        highlightKeys: ['f', 'j']
+                    },
+                    {
+                        instruction: "Practice smooth transitions. Feel the rhythm of your fingers returning to home position.",
+                        text: "fjjf jffj fjjf jffj",
+                        highlightKeys: ['f', 'j']
+                    },
+                    {
+                        instruction: "Final challenge: Mix F and J keys with confidence and steady rhythm.",
+                        text: "fjfj jfjf fjjf jffj fjfj",
+                        highlightKeys: ['f', 'j']
+                    }
+                ]
+            },
+            2: {
+                title: "Space Bar Mastery", 
+                steps: [
+                    {
+                        instruction: "Place your right thumb over the space bar. Keep your fingers on F and J.",
+                        text: "f j f j",
+                        highlightKeys: ['f', 'j', 'space']
+                    },
+                    {
+                        instruction: "Type letters and spaces. Use your thumb to hit the space bar with a quick, light touch.",
+                        text: "f j f j f j",
+                        highlightKeys: ['f', 'j', 'space']
+                    },
+                    {
+                        instruction: "Practice word spacing. Each space should be clean and consistent.",
+                        text: "fj fj jf jf fj",
+                        highlightKeys: ['f', 'j', 'space']
+                    },
+                    {
+                        instruction: "Master the rhythm of letters and spaces together.",
+                        text: "fjf jfj fjf jfj",
+                        highlightKeys: ['f', 'j', 'space']
+                    }
+                ]
+            },
+            3: {
+                title: "D & K Keys Practice",
+                steps: [
+                    {
+                        instruction: "Add your middle fingers. Left middle finger on D, right middle finger on K.",
+                        text: "ddd kkk ddd kkk",
+                        highlightKeys: ['d', 'k']
+                    },
+                    {
+                        instruction: "Combine D and K with your anchor keys F and J.",
+                        text: "df jk df jk",
+                        highlightKeys: ['d', 'f', 'j', 'k']
+                    },
+                    {
+                        instruction: "Practice flowing between all four keys smoothly.",
+                        text: "dfk jdf kfj dkj",
+                        highlightKeys: ['d', 'f', 'j', 'k']
+                    },
+                    {
+                        instruction: "Master all learned keys with spaces for real word formation.",
+                        text: "fad jak fed jek",
+                        highlightKeys: ['d', 'f', 'j', 'k', 'space']
+                    }
+                ]
+            },
+            4: {
+                title: "Foundation Review",
+                steps: [
+                    {
+                        instruction: "Review all learned keys: F, J, D, K, and Space.",
+                        text: "fjdk fjdk fjdk",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    },
+                    {
+                        instruction: "Type simple words using your foundation keys.",
+                        text: "dad jak fed jed",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    },
+                    {
+                        instruction: "Build confidence with longer combinations.",
+                        text: "jade fade jaded fade jade",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    },
+                    {
+                        instruction: "Final mastery test with varied patterns and rhythm.",
+                        text: "fjdk jfkd dkfj kdjf jade fade",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    }
+                ]
+            },
+            5: {
+                title: "Speed & Accuracy",
+                steps: [
+                    {
+                        instruction: "Focus on speed while maintaining accuracy. Build your confidence.",
+                        text: "jade fade jaded",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    },
+                    {
+                        instruction: "Challenge yourself with rapid-fire letter combinations.",
+                        text: "fjdk jfkd fjdk jfkd fjdk",
+                        highlightKeys: ['f', 'j', 'd', 'k']
+                    },
+                    {
+                        instruction: "Type meaningful words with confidence and flow.",
+                        text: "jade fade jaded fade jade fade",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    },
+                    {
+                        instruction: "Final challenge: Maintain rhythm and accuracy at speed.",
+                        text: "jaded jade fade fjdk jfkd jade fade jaded",
+                        highlightKeys: ['f', 'j', 'd', 'k', 'space']
+                    }
+                ]
+            }
+        };
+        
+        this.progress = {
+            completedLessons: 0,
+            overallProgress: 0,
+            currentStage: "Foundation"
+        };
+        
+        this.loadProgress();
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.updateProgressDisplay();
+    }
+
+    setupEventListeners() {
+        // Lesson card click handlers
+        document.querySelectorAll('.touch-lesson-card.available .lesson-btn').forEach((btn, index) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const lessonCard = btn.closest('.touch-lesson-card');
+                const lessonNumber = parseInt(lessonCard.getAttribute('data-lesson'));
+                this.startLesson(lessonNumber);
+            });
+        });
+
+        // Interface controls
+        const backBtn = document.getElementById('back-to-overview');
+        const resetBtn = document.getElementById('reset-lesson');
+        const nextBtn = document.getElementById('next-step');
+
+        if (backBtn) {
+            backBtn.addEventListener('click', () => this.backToOverview());
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetCurrentStep());
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.nextStep());
+        }
+
+        // Typing input handler
+        const typingInput = document.getElementById('touch-typing-input');
+        if (typingInput) {
+            typingInput.addEventListener('input', (e) => this.handleInput(e));
+            typingInput.addEventListener('focus', () => {
+                if (!this.isActive && this.currentLesson && this.currentStep) {
+                    this.startStep();
+                }
+            });
+        }
+    }
+
+    startLesson(lessonNumber) {
+        this.currentLesson = lessonNumber;
+        this.currentStep = 1;
+        
+        // Show interface, hide overview
+        document.querySelector('.touch-typing-grid').style.display = 'none';
+        document.querySelector('.progress-overview').style.display = 'none';
+        document.getElementById('touch-typing-interface').style.display = 'block';
+        
+        this.loadStep();
+    }
+
+    loadStep() {
+        const lesson = this.lessons[this.currentLesson];
+        const step = lesson.steps[this.currentStep - 1];
+        
+        // Update interface
+        document.getElementById('current-lesson-title').textContent = lesson.title;
+        document.getElementById('lesson-step').textContent = `Step ${this.currentStep} of ${this.totalSteps}`;
+        document.getElementById('instruction-text').textContent = step.instruction;
+        document.getElementById('touch-text-content').textContent = step.text;
+        
+        // Update step indicators
+        document.querySelectorAll('.step').forEach((stepEl, index) => {
+            stepEl.classList.remove('active', 'completed');
+            if (index < this.currentStep - 1) {
+                stepEl.classList.add('completed');
+            } else if (index === this.currentStep - 1) {
+                stepEl.classList.add('active');
+            }
+        });
+        
+        // Update hand position highlights
+        this.updateHandGuide(step.highlightKeys);
+        
+        // Reset input and stats
+        const typingInput = document.getElementById('touch-typing-input');
+        typingInput.value = '';
+        typingInput.placeholder = `Type: ${step.text}`;
+        
+        this.resetStats();
+        this.renderText();
+        
+        // Focus input
+        setTimeout(() => {
+            typingInput.focus();
+        }, 100);
+    }
+
+    updateHandGuide(highlightKeys) {
+        // Reset all highlights
+        document.querySelectorAll('.finger-pos, .spacebar').forEach(el => {
+            el.classList.remove('highlight');
+        });
+        
+        // Add highlights for current keys
+        highlightKeys.forEach(key => {
+            if (key === 'space') {
+                document.querySelector('.spacebar').classList.add('highlight');
+            } else {
+                const keyEl = document.querySelector(`[data-key="${key}"]`);
+                if (keyEl) {
+                    keyEl.classList.add('highlight');
+                }
+            }
+        });
+        
+        // Also highlight fingers in the new hand effects system
+        if (window.touchTypingKeyboardEffects) {
+            window.touchTypingKeyboardEffects.highlightLessonFingers(highlightKeys);
+        }
+    }
+
+    handleInput(e) {
+        if (!this.isActive) {
+            this.startStep();
+        }
+        
+        const inputValue = e.target.value;
+        const targetText = this.lessons[this.currentLesson].steps[this.currentStep - 1].text;
+        
+        // Limit input length
+        if (inputValue.length > targetText.length) {
+            e.target.value = inputValue.substring(0, targetText.length);
+            return;
+        }
+        
+        // Trigger keyboard effects for the last typed character
+        if (inputValue.length > 0 && window.touchTypingKeyboardEffects) {
+            const lastChar = inputValue[inputValue.length - 1];
+            window.touchTypingKeyboardEffects.handleKeyPress(lastChar);
+        }
+        
+        this.currentIndex = inputValue.length;
+        this.totalChars = inputValue.length;
+        
+        // Calculate correct characters
+        this.correctChars = 0;
+        for (let i = 0; i < inputValue.length; i++) {
+            if (inputValue[i] === targetText[i]) {
+                this.correctChars++;
+            }
+        }
+        
+        this.renderText();
+        this.updateStats();
+        
+        // Check completion
+        if (inputValue.length >= targetText.length && this.correctChars === targetText.length) {
+            this.completeStep();
+        }
+    }
+
+    startStep() {
+        this.isActive = true;
+        this.startTime = Date.now();
+        
+        this.timer = setInterval(() => {
+            this.updateStats();
+        }, 1000);
+    }
+
+    completeStep() {
+        this.isActive = false;
+        
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        // Enable next button
+        const nextBtn = document.getElementById('next-step');
+        nextBtn.disabled = false;
+        nextBtn.textContent = this.currentStep < this.totalSteps ? 'Next Step' : 'Complete Lesson';
+        
+        // Show completion feedback
+        if (window.popupManager) {
+            const accuracy = Math.round((this.correctChars / this.totalChars) * 100);
+            window.popupManager.success(
+                'Step Complete! 🎉',
+                `Great job! You completed this step with ${accuracy}% accuracy.`,
+                {
+                    showCancel: false,
+                    confirmText: 'Continue',
+                    onConfirm: () => {
+                        if (this.currentStep < this.totalSteps) {
+                            this.nextStep();
+                        } else {
+                            this.completeLesson();
+                        }
+                    }
+                }
+            );
+        }
+    }
+
+    nextStep() {
+        if (this.currentStep < this.totalSteps) {
+            this.currentStep++;
+            this.loadStep();
+            
+            // Disable next button until step completion
+            document.getElementById('next-step').disabled = true;
+            document.getElementById('next-step').textContent = 'Next Step';
+        } else {
+            this.completeLesson();
+        }
+    }
+
+    completeLesson() {
+        // Update progress
+        if (this.currentLesson > this.progress.completedLessons) {
+            this.progress.completedLessons = this.currentLesson;
+            this.progress.overallProgress = (this.currentLesson / 5) * 100;
+            
+            // Update stage
+            if (this.currentLesson <= 2) {
+                this.progress.currentStage = "Foundation";
+            } else if (this.currentLesson <= 4) {
+                this.progress.currentStage = "Building";
+            } else {
+                this.progress.currentStage = "Mastery";
+            }
+            
+            this.saveProgress();
+        }
+        
+        // Unlock next lesson
+        if (this.currentLesson < 5) {
+            this.unlockLesson(this.currentLesson + 1);
+        }
+        
+        // Show completion message
+        if (window.popupManager) {
+            const message = this.currentLesson < 5 ? 
+                'Lesson complete! The next lesson has been unlocked.' :
+                'Congratulations! You\'ve completed all touch typing foundation lessons!';
+                
+            window.popupManager.success(
+                'Lesson Complete! 🎯',
+                message,
+                {
+                    showCancel: false,
+                    confirmText: 'Back to Overview',
+                    onConfirm: () => this.backToOverview()
+                }
+            );
+        }
+    }
+
+    unlockLesson(lessonNumber) {
+        const lessonCard = document.querySelector(`[data-lesson="${lessonNumber}"]`);
+        if (lessonCard) {
+            lessonCard.classList.remove('locked');
+            lessonCard.classList.add('available');
+            
+            const statusIcon = lessonCard.querySelector('.status-icon');
+            const button = lessonCard.querySelector('.lesson-btn');
+            
+            statusIcon.textContent = '🔓';
+            button.textContent = 'Start Lesson';
+            button.classList.remove('btn-disabled');
+            button.classList.add('btn-primary');
+            
+            // Add click handler
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.startLesson(lessonNumber);
+            });
+        }
+    }
+
+    resetCurrentStep() {
+        this.isActive = false;
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.startTime = null;
+        
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        // Reset input and display
+        document.getElementById('touch-typing-input').value = '';
+        document.getElementById('next-step').disabled = true;
+        document.getElementById('next-step').textContent = 'Next Step';
+        
+        this.resetStats();
+        this.renderText();
+        
+        // Focus input
+        setTimeout(() => {
+            document.getElementById('touch-typing-input').focus();
+        }, 100);
+    }
+
+    backToOverview() {
+        // Hide interface, show overview
+        document.getElementById('touch-typing-interface').style.display = 'none';
+        document.querySelector('.touch-typing-grid').style.display = 'grid';
+        document.querySelector('.progress-overview').style.display = 'block';
+        
+        // Reset state
+        this.isActive = false;
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        this.updateProgressDisplay();
+    }
+
+    renderText() {
+        const targetText = this.lessons[this.currentLesson].steps[this.currentStep - 1].text;
+        const typedText = document.getElementById('touch-typing-input').value;
+        const textContent = document.getElementById('touch-text-content');
+        
+        const chars = targetText.split('');
+        textContent.innerHTML = chars.map((char, index) => {
+            let className = 'char';
+            if (index < typedText.length) {
+                const typedChar = typedText[index];
+                className += typedChar === char ? ' correct' : ' incorrect';
+            } else if (index === typedText.length) {
+                className += ' current';
+            }
+            return `<span class="${className}">${char === ' ' ? '&nbsp;' : char}</span>`;
+        }).join('');
+    }
+
+    updateStats() {
+        let wpm = 0;
+        if (this.isActive && this.startTime) {
+            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
+            if (timeElapsedSeconds >= 1) {
+                const timeElapsedMinutes = timeElapsedSeconds / 60;
+                const wordsTyped = this.correctChars / 5;
+                wpm = Math.round(wordsTyped / timeElapsedMinutes);
+            }
+        }
+        
+        const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 100;
+        const completion = this.totalChars > 0 ? Math.round((this.totalChars / this.lessons[this.currentLesson].steps[this.currentStep - 1].text.length) * 100) : 0;
+        
+        document.getElementById('touch-wpm').textContent = wpm;
+        document.getElementById('touch-accuracy').textContent = `${accuracy}%`;
+        document.getElementById('lesson-completion').textContent = `${completion}%`;
+    }
+
+    resetStats() {
+        document.getElementById('touch-wpm').textContent = '0';
+        document.getElementById('touch-accuracy').textContent = '100%';
+        document.getElementById('lesson-completion').textContent = '0%';
+    }
+
+    updateProgressDisplay() {
+        document.getElementById('overall-progress').textContent = `${Math.round(this.progress.overallProgress)}%`;
+        document.getElementById('progress-fill').style.width = `${this.progress.overallProgress}%`;
+        document.getElementById('completed-lessons').textContent = `${this.progress.completedLessons}/5`;
+        document.getElementById('current-stage').textContent = this.progress.currentStage;
+    }
+
+    loadProgress() {
+        try {
+            const savedProgress = localStorage.getItem('touch-typing-progress');
+            if (savedProgress) {
+                this.progress = { ...this.progress, ...JSON.parse(savedProgress) };
+                
+                // Unlock completed lessons
+                for (let i = 1; i <= this.progress.completedLessons + 1 && i <= 5; i++) {
+                    if (i > 1) {
+                        this.unlockLesson(i);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading touch typing progress:', error);
+        }
+    }
+
+    saveProgress() {
+        try {
+            localStorage.setItem('touch-typing-progress', JSON.stringify(this.progress));
+        } catch (error) {
+            console.error('Error saving touch typing progress:', error);
+        }
+    }
 }
 
 // Lesson System
@@ -1451,6 +1990,248 @@ class PopupManager {
     }
 }
 
+// Touch Typing Keyboard and Hand Effects System
+class TouchTypingKeyboardEffects {
+    constructor() {
+        this.keyboardScale = 0.7;
+        this.handScale = 0.8;
+        this.keyboardContainer = null;
+        this.handsWrapper = null;
+        this.activeFingers = new Set();
+        
+        // Simplified finger mapping for touch typing focus
+        this.keyToFingerMap = {
+            // Letters
+            'a': 'left-pinky', 's': 'left-ring', 'd': 'left-middle', 'f': 'left-index', 'g': 'left-index',
+            'h': 'right-index', 'j': 'right-index', 'k': 'right-middle', 'l': 'right-ring', ';': 'right-pinky',
+            'q': 'left-pinky', 'w': 'left-ring', 'e': 'left-middle', 'r': 'left-index', 't': 'left-index',
+            'y': 'right-index', 'u': 'right-index', 'i': 'right-middle', 'o': 'right-ring', 'p': 'right-pinky',
+            'z': 'left-pinky', 'x': 'left-ring', 'c': 'left-middle', 'v': 'left-index', 'b': 'left-index',
+            'n': 'right-index', 'm': 'right-index', ',': 'right-middle', '.': 'right-ring', '/': 'right-pinky',
+            
+            // Capital letters (same fingers)
+            'A': 'left-pinky', 'S': 'left-ring', 'D': 'left-middle', 'F': 'left-index', 'G': 'left-index',
+            'H': 'right-index', 'J': 'right-index', 'K': 'right-middle', 'L': 'right-ring',
+            'Q': 'left-pinky', 'W': 'left-ring', 'E': 'left-middle', 'R': 'left-index', 'T': 'left-index',
+            'Y': 'right-index', 'U': 'right-index', 'I': 'right-middle', 'O': 'right-ring', 'P': 'right-pinky',
+            'Z': 'left-pinky', 'X': 'left-ring', 'C': 'left-middle', 'V': 'left-index', 'B': 'left-index',
+            'N': 'right-index', 'M': 'right-index',
+            
+            // Special keys
+            ' ': 'left-thumb', // Space
+            'Enter': 'right-pinky',
+            'Backspace': 'right-pinky',
+            'Tab': 'left-pinky',
+            'Shift': 'left-pinky', // Default to left shift
+            'ShiftLeft': 'left-pinky',
+            'ShiftRight': 'right-pinky',
+            'CapsLock': 'left-pinky'
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        // Wait for touch typing interface to be available
+        setTimeout(() => {
+            this.setupElements();
+            this.setupScaleControls();
+            this.setupKeyboardInteraction();
+            console.log('✅ TouchTypingKeyboardEffects initialized successfully');
+        }, 100);
+    }
+    
+    setupElements() {
+        this.keyboardContainer = document.querySelector('.touch-keyboard-container');
+        this.handsWrapper = document.querySelector('.touch-hands-container .hands-wrapper');
+        
+        console.log('🔧 Keyboard container found:', !!this.keyboardContainer);
+        console.log('🔧 Hands wrapper found:', !!this.handsWrapper);
+        
+        if (this.keyboardContainer) {
+            this.applyKeyboardScale(this.keyboardScale);
+            console.log('⚙️ Keyboard scale applied:', this.keyboardScale);
+        }
+        
+        if (this.handsWrapper) {
+            this.applyHandScale(this.handScale);
+            console.log('⚙️ Hand scale applied:', this.handScale);
+        }
+    }
+    
+    setupScaleControls() {
+        // Keyboard scale control
+        const keyboardScaleSlider = document.getElementById('touch-scale-slider');
+        const keyboardScaleDisplay = document.getElementById('touch-scale-display');
+        
+        if (keyboardScaleSlider && keyboardScaleDisplay) {
+            keyboardScaleSlider.addEventListener('input', (e) => {
+                const scale = parseFloat(e.target.value);
+                this.setKeyboardScale(scale);
+                keyboardScaleDisplay.textContent = `${(scale * 100).toFixed(0)}%`;
+            });
+            
+            keyboardScaleDisplay.textContent = `${(this.keyboardScale * 100).toFixed(0)}%`;
+            keyboardScaleSlider.value = this.keyboardScale;
+        }
+        
+        // Hand scale control
+        const handScaleSlider = document.getElementById('touch-hand-scale-slider');
+        const handScaleDisplay = document.getElementById('touch-hand-scale-display');
+        
+        if (handScaleSlider && handScaleDisplay) {
+            handScaleSlider.addEventListener('input', (e) => {
+                const scale = parseFloat(e.target.value);
+                this.setHandScale(scale);
+                handScaleDisplay.textContent = `${(scale * 100).toFixed(0)}%`;
+            });
+            
+            handScaleDisplay.textContent = `${(this.handScale * 100).toFixed(0)}%`;
+            handScaleSlider.value = this.handScale;
+        }
+    }
+    
+    setupKeyboardInteraction() {
+        // Add click listeners to keyboard keys
+        const keys = document.querySelectorAll('.touch-keyboard-container .key');
+        console.log('🎹 Found keyboard keys:', keys.length);
+        
+        keys.forEach(key => {
+            key.addEventListener('click', (e) => {
+                const keyValue = key.dataset.key;
+                console.log('🎯 Key clicked:', keyValue);
+                this.simulateKeyPress(key, keyValue);
+            });
+        });
+    }
+    
+    setKeyboardScale(scale) {
+        this.keyboardScale = scale;
+        this.applyKeyboardScale(scale);
+    }
+    
+    applyKeyboardScale(scale) {
+        if (this.keyboardContainer) {
+            this.keyboardContainer.style.transform = `scale(${scale})`;
+        }
+    }
+    
+    setHandScale(scale) {
+        this.handScale = scale;
+        this.applyHandScale(scale);
+    }
+    
+    applyHandScale(scale) {
+        if (this.handsWrapper) {
+            this.handsWrapper.style.transform = `scale(${scale})`;
+        }
+    }
+    
+    // Handle key press from typing input
+    handleKeyPress(keyValue, keyCode = null) {
+        // Find the corresponding keyboard key element
+        const keyElement = this.findKeyElement(keyValue, keyCode);
+        
+        if (keyElement) {
+            this.simulateKeyPress(keyElement, keyValue);
+        }
+        
+        // Highlight the finger for this key
+        this.highlightFingerForKey(keyValue);
+    }
+    
+    findKeyElement(keyValue, keyCode = null) {
+        // Try direct match first
+        let keyElement = document.querySelector(`.touch-keyboard-container .key[data-key="${keyValue}"]`);
+        
+        if (!keyElement && keyCode) {
+            // Try with keyCode for special keys
+            keyElement = document.querySelector(`.touch-keyboard-container .key[data-key="${keyCode}"]`);
+        }
+        
+        return keyElement;
+    }
+    
+    simulateKeyPress(keyElement, keyValue) {
+        // Add pressed class for visual feedback
+        keyElement.classList.add('pressed');
+        
+        // Remove pressed class after animation
+        setTimeout(() => {
+            keyElement.classList.remove('pressed');
+        }, 200);
+        
+        // Highlight corresponding finger
+        this.highlightFingerForKey(keyValue);
+    }
+    
+    highlightFingerForKey(keyValue) {
+        // Clear previous highlights first for single-key highlighting
+        this.clearAllFingerHighlights();
+        
+        // Get the finger for this key
+        const fingerId = this.getFingerForKey(keyValue);
+        
+        if (fingerId) {
+            this.activateFingerImage(fingerId);
+            this.activeFingers.add(fingerId);
+            
+            // Keep finger highlighted for a short duration
+            setTimeout(() => {
+                this.deactivateFingerImage(fingerId);
+                this.activeFingers.delete(fingerId);
+            }, 800);
+        }
+    }
+    
+    getFingerForKey(keyValue) {
+        // Handle space key - alternate between thumbs
+        if (keyValue === ' ') {
+            return Math.random() > 0.5 ? 'left-thumb' : 'right-thumb';
+        }
+        
+        // Direct lookup in the finger mapping
+        return this.keyToFingerMap[keyValue] || null;
+    }
+    
+    activateFingerImage(fingerId) {
+        const fingerImg = document.getElementById(`touch-${fingerId}-img`);
+        if (fingerImg) {
+            fingerImg.classList.add('active');
+        }
+    }
+    
+    deactivateFingerImage(fingerId) {
+        const fingerImg = document.getElementById(`touch-${fingerId}-img`);
+        if (fingerImg) {
+            fingerImg.classList.remove('active');
+        }
+    }
+    
+    clearAllFingerHighlights() {
+        const activeFingerImages = document.querySelectorAll('.touch-hands-container .finger-image.active');
+        activeFingerImages.forEach(img => img.classList.remove('active'));
+        this.activeFingers.clear();
+    }
+    
+    // Method to highlight specific fingers for lesson guidance
+    highlightLessonFingers(keys) {
+        this.clearAllFingerHighlights();
+        
+        keys.forEach(key => {
+            // Convert 'space' to proper key value
+            const keyValue = key === 'space' ? ' ' : key;
+            const fingerId = this.getFingerForKey(keyValue);
+            if (fingerId) {
+                this.activateFingerImage(fingerId);
+                this.activeFingers.add(fingerId);
+            }
+        });
+        
+        // For lesson guidance, keep fingers highlighted persistently (no auto-clear timeout)
+    }
+}
+
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Small delay to ensure all elements are ready
@@ -1467,6 +2248,19 @@ document.addEventListener('DOMContentLoaded', () => {
         window.animationManager = new AnimationManager();
         window.inputMonitor = new InputFieldMonitor();
         window.popupManager = new PopupManager();
+        window.touchTypingManager = new TouchTypingManager();
+        window.touchTypingKeyboardEffects = new TouchTypingKeyboardEffects();
+        
+        // Test integration after a small delay
+        setTimeout(() => {
+            if (window.touchTypingKeyboardEffects && 
+                window.touchTypingKeyboardEffects.keyboardContainer && 
+                window.touchTypingKeyboardEffects.handsWrapper) {
+                console.log('🎉 Integration test PASSED: All systems ready!');
+            } else {
+                console.warn('⚠️ Integration test FAILED: Some elements missing');
+            }
+        }, 200);
 
         // Add lesson interface event listeners
         const lessonResetBtn = document.getElementById('lesson-reset-btn');
@@ -1564,606 +2358,3 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Enhanced Keyboard and Hand Effects System
-class KeyboardAndHandEffects {
-    constructor(containerId, isLessonMode = false) {
-        this.containerId = containerId;
-        this.isLessonMode = isLessonMode;
-        this.container = document.getElementById(containerId);
-        this.isVisible = false;
-        this.currentScale = 1;
-        this.handEffectsEnabled = true;
-        
-        // Complete finger mapping based on the original working implementation
-        this.keyToFingerMap = {
-            // Function keys and system keys
-            'Escape': 'left-pinky',
-            'F1': 'left-pinky',
-            'F2': 'left-ring', 
-            'F3': 'left-middle',
-            'F4': 'left-index',
-            'F5': 'right-index',
-            'F6': 'right-middle',
-            'F7': 'right-ring',
-            'F8': 'right-pinky',
-            'F9': 'right-index',
-            'F10': 'right-middle',
-            'F11': 'right-ring',
-            'F12': 'right-pinky',
-            'PrintScreen': 'right-index',
-            'ScrollLock': 'right-middle',
-            'Pause': 'right-ring',
-            
-            // Number row
-            '`': 'left-pinky',
-            '1': 'left-pinky',
-            '2': 'left-ring',
-            '3': 'left-middle',
-            '4': 'left-index',
-            '5': 'left-index',
-            '6': 'right-index',
-            '7': 'right-index',
-            '8': 'right-middle',
-            '9': 'right-ring',
-            '0': 'right-pinky',
-            '-': 'right-pinky',
-            '=': 'right-pinky',
-            'Backspace': 'right-pinky',
-            
-            // Symbols with shift (same finger as base key)
-            '~': 'left-pinky',
-            '!': 'left-pinky',
-            '@': 'left-ring',
-            '#': 'left-middle',
-            '$': 'left-index',
-            '%': 'left-index',
-            '^': 'right-index',
-            '&': 'right-index',
-            '*': 'right-middle',
-            '(': 'right-ring',
-            ')': 'right-pinky',
-            '_': 'right-pinky',
-            '+': 'right-pinky',
-            
-            // QWERTY row
-            'Tab': 'left-pinky',
-            'q': 'left-pinky',
-            'w': 'left-ring',
-            'e': 'left-middle',
-            'r': 'left-index',
-            't': 'left-index',
-            'y': 'right-index',
-            'u': 'right-index',
-            'i': 'right-middle',
-            'o': 'right-ring',
-            'p': 'right-pinky',
-            '[': 'right-pinky',
-            ']': 'right-pinky',
-            '\\': 'right-pinky',
-            
-            // Capital letters (same finger as lowercase)
-            'Q': 'left-pinky',
-            'W': 'left-ring',
-            'E': 'left-middle',
-            'R': 'left-index',
-            'T': 'left-index',
-            'Y': 'right-index',
-            'U': 'right-index',
-            'I': 'right-middle',
-            'O': 'right-ring',
-            'P': 'right-pinky',
-            '{': 'right-pinky',
-            '}': 'right-pinky',
-            '|': 'right-pinky',
-            
-            // ASDF row
-            'CapsLock': 'left-pinky',
-            'a': 'left-pinky',
-            's': 'left-ring',
-            'd': 'left-middle',
-            'f': 'left-index',
-            'g': 'left-index',
-            'h': 'right-index',
-            'j': 'right-index',
-            'k': 'right-middle',
-            'l': 'right-ring',
-            ';': 'right-pinky',
-            "'": 'right-pinky',
-            'Enter': 'right-pinky',
-            
-            // Capital letters
-            'A': 'left-pinky',
-            'S': 'left-ring',
-            'D': 'left-middle',
-            'F': 'left-index',
-            'G': 'left-index',
-            'H': 'right-index',
-            'J': 'right-index',
-            'K': 'right-middle',
-            'L': 'right-ring',
-            ':': 'right-pinky',
-            '"': 'right-pinky',
-            
-            // ZXCV row
-            'ShiftLeft': 'left-pinky',
-            'z': 'left-pinky',
-            'x': 'left-ring',
-            'c': 'left-middle',
-            'v': 'left-index',
-            'b': 'left-index',
-            'n': 'right-index',
-            'm': 'right-index',
-            ',': 'right-middle',
-            '.': 'right-ring',
-            '/': 'right-pinky',
-            'ShiftRight': 'right-pinky',
-            
-            // Capital letters
-            'Z': 'left-pinky',
-            'X': 'left-ring',
-            'C': 'left-middle',
-            'V': 'left-index',
-            'B': 'left-index',
-            'N': 'right-index',
-            'M': 'right-index',
-            '<': 'right-middle',
-            '>': 'right-ring',
-            '?': 'right-pinky',
-            
-            // Bottom row
-            'ControlLeft': 'left-pinky',
-            'MetaLeft': 'left-pinky',
-            'AltLeft': 'left-pinky',
-            ' ': 'left-thumb',
-            'AltRight': 'right-pinky',
-            'MetaRight': 'right-pinky',
-            'ContextMenu': 'right-pinky',
-            'ControlRight': 'right-pinky',
-            
-            // Navigation cluster
-            'Insert': 'right-index',
-            'Delete': 'right-index',
-            'Home': 'right-middle',
-            'End': 'right-middle',
-            'PageUp': 'right-ring',
-            'PageDown': 'right-ring',
-            
-            // Arrow keys
-            'ArrowUp': 'right-middle',
-            'ArrowDown': 'right-middle',
-            'ArrowLeft': 'right-index',
-            'ArrowRight': 'right-ring',
-            
-            // Numpad
-            'NumLock': 'right-index',
-            'NumpadDivide': 'right-middle',
-            'NumpadMultiply': 'right-ring',
-            'NumpadSubtract': 'right-pinky',
-            'Numpad7': 'right-index',
-            'Numpad8': 'right-middle',
-            'Numpad9': 'right-ring',
-            'NumpadAdd': 'right-pinky',
-            'Numpad4': 'right-index',
-            'Numpad5': 'right-middle',
-            'Numpad6': 'right-ring',
-            'Numpad1': 'right-index',
-            'Numpad2': 'right-middle',
-            'Numpad3': 'right-ring',
-            'NumpadEnter': 'right-pinky',
-            'Numpad0': 'right-index',
-            'NumpadDecimal': 'right-ring'
-        };
-        
-        // Key mapping for finding elements
-        this.keyMap = {
-            // Letters
-            'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g', 'h': 'h',
-            'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n', 'o': 'o', 'p': 'p',
-            'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u', 'v': 'v', 'w': 'w', 'x': 'x',
-            'y': 'y', 'z': 'z',
-            
-            // Numbers
-            '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
-            
-            // Special characters
-            ' ': ' ', '.': '.', ',': ',', ';': ';', "'": "'", '/': '/', '\\': '\\',
-            '[': '[', ']': ']', '-': '-', '=': '=', '`': '`',
-            
-            // Shifted characters
-            '!': '1', '@': '2', '#': '3', '$': '4', '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
-            '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/'
-        };
-        
-        this.init();
-    }
-    
-    init() {
-        if (!this.container) {
-            console.warn(`Enhanced keyboard container ${this.containerId} not found`);
-            return;
-        }
-        
-        this.setupEventListeners();
-        this.setupPhysicalKeyboardListeners();
-        this.updateStatus('Ready to type! Press any key to see finger highlighting.');
-    }
-    
-    setupEventListeners() {
-        // Toggle keyboard button
-        const toggleBtn = document.getElementById(this.isLessonMode ? 'toggle-lesson-keyboard-btn' : 'toggle-keyboard-btn');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => this.toggleKeyboard());
-        }
-        
-        // Scale slider
-        const scaleSlider = document.getElementById(this.isLessonMode ? 'lesson-scale-slider' : 'scale-slider');
-        const scaleDisplay = document.getElementById(this.isLessonMode ? 'lesson-scale-display' : 'scale-display');
-        
-        if (scaleSlider && scaleDisplay) {
-            scaleSlider.addEventListener('input', (e) => {
-                this.currentScale = parseFloat(e.target.value);
-                scaleDisplay.textContent = Math.round(this.currentScale * 100) + '%';
-                this.updateKeyboardScale();
-            });
-        }
-        
-        // Hand effects toggle
-        const handToggle = document.getElementById(this.isLessonMode ? 'lesson-hand-effects-toggle' : 'hand-effects-toggle');
-        if (handToggle) {
-            handToggle.addEventListener('change', (e) => {
-                this.handEffectsEnabled = e.target.checked;
-                this.updateHandEffectsVisibility();
-            });
-        }
-    }
-    
-    setupPhysicalKeyboardListeners() {
-        // Enhanced physical keyboard listeners matching the original implementation
-        document.addEventListener('keydown', (e) => {
-            if (!this.isVisible) return;
-            
-            console.log('🎹 Physical keydown:', e.key, e.code);
-            
-            // Try to find the key element, prioritizing event.code for reliability
-            let keyElement = this.findKeyElement(e.code);
-            if (!keyElement && e.key) {
-                keyElement = this.findKeyElement(e.key);
-            }
-            
-            if (keyElement) {
-                // Use the same logic as virtual keyboard clicks
-                const keyValue = keyElement.dataset.key;
-                console.log('✅ keyValue from element:', keyValue);
-                
-                // Call the same method that virtual clicks use
-                this.highlightKey(keyValue, e);
-            } else {
-                console.log('❌ No keyElement found for:', e.key, e.code);
-                
-                // Fallback: try to use the event.key directly for finger highlighting
-                if (this.handEffectsEnabled) {
-                    this.showFingerHighlight(e.key);
-                }
-            }
-            
-            // Prevent default for certain keys
-            if (['Tab', 'Home', 'End', 'PageUp', 'PageDown', 'F5', 'F12'].includes(e.key)) {
-                e.preventDefault();
-            }
-        });
-        
-        document.addEventListener('keyup', (e) => {
-            if (!this.isVisible) return;
-            
-            console.log('🎹 Physical keyup:', e.key, e.code);
-            
-            const keyElement = this.findKeyElement(e.code || e.key);
-            if (keyElement) {
-                keyElement.classList.remove('pressed');
-                // Note: Don't remove finger highlight on key up - let it persist
-            }
-        });
-    }
-    
-    findKeyElement(code) {
-        console.log('🔍 Looking for code:', code);
-        
-        // Try common key mappings first
-        const keyMappings = {
-            // Letters: KeyA -> a
-            'KeyA': 'a', 'KeyB': 'b', 'KeyC': 'c', 'KeyD': 'd', 'KeyE': 'e',
-            'KeyF': 'f', 'KeyG': 'g', 'KeyH': 'h', 'KeyI': 'i', 'KeyJ': 'j',
-            'KeyK': 'k', 'KeyL': 'l', 'KeyM': 'm', 'KeyN': 'n', 'KeyO': 'o',
-            'KeyP': 'p', 'KeyQ': 'q', 'KeyR': 'r', 'KeyS': 's', 'KeyT': 't',
-            'KeyU': 'u', 'KeyV': 'v', 'KeyW': 'w', 'KeyX': 'x', 'KeyY': 'y', 'KeyZ': 'z',
-            
-            // Numbers: Digit1 -> 1
-            'Digit1': '1', 'Digit2': '2', 'Digit3': '3', 'Digit4': '4', 'Digit5': '5',
-            'Digit6': '6', 'Digit7': '7', 'Digit8': '8', 'Digit9': '9', 'Digit0': '0',
-            
-            // Special keys
-            'Space': ' ',
-            'Enter': 'Enter',
-            'Backspace': 'Backspace',
-            'Tab': 'Tab',
-            'Escape': 'Escape',
-            'ShiftLeft': 'ShiftLeft',
-            'ShiftRight': 'ShiftRight',
-            'PrintScreen': 'PrintScreen',
-            'Home': 'Home',
-            'End': 'End',
-            'PageUp': 'PageUp',
-            'PageDown': 'PageDown',
-            
-            // Windows keys
-            'MetaLeft': 'MetaLeft',
-            'MetaRight': 'MetaRight',
-            'OSLeft': 'MetaLeft',
-            'OSRight': 'MetaRight',
-            
-            // Control keys
-            'ControlLeft': 'ControlLeft',
-            'ControlRight': 'ControlRight',
-            
-            // Alt keys
-            'AltLeft': 'AltLeft',
-            'AltRight': 'AltRight',
-            'AltGraph': 'AltRight',
-            
-            'ContextMenu': 'ContextMenu',
-            
-            // Symbols
-            'Semicolon': ';',
-            'Quote': "'",
-            'Comma': ',',
-            'Period': '.',
-            'Slash': '/',
-            'Backslash': '\\',
-            'IntlBackslash': '\\',
-            'BracketLeft': '[',
-            'BracketRight': ']',
-            'Minus': '-',
-            'Equal': '=',
-            'Backquote': '`'
-        };
-        
-        // First try direct matching
-        let found = this.container.querySelector(`[data-key="${code}"]`);
-        if (found) {
-            console.log('✅ Direct match found:', code);
-            return found;
-        }
-        
-        // Try mapped key lookup
-        if (keyMappings[code]) {
-            found = this.container.querySelector(`[data-key="${keyMappings[code]}"]`);
-            if (found) {
-                console.log('✅ Mapped match found:', code, '->', keyMappings[code]);
-                return found;
-            }
-        }
-        
-        console.log('❌ No match found for:', code);
-        return null;
-    }
-    
-    highlightKey(character, event = null) {
-        if (!this.isVisible) return;
-        
-        // Clear any existing keyboard highlights
-        this.clearKeyboardHighlight();
-        
-        // Clear previous finger highlights and show new one
-        if (this.handEffectsEnabled) {
-            this.clearFingerHighlight();
-            this.showFingerHighlight(character);
-        }
-        
-        // Map character to key
-        const mappedKey = this.keyMap[character.toLowerCase()] || character.toLowerCase();
-        
-        // Find the key element
-        const keyElement = this.container.querySelector(`[data-key="${mappedKey}"]`);
-        if (keyElement) {
-            keyElement.classList.add('pressed');
-        }
-        
-        // Update status
-        this.updateStatus(`Typed: ${character} - ${this.getFingerName(character)} finger, ${this.getHandName(character)} hand`);
-    }
-    
-    clearKeyHighlight() {
-        // Remove pressed class from all keys
-        const pressedKeys = this.container.querySelectorAll('.enhanced-key.pressed');
-        pressedKeys.forEach(key => key.classList.remove('pressed'));
-        
-        // Clear finger highlights
-        if (this.handEffectsEnabled) {
-            this.clearFingerHighlight();
-        }
-    }
-    
-    clearKeyboardHighlight() {
-        // Only remove pressed class from keyboard keys, don't clear finger highlights
-        const pressedKeys = this.container.querySelectorAll('.enhanced-key.pressed');
-        pressedKeys.forEach(key => key.classList.remove('pressed'));
-    }
-    
-    showFingerHighlight(character) {
-        // Get finger mapping using the complete finger mapping system
-        const fingerId = this.getFingerForKey(character);
-        
-        if (!fingerId) return;
-        
-        // Get the appropriate finger image element
-        const prefix = this.isLessonMode ? 'lesson-' : '';
-        const fingerImg = document.getElementById(`${prefix}${fingerId}-img`);
-        
-        if (fingerImg) {
-            fingerImg.classList.add('active');
-            // Finger effect will persist until next key is pressed
-        }
-    }
-    
-    getFingerForKey(keyValue, keyCode = null) {
-        // Handle space key special case
-        if (keyValue === ' ') {
-            return 'left-thumb';
-        }
-        
-        // First try keyCode for numpad and special keys
-        if (keyCode && this.keyToFingerMap[keyCode]) {
-            return this.keyToFingerMap[keyCode];
-        }
-        
-        // Direct lookup in the finger mapping
-        if (this.keyToFingerMap[keyValue]) {
-            return this.keyToFingerMap[keyValue];
-        }
-        
-        // Handle shift combinations for symbols and capitals
-        if (this.isShiftCombination(keyValue)) {
-            const baseKey = this.getBaseKeyForSymbol(keyValue);
-            if (baseKey && this.keyToFingerMap[baseKey]) {
-                return this.keyToFingerMap[baseKey];
-            }
-        }
-        
-        return null;
-    }
-    
-    isShiftCombination(keyValue) {
-        const shiftSymbols = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 
-                             '{', '}', '|', ':', '"', '<', '>', '?'];
-        return shiftSymbols.includes(keyValue) || this.isCapitalLetter(keyValue);
-    }
-    
-    getBaseKeyForSymbol(keyValue) {
-        const symbolToBaseMap = {
-            '~': '`', '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
-            '^': '6', '&': '7', '*': '8', '(': '9', ')': '0', '_': '-', '+': '=',
-            '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/'
-        };
-        
-        if (symbolToBaseMap[keyValue]) {
-            return symbolToBaseMap[keyValue];
-        }
-        
-        // For capital letters, return lowercase
-        if (this.isCapitalLetter(keyValue)) {
-            return keyValue.toLowerCase();
-        }
-        
-        return null;
-    }
-    
-    isCapitalLetter(char) {
-        return char.length === 1 && char >= 'A' && char <= 'Z';
-    }
-    
-    clearFingerHighlight() {
-        // Clear all finger highlights
-        const prefix = this.isLessonMode ? 'lesson-' : '';
-        const hands = ['left', 'right'];
-        const fingers = ['thumb', 'index', 'middle', 'ring', 'pinky'];
-        
-        hands.forEach(hand => {
-            fingers.forEach(finger => {
-                const fingerImg = document.getElementById(`${prefix}${hand}-${finger}-img`);
-                if (fingerImg) {
-                    fingerImg.classList.remove('active');
-                }
-            });
-        });
-    }
-    
-    getFingerName(character) {
-        const fingerId = this.getFingerForKey(character);
-        if (fingerId) {
-            const [hand, finger] = fingerId.split('-');
-            const handName = hand.charAt(0).toUpperCase() + hand.slice(1);
-            const fingerName = finger.charAt(0).toUpperCase() + finger.slice(1);
-            return `${handName} ${fingerName}`;
-        }
-        return 'Unknown';
-    }
-    
-    getHandName(character) {
-        const fingerId = this.getFingerForKey(character);
-        if (fingerId) {
-            const [hand] = fingerId.split('-');
-            return hand.charAt(0).toUpperCase() + hand.slice(1);
-        }
-        return 'Unknown';
-    }
-    
-    updateStatus(message) {
-        const statusElement = document.getElementById(this.isLessonMode ? 'lesson-status-text' : 'status-text');
-        if (statusElement) {
-            statusElement.textContent = message;
-        }
-    }
-    
-    updateKeyboardScale() {
-        if (this.container) {
-            this.container.style.transform = `scale(${this.currentScale})`;
-        }
-    }
-    
-    updateHandEffectsVisibility() {
-        const handsContainer = document.getElementById(this.isLessonMode ? 'lesson-hands-container' : 'hands-container');
-        if (handsContainer) {
-            handsContainer.style.display = this.handEffectsEnabled ? 'block' : 'none';
-        }
-    }
-    
-    toggleKeyboard() {
-        this.isVisible = !this.isVisible;
-        
-        if (this.container) {
-            this.container.style.display = this.isVisible ? 'block' : 'none';
-        }
-        
-        // Update button text
-        const toggleBtn = document.getElementById(this.isLessonMode ? 'toggle-lesson-keyboard-btn' : 'toggle-keyboard-btn');
-        if (toggleBtn) {
-            toggleBtn.textContent = this.isVisible ? 'Hide Keyboard' : 'Show Keyboard';
-        }
-        
-        // Update hand effects visibility
-        this.updateHandEffectsVisibility();
-        
-        this.updateStatus(this.isVisible ? 'Keyboard visible - start typing!' : 'Keyboard hidden');
-    }
-    
-    // Method to be called when typing input changes
-    onInputChange(character) {
-        if (character && this.isVisible) {
-            this.highlightKey(character);
-        }
-    }
-    
-    // Reset method
-    reset() {
-        this.clearKeyHighlight();
-        this.updateStatus('Ready to type! Press any key to see finger highlighting.');
-    }
-}
-
-// Initialize enhanced keyboards and integrate with typing tests
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        // Create enhanced keyboard instances
-        window.enhancedKeyboard = new KeyboardAndHandEffects('enhanced-keyboard-container', false);
-        window.lessonEnhancedKeyboard = new KeyboardAndHandEffects('lesson-enhanced-keyboard-container', true);
-        
-        // Connect enhanced keyboards with typing tests
-        if (window.typingTest) {
-            window.typingTest.enhancedKeyboard = window.enhancedKeyboard;
-        }
-        
-        if (window.lessonTypingTest) {
-            window.lessonTypingTest.enhancedKeyboard = window.lessonEnhancedKeyboard;
-        }
-    }, 100); // Small delay to ensure typing tests are initialized
-});
