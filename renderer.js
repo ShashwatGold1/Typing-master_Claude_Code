@@ -1999,33 +1999,76 @@ class TouchTypingKeyboardEffects {
         this.handsWrapper = null;
         this.activeFingers = new Set();
         
-        // Simplified finger mapping for touch typing focus
+        // Complete finger mapping based on proper touch typing technique
         this.keyToFingerMap = {
-            // Letters
-            'a': 'left-pinky', 's': 'left-ring', 'd': 'left-middle', 'f': 'left-index', 'g': 'left-index',
-            'h': 'right-index', 'j': 'right-index', 'k': 'right-middle', 'l': 'right-ring', ';': 'right-pinky',
+            // Function keys and system keys
+            'Escape': 'left-pinky',
+            'F1': 'left-pinky', 'F2': 'left-ring', 'F3': 'left-middle', 'F4': 'left-index',
+            'F5': 'right-index', 'F6': 'right-middle', 'F7': 'right-ring', 'F8': 'right-pinky',
+            'F9': 'right-index', 'F10': 'right-middle', 'F11': 'right-ring', 'F12': 'right-pinky',
+            'PrintScreen': 'right-index', 'ScrollLock': 'right-middle', 'Pause': 'right-ring',
+            
+            // Number row
+            '`': 'left-pinky', '1': 'left-pinky', '2': 'left-ring', '3': 'left-middle', 
+            '4': 'left-index', '5': 'left-index', '6': 'right-index', '7': 'right-index',
+            '8': 'right-middle', '9': 'right-ring', '0': 'right-pinky', '-': 'right-pinky', 
+            '=': 'right-pinky', 'Backspace': 'right-pinky',
+            
+            // Symbols with shift (same finger as base key)
+            '~': 'left-pinky', '!': 'left-pinky', '@': 'left-ring', '#': 'left-middle',
+            '$': 'left-index', '%': 'left-index', '^': 'right-index', '&': 'right-index',
+            '*': 'right-middle', '(': 'right-ring', ')': 'right-pinky', '_': 'right-pinky', '+': 'right-pinky',
+            
+            // QWERTY row
+            'Tab': 'left-pinky',
             'q': 'left-pinky', 'w': 'left-ring', 'e': 'left-middle', 'r': 'left-index', 't': 'left-index',
             'y': 'right-index', 'u': 'right-index', 'i': 'right-middle', 'o': 'right-ring', 'p': 'right-pinky',
-            'z': 'left-pinky', 'x': 'left-ring', 'c': 'left-middle', 'v': 'left-index', 'b': 'left-index',
-            'n': 'right-index', 'm': 'right-index', ',': 'right-middle', '.': 'right-ring', '/': 'right-pinky',
+            '[': 'right-pinky', ']': 'right-pinky', '\\': 'right-pinky',
             
-            // Capital letters (same fingers)
-            'A': 'left-pinky', 'S': 'left-ring', 'D': 'left-middle', 'F': 'left-index', 'G': 'left-index',
-            'H': 'right-index', 'J': 'right-index', 'K': 'right-middle', 'L': 'right-ring',
+            // Capital letters (same finger as lowercase)
             'Q': 'left-pinky', 'W': 'left-ring', 'E': 'left-middle', 'R': 'left-index', 'T': 'left-index',
             'Y': 'right-index', 'U': 'right-index', 'I': 'right-middle', 'O': 'right-ring', 'P': 'right-pinky',
-            'Z': 'left-pinky', 'X': 'left-ring', 'C': 'left-middle', 'V': 'left-index', 'B': 'left-index',
-            'N': 'right-index', 'M': 'right-index',
+            '{': 'right-pinky', '}': 'right-pinky', '|': 'right-pinky',
             
-            // Special keys
-            ' ': 'left-thumb', // Space
-            'Enter': 'right-pinky',
-            'Backspace': 'right-pinky',
-            'Tab': 'left-pinky',
-            'Shift': 'left-pinky', // Default to left shift
+            // ASDF row (home row)
+            'CapsLock': 'left-pinky',
+            'a': 'left-pinky', 's': 'left-ring', 'd': 'left-middle', 'f': 'left-index', 'g': 'left-index',
+            'h': 'right-index', 'j': 'right-index', 'k': 'right-middle', 'l': 'right-ring', 
+            ';': 'right-pinky', "'": 'right-pinky', 'Enter': 'right-pinky',
+            
+            // Capital letters
+            'A': 'left-pinky', 'S': 'left-ring', 'D': 'left-middle', 'F': 'left-index', 'G': 'left-index',
+            'H': 'right-index', 'J': 'right-index', 'K': 'right-middle', 'L': 'right-ring',
+            ':': 'right-pinky', '"': 'right-pinky',
+            
+            // ZXCV row
             'ShiftLeft': 'left-pinky',
+            'z': 'left-pinky', 'x': 'left-ring', 'c': 'left-middle', 'v': 'left-index', 'b': 'left-index',
+            'n': 'right-index', 'm': 'right-index', ',': 'right-middle', '.': 'right-ring', '/': 'right-pinky',
             'ShiftRight': 'right-pinky',
-            'CapsLock': 'left-pinky'
+            
+            // Capital letters
+            'Z': 'left-pinky', 'X': 'left-ring', 'C': 'left-middle', 'V': 'left-index', 'B': 'left-index',
+            'N': 'right-index', 'M': 'right-index', '<': 'right-middle', '>': 'right-ring', '?': 'right-pinky',
+            
+            // Bottom row
+            'ControlLeft': 'left-pinky', 'MetaLeft': 'left-pinky', 'AltLeft': 'left-pinky',
+            ' ': 'left-thumb', // Space - can be either thumb
+            'AltRight': 'right-pinky', 'MetaRight': 'right-pinky', 'ContextMenu': 'right-pinky', 'ControlRight': 'right-pinky',
+            
+            // Navigation cluster
+            'Insert': 'right-index', 'Delete': 'right-index', 'Home': 'right-middle', 'End': 'right-middle',
+            'PageUp': 'right-ring', 'PageDown': 'right-ring',
+            
+            // Arrow keys
+            'ArrowUp': 'right-middle', 'ArrowDown': 'right-middle', 'ArrowLeft': 'right-index', 'ArrowRight': 'right-ring',
+            
+            // Numpad
+            'NumLock': 'right-index', 'NumpadDivide': 'right-middle', 'NumpadMultiply': 'right-ring', 'NumpadSubtract': 'right-pinky',
+            'Numpad7': 'right-index', 'Numpad8': 'right-middle', 'Numpad9': 'right-ring', 'NumpadAdd': 'right-pinky',
+            'Numpad4': 'right-index', 'Numpad5': 'right-middle', 'Numpad6': 'right-ring',
+            'Numpad1': 'right-index', 'Numpad2': 'right-middle', 'Numpad3': 'right-ring', 'NumpadEnter': 'right-pinky',
+            'Numpad0': 'right-index', 'NumpadDecimal': 'right-ring'
         };
         
         this.init();
@@ -2037,7 +2080,7 @@ class TouchTypingKeyboardEffects {
             this.setupElements();
             this.setupScaleControls();
             this.setupKeyboardInteraction();
-            console.log('✅ TouchTypingKeyboardEffects initialized successfully');
+            console.log('✅ TouchTypingKeyboardEffects (FULL KEYBOARD) initialized successfully');
         }, 100);
     }
     
