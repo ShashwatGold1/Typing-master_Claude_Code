@@ -87,7 +87,7 @@ body {
 .main-content {
     flex: 1;
     display: flex;
-    overflow: hidden;
+    height: calc(100vh - 32px); /* Account for title bar */
 }
 
 /* Sidebar */
@@ -97,6 +97,7 @@ body {
     border-right: 1px solid #e1e5e9;
     padding: 20px 0;
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .nav-section {
@@ -154,11 +155,13 @@ body {
     overflow-y: auto;
     padding: 32px;
     position: relative;
+    min-height: 0; /* Allow content to scroll properly */
 }
 
 .page {
     display: none;
     max-width: 1000px;
+    width: 100%;
 }
 
 .page.active {
@@ -930,6 +933,28 @@ select {
     margin-bottom: 0;
 }
 
+/* Character Lesson Page Layout */
+#character-lesson-page {
+    padding-bottom: 40px; /* Add bottom padding for better spacing */
+}
+
+#character-lesson-page .keyboard-container,
+#character-lesson-page .hands-container {
+    margin-bottom: 30px;
+}
+
+/* Ensure proper scrolling for keyboard on small screens */
+@media (max-width: 1200px) {
+    .keyboard-container {
+        overflow-x: auto;
+        padding: 10px;
+    }
+    
+    .keyboard-layout {
+        min-width: 800px; /* Ensure keyboard doesn't get too cramped */
+    }
+}
+
 /* Keyboard and Hand Controls for Character Lesson */
 .keyboard-hand-controls {
     display: flex;
@@ -975,14 +1000,16 @@ select {
 /* Keyboard Container */
 .keyboard-container {
     width: fit-content;
+    max-width: 100%;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 15px;
     position: relative;
     transform-origin: center top;
     transition: transform 0.3s ease;
     margin: 20px auto;
+    overflow-x: auto;
 }
 
 /* Main keyboard layout */
@@ -1000,8 +1027,8 @@ select {
     align-items: flex-start;
 }
 
-/* Main content container */
-.main-content {
+/* Keyboard main content container */
+.keyboard-main-content {
     display: flex;
     gap: 20px;
     align-items: flex-start;
@@ -1354,11 +1381,11 @@ select {
 /* Hand Effects Section */
 .hands-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1000px;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    padding: 20px;
     margin: 20px auto;
 }
 
@@ -1366,9 +1393,9 @@ select {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 60px;
+    gap: 40px;
     margin-bottom: 20px;
-    max-width: 800px;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     transform-origin: center;
@@ -1378,8 +1405,8 @@ select {
 .hand-section {
     text-align: center;
     flex: 1;
-    min-width: 280px;
-    max-width: 350px;
+    min-width: 200px;
+    max-width: 300px;
 }
 
 .hand-section h3 {
@@ -1401,7 +1428,7 @@ select {
 }
 
 .hand-image {
-    width: 250px;
+    width: 200px;
     height: auto;
     border-radius: 10px;
     transition: all 0.3s ease;
@@ -1416,7 +1443,7 @@ select {
     position: absolute;
     top: 15px;
     left: 15px;
-    width: 250px;
+    width: 200px;
     height: auto;
     border-radius: 10px;
     opacity: 0;
@@ -1467,10 +1494,21 @@ select {
     }
     
     .hands-container {
-        padding: 20px;
+        padding: 15px;
     }
     
     .hand-image, .finger-image {
-        width: 200px;
+        width: 160px;
+    }
+    
+    .keyboard-container {
+        padding: 8px;
+        margin: 15px auto;
+    }
+    
+    .key {
+        width: 40px;
+        height: 40px;
+        font-size: 10px;
     }
 }
