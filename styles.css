@@ -1006,8 +1006,6 @@ select {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     padding: 15px;
     position: relative;
-    transform-origin: center top;
-    transition: transform 0.3s ease;
     margin: 20px auto;
     overflow-x: auto;
 }
@@ -1018,6 +1016,8 @@ select {
     flex-direction: column;
     gap: 20px;
     width: fit-content;
+    transform-origin: center top;
+    transition: transform 0.3s ease;
 }
 
 /* Function row container */

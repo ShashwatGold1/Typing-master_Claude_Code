@@ -1640,7 +1640,7 @@ class KeyboardAndHandEffects {
         this.capsLock = false;
         this.scale = 1;
         this.handScale = 1;
-        this.keyboardContainer = document.querySelector('.keyboard-container');
+        this.keyboardLayout = document.querySelector('.keyboard-layout');
         this.handsWrapper = document.querySelector('.hands-wrapper');
         this.handEffectsEnabled = true;
         this.activeFingers = new Set();
@@ -1782,8 +1782,8 @@ class KeyboardAndHandEffects {
     }
 
     applyScale(scale) {
-        if (this.keyboardContainer) {
-            this.keyboardContainer.style.transform = `scale(${scale})`;
+        if (this.keyboardLayout) {
+            this.keyboardLayout.style.transform = `scale(${scale})`;
         }
     }
 
