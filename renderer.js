@@ -1529,6 +1529,12 @@ window.addEventListener('resize', () => {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
+    // F12 to toggle developer mode
+    if (e.key === 'F12') {
+        e.preventDefault();
+        ipcRenderer.send('toggle-devtools');
+    }
+    
     // ESC to reset current test
     if (e.key === 'Escape' && navigationManager.currentPage === 'quick-test') {
         typingTest.resetTest();
@@ -1643,6 +1649,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Connect word lesson with its typing test
         window.wordLesson.typingTest = window.charTypingTest;
+        
         
     }, 100); // Small delay to ensure typing tests are initialized
 });

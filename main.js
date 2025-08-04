@@ -73,3 +73,7 @@ ipcMain.on('window-close', () => {
 ipcMain.on('get-window-state', (event) => {
   event.returnValue = mainWindow.isMaximized();
 });
+
+ipcMain.on('toggle-devtools', () => {
+  mainWindow.webContents.toggleDevTools();
+});
