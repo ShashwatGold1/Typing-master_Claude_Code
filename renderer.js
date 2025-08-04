@@ -56,10 +56,10 @@ class NavigationManager {
                     window.typingTest.forceInputFocus();
                 }
             }, 100);
-        } else if (page === 'character-practice') {
+        } else if (page === 'character-lesson') {
             setTimeout(() => {
-                if (window.characterPractice) {
-                    window.characterPractice.forceInputFocus();
+                if (window.characterLesson) {
+                    window.characterLesson.forceInputFocus();
                 }
             }, 100);
         } else if (page === 'lesson-interface') {
@@ -2215,11 +2215,10 @@ class VirtualKeyboard {
     }
 }
 
-// Character Practice System
-class CharacterPractice {
+// Character Lesson System
+class CharacterLesson {
     constructor() {
-        this.selectedChars = '';
-        this.practiceText = '';
+        this.practiceText = 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.';
         this.typingTest = null;
         this.virtualKeyboard = null;
         
@@ -2228,7 +2227,7 @@ class CharacterPractice {
     
     init() {
         this.setupEventListeners();
-        this.setupCharacterButtons();
+        this.setPracticeText(this.practiceText);
     }
     
     setupEventListeners() {
@@ -2246,7 +2245,7 @@ class CharacterPractice {
         const generateBtn = document.getElementById('generate-new-text-btn');
         if (generateBtn) {
             generateBtn.addEventListener('click', () => {
-                this.generatePracticeText();
+                this.generateNewText();
             });
         }
         
@@ -2259,70 +2258,20 @@ class CharacterPractice {
                 }
             });
         }
-        
-        // Custom characters
-        const customInput = document.getElementById('custom-chars');
-        const useCustomBtn = document.getElementById('use-custom');
-        if (customInput && useCustomBtn) {
-            useCustomBtn.addEventListener('click', () => {
-                const customChars = customInput.value.trim();
-                if (customChars) {
-                    this.selectCharacters(customChars);
-                }
-            });
-            
-            customInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const customChars = customInput.value.trim();
-                    if (customChars) {
-                        this.selectCharacters(customChars);
-                    }
-                }
-            });
-        }
     }
     
-    setupCharacterButtons() {
-        const charBtns = document.querySelectorAll('.char-btn[data-chars]');
-        charBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const chars = btn.getAttribute('data-chars');
-                this.selectCharacters(chars);
-                
-                // Update button states
-                charBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-    }
-    
-    selectCharacters(chars) {
-        this.selectedChars = chars;
-        this.generatePracticeText();
-    }
-    
-    generatePracticeText() {
-        if (!this.selectedChars) {
-            this.setPracticeText('Select characters to practice above to begin');
-            return;
-        }
+    generateNewText() {
+        const sampleTexts = [
+            'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.',
+            'Amazingly few discotheques provide jukeboxes with mixed jazz vinyl.',
+            'Waltz, bad nymph, for quick jigs vex. Five quacking zephyrs jolt my wax bed.',
+            'Sphinx of black quartz, judge my vow. How vexingly quick daft zebras jump.',
+            'Two driven jocks help fax my big quiz. The job requires extra pluck and zeal.',
+            'Jackdaws love my big sphinx of quartz. We promptly judged antique ivory buckles.'
+        ];
         
-        // Generate random text using selected characters
-        const length = 50 + Math.floor(Math.random() * 50); // 50-100 characters
-        let text = '';
-        
-        for (let i = 0; i < length; i++) {
-            const randomChar = this.selectedChars[Math.floor(Math.random() * this.selectedChars.length)];
-            text += randomChar;
-            
-            // Add spaces occasionally for readability (except for space practice)
-            if (i > 0 && i % (5 + Math.floor(Math.random() * 5)) === 0 && !this.selectedChars.includes(' ') && Math.random() > 0.5) {
-                text += ' ';
-                i++; // Account for the space in length
-            }
-        }
-        
-        this.setPracticeText(text.trim());
+        const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+        this.setPracticeText(randomText);
     }
     
     setPracticeText(text) {
@@ -2358,10 +2307,10 @@ document.addEventListener('DOMContentLoaded', () => {
         window.lessonVirtualKeyboard = new VirtualKeyboard('lesson-virtual-keyboard-container');
         window.charVirtualKeyboard = new VirtualKeyboard('char-virtual-keyboard-container');
         
-        // Create character practice system
-        window.characterPractice = new CharacterPractice();
+        // Create character lesson system
+        window.characterLesson = new CharacterLesson();
         
-        // Create typing test for character practice
+        // Create typing test for character lesson
         window.charTypingTest = new TypingTest(
             'char-text-display',
             'char-typing-input',
@@ -2372,9 +2321,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.charVirtualKeyboard
         );
         
-        // Connect character practice with its typing test
-        window.characterPractice.typingTest = window.charTypingTest;
-        window.characterPractice.virtualKeyboard = window.charVirtualKeyboard;
+        // Connect character lesson with its typing test
+        window.characterLesson.typingTest = window.charTypingTest;
+        window.characterLesson.virtualKeyboard = window.charVirtualKeyboard;
         
         // Connect virtual keyboards with typing tests
         if (window.typingTest && window.virtualKeyboard) {
