@@ -56,6 +56,12 @@ class NavigationManager {
                     window.typingTest.forceInputFocus();
                 }
             }, 100);
+        } else if (page === 'character-practice') {
+            setTimeout(() => {
+                if (window.characterPractice) {
+                    window.characterPractice.forceInputFocus();
+                }
+            }, 100);
         } else if (page === 'lesson-interface') {
             setTimeout(() => {
                 if (window.lessonTypingTest) {
@@ -2209,12 +2215,166 @@ class VirtualKeyboard {
     }
 }
 
+// Character Practice System
+class CharacterPractice {
+    constructor() {
+        this.selectedChars = '';
+        this.practiceText = '';
+        this.typingTest = null;
+        this.virtualKeyboard = null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.setupCharacterButtons();
+    }
+    
+    setupEventListeners() {
+        // Reset button
+        const resetBtn = document.getElementById('char-reset-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                if (this.typingTest) {
+                    this.typingTest.resetTest();
+                }
+            });
+        }
+        
+        // Generate new text button
+        const generateBtn = document.getElementById('generate-new-text-btn');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', () => {
+                this.generatePracticeText();
+            });
+        }
+        
+        // Toggle keyboard button
+        const toggleKeyboardBtn = document.getElementById('toggle-char-keyboard-btn');
+        if (toggleKeyboardBtn) {
+            toggleKeyboardBtn.addEventListener('click', () => {
+                if (this.virtualKeyboard) {
+                    this.virtualKeyboard.toggle();
+                }
+            });
+        }
+        
+        // Custom characters
+        const customInput = document.getElementById('custom-chars');
+        const useCustomBtn = document.getElementById('use-custom');
+        if (customInput && useCustomBtn) {
+            useCustomBtn.addEventListener('click', () => {
+                const customChars = customInput.value.trim();
+                if (customChars) {
+                    this.selectCharacters(customChars);
+                }
+            });
+            
+            customInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const customChars = customInput.value.trim();
+                    if (customChars) {
+                        this.selectCharacters(customChars);
+                    }
+                }
+            });
+        }
+    }
+    
+    setupCharacterButtons() {
+        const charBtns = document.querySelectorAll('.char-btn[data-chars]');
+        charBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const chars = btn.getAttribute('data-chars');
+                this.selectCharacters(chars);
+                
+                // Update button states
+                charBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    }
+    
+    selectCharacters(chars) {
+        this.selectedChars = chars;
+        this.generatePracticeText();
+    }
+    
+    generatePracticeText() {
+        if (!this.selectedChars) {
+            this.setPracticeText('Select characters to practice above to begin');
+            return;
+        }
+        
+        // Generate random text using selected characters
+        const length = 50 + Math.floor(Math.random() * 50); // 50-100 characters
+        let text = '';
+        
+        for (let i = 0; i < length; i++) {
+            const randomChar = this.selectedChars[Math.floor(Math.random() * this.selectedChars.length)];
+            text += randomChar;
+            
+            // Add spaces occasionally for readability (except for space practice)
+            if (i > 0 && i % (5 + Math.floor(Math.random() * 5)) === 0 && !this.selectedChars.includes(' ') && Math.random() > 0.5) {
+                text += ' ';
+                i++; // Account for the space in length
+            }
+        }
+        
+        this.setPracticeText(text.trim());
+    }
+    
+    setPracticeText(text) {
+        this.practiceText = text;
+        
+        // Update the display
+        const textToTypeSpan = document.getElementById('char-text-to-type');
+        if (textToTypeSpan) {
+            textToTypeSpan.textContent = text;
+        }
+        
+        // Reset and update typing test
+        if (this.typingTest) {
+            this.typingTest.textToType = text;
+            this.typingTest.resetTest();
+            this.typingTest.renderText();
+        }
+    }
+    
+    forceInputFocus() {
+        const input = document.getElementById('char-typing-input');
+        if (input) {
+            input.focus();
+        }
+    }
+}
+
 // Initialize virtual keyboards and integrate with typing tests
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Create virtual keyboard instances
         window.virtualKeyboard = new VirtualKeyboard('virtual-keyboard-container');
         window.lessonVirtualKeyboard = new VirtualKeyboard('lesson-virtual-keyboard-container');
+        window.charVirtualKeyboard = new VirtualKeyboard('char-virtual-keyboard-container');
+        
+        // Create character practice system
+        window.characterPractice = new CharacterPractice();
+        
+        // Create typing test for character practice
+        window.charTypingTest = new TypingTest(
+            'char-text-display',
+            'char-typing-input',
+            'char-wpm-value',
+            'char-accuracy-value',
+            'char-time-value',
+            null, null, null,
+            window.charVirtualKeyboard
+        );
+        
+        // Connect character practice with its typing test
+        window.characterPractice.typingTest = window.charTypingTest;
+        window.characterPractice.virtualKeyboard = window.charVirtualKeyboard;
         
         // Connect virtual keyboards with typing tests
         if (window.typingTest && window.virtualKeyboard) {

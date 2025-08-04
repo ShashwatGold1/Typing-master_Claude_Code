@@ -1433,3 +1433,121 @@ select {
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 }
+
+/* Character Practice Page Styles */
+.character-selection {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.character-selection h3 {
+    margin-bottom: 20px;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.character-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.character-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.character-group label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+}
+
+.character-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.char-btn {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 100px;
+}
+
+.char-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.char-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+
+.custom-input {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #374151;
+    flex: 1;
+    min-width: 200px;
+}
+
+.custom-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.custom-input::placeholder {
+    color: #9ca3af;
+}
+
+/* Character practice specific stats and controls */
+#character-practice-page .stats-container {
+    margin-bottom: 24px;
+}
+
+#character-practice-page .controls {
+    margin-top: 24px;
+}
+
+#character-practice-page .typing-area {
+    margin-bottom: 0;
+}
+
+/* Responsive adjustments for character practice */
+@media (max-width: 768px) {
+    .character-groups {
+        grid-template-columns: 1fr;
+    }
+    
+    .character-buttons {
+        justify-content: flex-start;
+    }
+    
+    .char-btn {
+        min-width: auto;
+        flex: 1;
+        text-align: center;
+    }
+    
+    .custom-input {
+        min-width: 150px;
+    }
+}

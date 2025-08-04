@@ -46,6 +46,10 @@
                             <span class="nav-icon">⚡</span>
                             Quick Test
                         </a>
+                        <a href="#" class="nav-item" data-page="character-practice">
+                            <span class="nav-icon">🔤</span>
+                            Character Practice
+                        </a>
                         <a href="#" class="nav-item" data-page="lessons">
                             <span class="nav-icon">📚</span>
                             Lessons
@@ -129,6 +133,86 @@
                         </div>
                     </div>
 
+                </div>
+
+                <!-- Character Practice Page -->
+                <div class="page" id="character-practice-page">
+                    <div class="page-header">
+                        <h1>Character Practice</h1>
+                        <p>Focus on specific characters to improve accuracy and muscle memory</p>
+                    </div>
+                    
+                    <div class="character-selection">
+                        <h3>Select Characters to Practice</h3>
+                        <div class="character-groups">
+                            <div class="character-group">
+                                <label>Basic Letters</label>
+                                <div class="character-buttons">
+                                    <button class="char-btn" data-chars="asdfjkl;">Home Row</button>
+                                    <button class="char-btn" data-chars="qwertyuiop">Top Row</button>
+                                    <button class="char-btn" data-chars="zxcvbnm">Bottom Row</button>
+                                </div>
+                            </div>
+                            <div class="character-group">
+                                <label>Numbers</label>
+                                <div class="character-buttons">
+                                    <button class="char-btn" data-chars="1234567890">All Numbers</button>
+                                    <button class="char-btn" data-chars="12345">Left Hand</button>
+                                    <button class="char-btn" data-chars="67890">Right Hand</button>
+                                </div>
+                            </div>
+                            <div class="character-group">
+                                <label>Special Characters</label>
+                                <div class="character-buttons">
+                                    <button class="char-btn" data-chars="!@#$%^&*()">Symbols</button>
+                                    <button class="char-btn" data-chars=",.;'[]">Punctuation</button>
+                                    <button class="char-btn" data-chars="-=\/`">Others</button>
+                                </div>
+                            </div>
+                            <div class="character-group">
+                                <label>Custom</label>
+                                <div class="character-buttons">
+                                    <input type="text" id="custom-chars" placeholder="Enter custom characters" class="custom-input">
+                                    <button class="char-btn" id="use-custom">Use Custom</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="char-wpm-value">0</div>
+                            <div class="stat-label">WPM</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="char-accuracy-value">100%</div>
+                            <div class="stat-label">ACCURACY</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="char-time-value">0</div>
+                            <div class="stat-label">ELAPSED TIME</div>
+                        </div>
+                    </div>
+
+                    <div class="typing-area">
+                        <div class="text-display" id="char-text-display">
+                            <span class="text-to-type" id="char-text-to-type">Select characters to practice above to begin</span>
+                        </div>
+                        <textarea class="typing-input" id="char-typing-input" placeholder="Start typing here..."></textarea>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-secondary" id="char-reset-btn">Reset</button>
+                        <button class="btn btn-secondary" id="toggle-char-keyboard-btn">Toggle Keyboard</button>
+                        <button class="btn btn-primary" id="generate-new-text-btn">Generate New Text</button>
+                    </div>
+
+                    <!-- Virtual Keyboard for Character Practice -->
+                    <div class="virtual-keyboard-container" id="char-virtual-keyboard-container">
+                        <div class="virtual-keyboard" id="char-virtual-keyboard">
+                            <!-- Keyboard will be dynamically generated -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Lessons Page -->
