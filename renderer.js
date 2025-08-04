@@ -58,8 +58,8 @@ class NavigationManager {
             }, 100);
         } else if (page === 'character-lesson') {
             setTimeout(() => {
-                if (window.characterLesson) {
-                    window.characterLesson.forceInputFocus();
+                if (window.wordLesson) {
+                    window.wordLesson.forceInputFocus();
                 }
             }, 100);
         } else if (page === 'lesson-interface') {
@@ -1552,8 +1552,8 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Character Lesson System
-class CharacterLesson {
+// Word Lesson System
+class WordLesson {
     constructor() {
         this.practiceText = 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.';
         this.typingTest = null;
@@ -1626,13 +1626,13 @@ class CharacterLesson {
     }
 }
 
-// Initialize character lesson system
+// Initialize word lesson system
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        // Create character lesson system
-        window.characterLesson = new CharacterLesson();
+        // Create word lesson system
+        window.wordLesson = new WordLesson();
         
-        // Create typing test for character lesson
+        // Create typing test for word lesson
         window.charTypingTest = new TypingTest(
             'char-text-display',
             'char-typing-input',
@@ -1641,8 +1641,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'char-time-value'
         );
         
-        // Connect character lesson with its typing test
-        window.characterLesson.typingTest = window.charTypingTest;
+        // Connect word lesson with its typing test
+        window.wordLesson.typingTest = window.charTypingTest;
         
     }, 100); // Small delay to ensure typing tests are initialized
 });
