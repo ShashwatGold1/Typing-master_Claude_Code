@@ -1561,7 +1561,7 @@ document.addEventListener('keydown', (e) => {
 // Word Lesson System
 class WordLesson {
     constructor() {
-        this.practiceText = 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.';
+        this.practiceSequence = 'fffffjjjfffjjfjjffjjfjjffjf';
         this.typingTest = null;
         
         this.init();
@@ -1569,7 +1569,49 @@ class WordLesson {
     
     init() {
         this.setupEventListeners();
-        this.setPracticeText(this.practiceText);
+        this.createCharacterBoxes();
+        this.setupTypingInput();
+    }
+    
+    createCharacterBoxes() {
+        const container = document.getElementById('char-container');
+        if (!container) return;
+        
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Create character boxes
+        this.practiceSequence.split('').forEach(char => {
+            const div = document.createElement('div');
+            div.classList.add('char-box');
+            div.textContent = char;
+            container.appendChild(div);
+        });
+    }
+    
+    setupTypingInput() {
+        const input = document.getElementById('char-typing-input');
+        if (!input) return;
+        
+        input.addEventListener('input', () => {
+            this.updateCharacterBoxes(input.value);
+        });
+    }
+    
+    updateCharacterBoxes(inputValue) {
+        const boxes = document.querySelectorAll('.char-box');
+        
+        boxes.forEach((box, index) => {
+            if (inputValue[index] === undefined) {
+                box.classList.remove('correct', 'incorrect');
+            } else if (inputValue[index] === box.textContent) {
+                box.classList.add('correct');
+                box.classList.remove('incorrect');
+            } else {
+                box.classList.add('incorrect');
+                box.classList.remove('correct');
+            }
+        });
     }
     
     setupEventListeners() {
@@ -1577,9 +1619,7 @@ class WordLesson {
         const resetBtn = document.getElementById('char-reset-btn');
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
-                if (this.typingTest) {
-                    this.typingTest.resetTest();
-                }
+                this.resetLesson();
             });
         }
         
@@ -1587,40 +1627,42 @@ class WordLesson {
         const generateBtn = document.getElementById('generate-new-text-btn');
         if (generateBtn) {
             generateBtn.addEventListener('click', () => {
-                this.generateNewText();
+                this.generateNewSequence();
             });
         }
-        
     }
     
-    generateNewText() {
-        const sampleTexts = [
-            'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.',
-            'Amazingly few discotheques provide jukeboxes with mixed jazz vinyl.',
-            'Waltz, bad nymph, for quick jigs vex. Five quacking zephyrs jolt my wax bed.',
-            'Sphinx of black quartz, judge my vow. How vexingly quick daft zebras jump.',
-            'Two driven jocks help fax my big quiz. The job requires extra pluck and zeal.',
-            'Jackdaws love my big sphinx of quartz. We promptly judged antique ivory buckles.'
+    generateNewSequence() {
+        // Generate a random sequence focusing on f and j keys for practice
+        const sequences = [
+            'fffffjjjfffjjfjjffjjfjjffjf',
+            'jjjjjffffjjffjjffjffjffjjf',
+            'ffjjffjjffjjffjjffjjffjjff',
+            'fjfjfjfjfjfjfjfjfjfjfjfjfj',
+            'ffffjjjjfffffjjjjjfffffjjj',
+            'jffjjjffffjffjjjffffjfjfj'
         ];
         
-        const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-        this.setPracticeText(randomText);
+        const randomSequence = sequences[Math.floor(Math.random() * sequences.length)];
+        this.practiceSequence = randomSequence;
+        this.createCharacterBoxes();
+        this.resetInput();
     }
     
-    setPracticeText(text) {
-        this.practiceText = text;
-        
-        // Update the display
-        const textToTypeSpan = document.getElementById('char-text-to-type');
-        if (textToTypeSpan) {
-            textToTypeSpan.textContent = text;
-        }
-        
-        // Reset and update typing test
-        if (this.typingTest) {
-            this.typingTest.textToType = text;
-            this.typingTest.resetTest();
-            this.typingTest.renderText();
+    resetLesson() {
+        this.resetInput();
+        // Clear all character box states
+        const boxes = document.querySelectorAll('.char-box');
+        boxes.forEach(box => {
+            box.classList.remove('correct', 'incorrect');
+        });
+    }
+    
+    resetInput() {
+        const input = document.getElementById('char-typing-input');
+        if (input) {
+            input.value = '';
+            input.focus();
         }
     }
     
@@ -1642,6 +1684,7 @@ class KeyboardAndHandEffects {
         this.handScale = 1;
         this.keyboardLayout = document.querySelector('.keyboard-layout');
         this.handsWrapper = document.querySelector('.hands-wrapper');
+        this.handSections = document.querySelectorAll('.hand-section');
         this.handEffectsEnabled = true;
         this.activeFingers = new Set();
         
@@ -1824,8 +1867,10 @@ class KeyboardAndHandEffects {
     }
 
     applyHandScale(scale) {
-        if (this.handsWrapper) {
-            this.handsWrapper.style.transform = `scale(${scale})`;
+        if (this.handSections) {
+            this.handSections.forEach(handSection => {
+                handSection.style.transform = `scale(${scale})`;
+            });
         }
     }
 
@@ -1991,17 +2036,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create word lesson system
         window.wordLesson = new WordLesson();
         
-        // Create typing test for word lesson
-        window.charTypingTest = new TypingTest(
-            'char-text-display',
-            'char-typing-input',
-            'char-wpm-value',
-            'char-accuracy-value',
-            'char-time-value'
-        );
-        
-        // Connect word lesson with its typing test
-        window.wordLesson.typingTest = window.charTypingTest;
+        // Character lesson now uses its own canvas system
+        // TypingTest is disabled for character lesson to use character canvas instead
+        window.charTypingTest = null;
         
         // Initialize keyboard and hand effects (only for character lesson page)
         window.keyboardAndHandEffects = new KeyboardAndHandEffects();

@@ -368,7 +368,7 @@ body {
 
 .btn:focus {
     outline: none;
-    ring: 2px solid rgba(37, 99, 235, 0.5);
+    border: 2px solid rgba(37, 99, 235, 0.5);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -933,6 +933,66 @@ select {
     margin-bottom: 0;
 }
 
+/* Character Canvas Styles - Only for Character Lesson Page */
+#character-lesson-page .character-canvas-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    font-family: monospace;
+}
+
+#character-lesson-page .char-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 400px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+#character-lesson-page .char-box {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    border-radius: 5px;
+}
+
+#character-lesson-page .char-box.correct {
+    background-color: #e2f7e2;
+    border-color: #50ce95;
+    color: #10c373;
+}
+
+#character-lesson-page .char-box.incorrect {
+    background-color: #fce4e4;
+    border-color: #ff5e5e;
+    color: #ff1c1c;
+}
+
+#character-lesson-page .char-typing-input {
+    font-size: 18px;
+    padding: 8px;
+    width: 320px;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+#character-lesson-page .char-typing-input:focus {
+    border-color: #50ce95;
+}
+
 /* Character Lesson Page Layout */
 #character-lesson-page {
     padding-bottom: 40px; /* Add bottom padding for better spacing */
@@ -1407,6 +1467,8 @@ select {
     flex: 1;
     min-width: 200px;
     max-width: 300px;
+    transform-origin: center;
+    transition: transform 0.3s ease;
 }
 
 .hand-section h3 {
