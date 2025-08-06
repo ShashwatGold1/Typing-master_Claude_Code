@@ -1601,9 +1601,12 @@ class WordLesson {
         
         this.setupEventListeners();
         this.createCharacterBoxes();
-        this.setupTypingInput();
+        this.setupKeyboardListeners();
         this.updateStats();
         this.updateTimeDisplay();
+        
+        // Initialize typed sequence
+        this.typedSequence = '';
     }
     
     createCharacterBoxes() {
@@ -1622,62 +1625,82 @@ class WordLesson {
         });
     }
     
-    setupTypingInput() {
-        const input = document.getElementById('char-typing-input');
-        if (!input) return;
-        
-        input.addEventListener('input', (e) => {
-            if (!this.isActive) {
-                this.startTest();
+    setupKeyboardListeners() {
+        // Listen for keyboard events to update character boxes
+        document.addEventListener('keydown', (e) => {
+            // Only handle keys when on character lesson page
+            const characterLessonPage = document.getElementById('character-lesson-page');
+            if (!characterLessonPage || !characterLessonPage.classList.contains('active')) {
+                return;
             }
-            this.handleInput(e);
-        });
-        
-        input.addEventListener('focus', () => {
-            input.style.borderColor = '#2563eb';
-        });
-        
-        input.addEventListener('blur', () => {
-            input.style.borderColor = '#e5e7eb';
+            
+            // Handle typing without input field - just visual feedback
+            if (e.key.length === 1) { // Single character keys
+                this.handleKeyPress(e.key);
+                e.preventDefault();
+            } else if (e.key === 'Backspace') {
+                this.handleBackspace();
+                e.preventDefault();
+            }
         });
     }
     
-    handleInput(e) {
-        let value = e.target.value;
-        
-        // Limit input to the length of the practice sequence
-        if (value.length > this.practiceSequence.length) {
-            value = value.substring(0, this.practiceSequence.length);
-            e.target.value = value;
+    handleKeyPress(key) {
+        if (!this.isActive) {
+            this.startTest();
         }
         
-        // Update character counts
-        this.currentIndex = value.length;
-        this.totalChars = value.length;
-        this.correctChars = 0;
+        // Don't allow typing beyond the sequence length
+        if (this.currentIndex >= this.practiceSequence.length) {
+            return;
+        }
         
-        // Count correct characters and update visual feedback
-        const boxes = document.querySelectorAll('.char-box');
+        // Add the character to our virtual input
+        this.typedSequence = (this.typedSequence || '') + key;
+        this.currentIndex++;
+        this.totalChars++;
         
-        boxes.forEach((box, index) => {
-            if (value[index] === undefined) {
-                box.classList.remove('correct', 'incorrect');
-            } else if (value[index] === box.textContent) {
-                box.classList.add('correct');
-                box.classList.remove('incorrect');
-                this.correctChars++;
-            } else {
-                box.classList.add('incorrect');
-                box.classList.remove('correct');
-            }
-        });
-        
+        // Update visual feedback
+        this.updateCharacterBoxes();
         this.updateStats();
         
         // Check if test is complete
-        if (value.length >= this.practiceSequence.length) {
+        if (this.currentIndex >= this.practiceSequence.length) {
             this.endTest();
         }
+    }
+    
+    handleBackspace() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            this.totalChars = Math.max(0, this.totalChars - 1);
+            this.typedSequence = (this.typedSequence || '').slice(0, -1);
+            this.updateCharacterBoxes();
+            this.updateStats();
+        }
+    }
+    
+    updateCharacterBoxes() {
+        const boxes = document.querySelectorAll('.char-box');
+        this.correctChars = 0;
+        
+        boxes.forEach((box, index) => {
+            if (index >= this.currentIndex) {
+                box.classList.remove('correct', 'incorrect');
+            } else {
+                const typedChar = this.typedSequence[index];
+                const expectedChar = box.textContent;
+                
+                if (typedChar === expectedChar) {
+                    box.classList.add('correct');
+                    box.classList.remove('incorrect');
+                    this.correctChars++;
+                } else {
+                    box.classList.add('incorrect');
+                    box.classList.remove('correct');
+                }
+            }
+        });
     }
     
     startTest() {
@@ -1763,12 +1786,8 @@ class WordLesson {
         this.totalChars = 0;
         this.timeElapsed = 0;
         
-        // Clear input
-        const input = document.getElementById('char-typing-input');
-        if (input) {
-            input.value = '';
-            input.focus();
-        }
+        // Clear typed sequence
+        this.typedSequence = '';
         
         // Clear all character box states
         const boxes = document.querySelectorAll('.char-box');
@@ -1817,10 +1836,8 @@ class WordLesson {
     }
     
     forceInputFocus() {
-        const input = document.getElementById('char-typing-input');
-        if (input) {
-            input.focus();
-        }
+        // No input field to focus - character lesson works without input now
+        // Visual feedback is provided through keyboard and character boxes
     }
 }
 

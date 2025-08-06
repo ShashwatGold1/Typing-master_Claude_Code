@@ -977,20 +977,6 @@ select {
     color: #ff1c1c;
 }
 
-#character-lesson-page .char-typing-input {
-    font-size: 16px;
-    padding: 8px;
-    width: 280px;
-    text-align: center;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    transition: border-color 0.2s ease;
-}
-
-#character-lesson-page .char-typing-input:focus {
-    border-color: #50ce95;
-}
 
 /* Character Lesson Page Layout */
 #character-lesson-page {
