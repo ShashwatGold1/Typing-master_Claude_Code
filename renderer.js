@@ -1722,6 +1722,7 @@ class KeyboardAndHandEffects {
     init() {
         this.setupScaleControls();
         this.setupHandScaleControls();
+        this.setupKeyboardToggleControls();
         this.applyScale(this.scale);
         this.applyHandScale(this.handScale);
         
@@ -1774,6 +1775,36 @@ class KeyboardAndHandEffects {
             handScaleDisplay.textContent = `${(this.handScale * 100).toFixed(0)}%`;
             handScaleSlider.value = this.handScale;
         }
+    }
+
+    setupKeyboardToggleControls() {
+        const toggle = document.getElementById('toggle-numpad');
+        if (toggle) {
+            toggle.addEventListener('change', (e) => {
+                this.toggleKeyboardSection('hide-numpad', e.target.checked);
+            });
+            
+            // Load saved state
+            const savedState = localStorage.getItem('keyboard-toggle-numpad');
+            if (savedState !== null) {
+                const isChecked = savedState === 'true';
+                toggle.checked = isChecked;
+                this.toggleKeyboardSection('hide-numpad', isChecked);
+            }
+        }
+    }
+
+    toggleKeyboardSection(className, isVisible) {
+        if (!this.keyboardLayout) return;
+        
+        if (isVisible) {
+            this.keyboardLayout.classList.remove(className);
+        } else {
+            this.keyboardLayout.classList.add(className);
+        }
+        
+        // Save state to localStorage
+        localStorage.setItem('keyboard-toggle-numpad', isVisible.toString());
     }
 
     setScale(scale) {

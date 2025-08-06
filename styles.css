@@ -901,8 +901,8 @@ select {
     }
 
     .keyboard-key {
-        min-width: 32px !important;
-        height: 32px !important;
+        min-width: 28px !important;
+        height: 28px !important;
         font-size: 11px !important;
         padding: 2px 4px !important;
     }
@@ -1004,7 +1004,7 @@ select {
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+    padding: 32px;
     position: relative;
     margin: 20px auto;
     overflow-x: auto;
@@ -1014,16 +1014,16 @@ select {
 .keyboard-layout {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 17px;
     width: fit-content;
-    transform-origin: center top;
+    transform-origin: left top;
     transition: transform 0.3s ease;
 }
 
 /* Function row container */
 .function-row {
     display: flex;
-    gap: 25px;
+    gap: 21px;
     align-items: flex-start;
 }
 
@@ -1045,8 +1045,8 @@ select {
 .right-side {
     display: flex;
     flex-direction: row;
-    gap: 25px;
-    margin-left: 5px;
+    gap: 21px;
+    margin-left: 1px;
     align-items: flex-start;
 }
 
@@ -1060,13 +1060,13 @@ select {
 .keyboard-section {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     width: fit-content;
 }
 
 .keyboard-row {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     width: fit-content;
 }
 
@@ -1075,8 +1075,8 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     background: #ffffff;
     border: 1px solid #e1e5e9;
     border-radius: 6px;
@@ -1117,20 +1117,20 @@ select {
 }
 
 /* Specific key sizes */
-.key.small { width: 40px; font-size: 10px; }
-.key.medium { width: 64px; }
-.key.large { width: 64px; }
-.key.xl { width: 72px; }
-.key.xxl { width: 80px; }
-.key.tab { width: 74px; }
-.key.caps { width: 92px; }
-.key.enter { width: 108px; }
-.key.shift-left { width: 114px; }
-.key.shift-right { width: 138px; }
-.key.backspace { width: 100px; }
-.key.space { width: 300px; }
-.key.wide { width: 100px; }
-.key.backslash { width: 74px; }
+.key.small { width: 35px; font-size: 10px; }
+.key.medium { width: 55px; }
+.key.large { width: 56px; }
+.key.xl { width: 63px; }
+.key.xxl { width: 70px; }
+.key.tab { width: 64px; }
+.key.caps { width: 80px; }
+.key.enter { width: 93px; }
+.key.shift-left { width: 99px; }
+.key.shift-right { width: 119px; }
+.key.backspace { width: 86px; }
+.key.space { width: 265px; }
+.key.wide { width: 87px; }
+.key.backslash { width: 64px; }
 
 /* Special styles for long key names */
 .key[data-key="PrintScreen"],
@@ -1143,30 +1143,30 @@ select {
     text-align: center;
     word-break: break-word;
 }
-.key.tall { height: 100px; writing-mode: vertical-lr; text-orientation: mixed; }
+.key.tall { height: 87px; writing-mode: vertical-lr; text-orientation: mixed; }
 
 /* Custom spacing for F1-F4 section */
-.f1-section { margin-left: 41px; }
+.f1-section { margin-left: 35px; }
 
 /* Numpad-specific grid layout */
 .numpad-grid {
     display: grid;
-    grid-template-columns: repeat(4, 48px);
-    grid-template-rows: repeat(5, 48px);
-    gap: 4px;
+    grid-template-columns: repeat(4, 42px);
+    grid-template-rows: repeat(5, 42px);
+    gap: 3px;
     width: fit-content;
 }
 
 .key.numpad-tall {
     grid-row: span 2;
-    height: 100px;
+    height: 87px;
     writing-mode: vertical-lr;
     text-orientation: mixed;
 }
 
 .key.numpad-wide {
     grid-column: span 2;
-    width: 100px;
+    width: 87px;
 }
 
 /* Navigation section positioning */
@@ -1179,7 +1179,7 @@ select {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    margin-top: 17px;
+    margin-top: 10px;
 }
 
 .arrows-layout {
@@ -1193,7 +1193,7 @@ select {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    height: 228px;
+    height: 198px;
     margin-top: 0px;
 }
 
@@ -1465,6 +1465,96 @@ select {
     100% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(180deg) drop-shadow(0 0 8px rgba(0,100,255,0.8)); }
 }
 
+/* Keyboard Display Controls */
+.keyboard-controls {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    min-width: 0px;
+    max-width: 100px;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: #2c3e50;
+    user-select: none;
+    gap: 4px;
+    flex-direction: column;
+    text-align: center;
+    padding: 0px;
+}
+
+.toggle-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch .slider {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 16px;
+    background: #ccc;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    margin-bottom: 2px;
+    order: -1;
+}
+
+.toggle-switch .slider::before {
+    content: '';
+    position: absolute;
+    height: 12px;
+    width: 12px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .slider {
+    background: #28a745;
+}
+
+.toggle-switch input:checked + .slider::before {
+    transform: translateX(16px);
+}
+
+.toggle-switch:hover .slider {
+    background: #bbb;
+}
+
+.toggle-switch input:checked:hover + .slider {
+    background: #218838;
+}
+
+.toggle-switch span {
+    color: #2c3e50;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* Hide sections when toggled off */
+.keyboard-layout.hide-numpad .numpad-section {
+    display: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1400px) {
     .keyboard-container {
@@ -1507,8 +1597,8 @@ select {
     }
     
     .key {
-        width: 40px;
-        height: 40px;
+        width: 35px;
+        height: 35px;
         font-size: 10px;
     }
 }
