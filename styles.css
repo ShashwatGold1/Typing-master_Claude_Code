@@ -92,12 +92,102 @@ body {
 
 /* Sidebar */
 .sidebar {
+    position: relative;
     width: 240px;
     background: #ffffff;
     border-right: 1px solid #e1e5e9;
-    padding: 20px 0;
+    padding: 68px 0;
     overflow-y: auto;
     flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+}
+
+.sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    transform: translateX(-100%);
+    overflow: hidden;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+    position: fixed;
+    top: 52px;  /* 32px title bar + 10px */
+    left: 20px;
+    width: 32px;
+    height: 32px;
+    background: #ffffff;
+    border: 1px solid #d5d5d5;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-toggle:hover {
+    background: #f3f4f6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-toggle svg {
+    width: 18px;
+    height: 18px;
+    color: #6b7280;
+}
+
+.hamburger-line {
+    transition: opacity 0.2s ease;
+    transform-origin: center;
+}
+
+/* Keep all 3 lines visible - no cross animation */
+.sidebar-toggle.collapsed .line-1,
+.sidebar-toggle.collapsed .line-2,
+.sidebar-toggle.collapsed .line-3 {
+    opacity: 1;
+    transform: none;
+}
+
+/* App Logo */
+.app-logo {
+    position: fixed;
+    top: 52px;  /* Same as sidebar toggle */
+    left: 64px; /* 20px (toggle left) + 32px (toggle width) + 12px (gap) */
+    width: 48px;
+    height: 32px;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: 1px solid #d5d5d5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.app-logo:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+}
+
+.app-logo:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+}
+
+.logo-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .nav-section {
@@ -848,6 +938,27 @@ select {
         height: auto;
     }
     
+    .sidebar.collapsed {
+        height: 0;
+        transform: translateY(-100%);
+    }
+    
+    .sidebar-toggle {
+        top: 42px !important;
+        left: 10px !important;
+    }
+    
+    .app-logo {
+        top: 42px !important;
+        left: 54px !important; /* Adjusted for mobile */
+        width: 40px;
+        height: 28px;
+    }
+    
+    .logo-text {
+        font-size: 12px;
+    }
+    
     .stats-container,
     .stats-overview {
         grid-template-columns: 1fr;
@@ -948,7 +1059,7 @@ select {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    width: 320px;
+    width: 300px;
     background: #fff;
     padding: 15px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -987,7 +1098,7 @@ select {
 }
 
 #character-lesson-page .keyboard-container,
-#character-lesson-page .hands-container {
+#character-lesson-page .hands-wrapper {
     margin-bottom: 30px;
 }
 
@@ -1427,29 +1538,16 @@ select {
 }
 
 /* Hand Effects Section */
-.hands-container {
+.hands-wrapper {
     width: 100%;
     max-width: 1000px;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 20px;
     margin: 20px auto;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.hands-wrapper {
-    display: flex;
     justify-content: center;
     align-items: center;
-    gap: 30px;
-    margin-bottom: 20px;
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
+    gap: 15px;
     transform-origin: center;
     transition: transform 0.3s ease;
     flex-wrap: wrap;
@@ -1532,91 +1630,6 @@ select {
     100% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(180deg) drop-shadow(0 0 8px rgba(0,100,255,0.8)); }
 }
 
-/* Keyboard Display Controls */
-.keyboard-controls {
-    display: flex;
-    justify-content: left;
-    align-items: left;
-    min-width: 0px;
-    max-width: 100px;
-}
-
-.control-row {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-}
-
-.toggle-switch {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    color: #2c3e50;
-    user-select: none;
-    gap: 4px;
-    flex-direction: column;
-    text-align: center;
-    padding: 0px;
-}
-
-.toggle-switch input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-switch .slider {
-    position: relative;
-    display: inline-block;
-    width: 32px;
-    height: 16px;
-    background: #ccc;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    margin-bottom: 2px;
-    order: -1;
-}
-
-.toggle-switch .slider::before {
-    content: '';
-    position: absolute;
-    height: 12px;
-    width: 12px;
-    left: 2px;
-    bottom: 2px;
-    background: white;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.toggle-switch input:checked + .slider {
-    background: #28a745;
-}
-
-.toggle-switch input:checked + .slider::before {
-    transform: translateX(16px);
-}
-
-.toggle-switch:hover .slider {
-    background: #bbb;
-}
-
-.toggle-switch input:checked:hover + .slider {
-    background: #218838;
-}
-
-.toggle-switch span {
-    color: #2c3e50;
-    font-weight: 600;
-    line-height: 1.2;
-    white-space: nowrap;
-}
-
 /* Hide sections when toggled off */
 .keyboard-layout.hide-numpad .numpad-section {
     display: none;
@@ -1664,7 +1677,7 @@ select {
         justify-content: center;
     }
     
-    .hands-container {
+    .hands-wrapper {
         padding: 15px;
     }
     

@@ -17,6 +17,7 @@ document.getElementById('close-btn').addEventListener('click', () => {
 class NavigationManager {
     constructor() {
         this.currentPage = 'quick-test';
+        this.sidebarCollapsed = false;
         this.init();
     }
 
@@ -29,6 +30,67 @@ class NavigationManager {
                 this.navigateTo(page);
             });
         });
+        
+        // Initialize sidebar toggle
+        this.initSidebarToggle();
+        
+        // Initialize logo click handler
+        this.initLogoClick();
+    }
+    
+    initSidebarToggle() {
+        const toggleButton = document.getElementById('sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (toggleButton && sidebar) {
+            // Load saved sidebar state
+            const savedState = localStorage.getItem('sidebar-collapsed');
+            if (savedState === 'true') {
+                this.sidebarCollapsed = true;
+                sidebar.classList.add('collapsed');
+                toggleButton.classList.add('collapsed');
+            }
+            
+            toggleButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleSidebar();
+            });
+        }
+    }
+    
+    initLogoClick() {
+        const logo = document.getElementById('app-logo');
+        if (logo) {
+            logo.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.navigateTo('quick-test');
+            });
+            
+            // Add cursor pointer style
+            logo.style.cursor = 'pointer';
+        }
+    }
+    
+    toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleButton = document.getElementById('sidebar-toggle');
+        
+        if (sidebar && toggleButton) {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+            
+            if (this.sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                toggleButton.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                toggleButton.classList.remove('collapsed');
+            }
+            
+            // Save state to localStorage
+            localStorage.setItem('sidebar-collapsed', this.sidebarCollapsed);
+        }
     }
 
     navigateTo(page) {
@@ -1819,14 +1881,21 @@ class WordLesson {
     }
     
     generateNewSequence() {
-        // Generate a random sequence focusing on f and j keys for practice
+        // Generate a random sequence - mix of letters and occasionally numbers for numpad practice
         const sequences = [
             'fffffjjjfffjjfjjffjjfjjffjf',
             'jjjjjffffjjffjjffjffjffjjf',
             'ffjjffjjffjjffjjffjjffjjff',
             'fjfjfjfjfjfjfjfjfjfjfjfjfj',
             'ffffjjjjfffffjjjjjfffffjjj',
-            'jffjjjffffjffjjjffffjfjfj'
+            'jffjjjffffjffjjjffffjfjfj',
+            // Numpad practice sequences
+            '1234567890123456789012345',
+            '12312312312312312312312',
+            '456456456456456456456456',
+            '789789789789789789789789',
+            '1472583690147258369014725',
+            '12345123451234512345123'
         ];
         
         const randomSequence = sequences[Math.floor(Math.random() * sequences.length)];
@@ -1988,18 +2057,85 @@ class KeyboardAndHandEffects {
     }
 
     setupKeyboardToggleControls() {
-        const toggle = document.getElementById('toggle-numpad');
-        if (toggle) {
-            toggle.addEventListener('change', (e) => {
-                this.toggleKeyboardSection('hide-numpad', e.target.checked);
-            });
+        // Automatically detect numpad usage and show/hide numpad
+        this.setupAutomaticNumpadDetection();
+    }
+    
+    setupAutomaticNumpadDetection() {
+        // Initially hide the numpad
+        this.toggleKeyboardSection('hide-numpad', false);
+        
+        // Monitor for numpad keys in the character container
+        this.monitorCharContainerForNumpadKeys();
+    }
+    
+    monitorCharContainerForNumpadKeys() {
+        // Define numpad keys that should trigger numpad display
+        const numpadKeys = [
+            'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 
+            'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9',
+            'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide',
+            'NumpadDecimal', 'NumpadEnter', 'NumLock'
+        ];
+        
+        // Check char-container content periodically
+        this.numpadCheckInterval = setInterval(() => {
+            const charContainer = document.getElementById('char-container');
+            if (charContainer && charContainer.textContent) {
+                const containerText = charContainer.textContent;
+                let hasNumpadContent = false;
+                
+                // Check if container has numerical content or characters that suggest numpad use
+                if (containerText.match(/[0-9]/)) {
+                    hasNumpadContent = true;
+                } else {
+                    // Check if any numpad keys are present in the current practice sequence
+                    const wordLesson = window.wordLesson;
+                    if (wordLesson && wordLesson.practiceSequence) {
+                        const sequence = wordLesson.practiceSequence;
+                        if (sequence.match(/[0-9+\-*/.,]/)) {
+                            hasNumpadContent = true;
+                        }
+                    }
+                }
+                
+                // Show/hide numpad based on content
+                this.toggleKeyboardSection('hide-numpad', hasNumpadContent);
+            }
+        }, 500); // Check every 500ms
+        
+        // Also listen for physical numpad key presses
+        document.addEventListener('keydown', (e) => {
+            const characterLessonPage = document.getElementById('character-lesson-page');
+            if (!characterLessonPage || !characterLessonPage.classList.contains('active')) {
+                return;
+            }
             
-            // Load saved state
-            const savedState = localStorage.getItem('keyboard-toggle-numpad');
-            if (savedState !== null) {
-                const isChecked = savedState === 'true';
-                toggle.checked = isChecked;
-                this.toggleKeyboardSection('hide-numpad', isChecked);
+            if (numpadKeys.includes(e.code) || e.code.startsWith('Numpad')) {
+                // Show numpad immediately when numpad key is pressed
+                this.toggleKeyboardSection('hide-numpad', true);
+                
+                // Keep it visible for a while
+                if (this.numpadHideTimeout) {
+                    clearTimeout(this.numpadHideTimeout);
+                }
+                
+                // Auto-hide after 30 seconds of no numpad usage
+                this.numpadHideTimeout = setTimeout(() => {
+                    this.checkIfShouldHideNumpad();
+                }, 30000);
+            }
+        });
+    }
+    
+    checkIfShouldHideNumpad() {
+        // Check if char-container still has numpad-related content
+        const charContainer = document.getElementById('char-container');
+        if (charContainer && charContainer.textContent) {
+            const containerText = charContainer.textContent;
+            if (!containerText.match(/[0-9+\-*/.,]/)) {
+                // No numpad content, hide the numpad
+                this.toggleKeyboardSection('hide-numpad', false);
             }
         }
     }
@@ -2012,9 +2148,6 @@ class KeyboardAndHandEffects {
         } else {
             this.keyboardLayout.classList.add(className);
         }
-        
-        // Save state to localStorage
-        localStorage.setItem('keyboard-toggle-numpad', isVisible.toString());
     }
 
     setScale(scale) {

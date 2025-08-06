@@ -37,6 +37,19 @@
 
         <!-- Main Content -->
         <div class="main-content">
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle" id="sidebar-toggle">
+                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="hamburger-line line-1" d="M3 6h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path class="hamburger-line line-2" d="M3 10h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path class="hamburger-line line-3" d="M3 14h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            
+            <!-- Logo -->
+            <div class="app-logo" id="app-logo">
+                <span class="logo-text">TM</span>
+            </div>
             <!-- Sidebar Navigation -->
             <div class="sidebar">
                 <div class="nav-section">
@@ -207,18 +220,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Box 6: Keyboard Display Controls -->
-                                <div class="keyboard-section">
-                                    <div class="section-label">Display</div>
-                                    <div class="keyboard-controls">
-                                        <div class="control-row">
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" id="toggle-numpad" checked>
-                                                <span class="slider">Numpad</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
 
                             <!-- Main Content Row -->
@@ -379,10 +380,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Hand Effects Section -->
-                    <div class="hands-container" id="hands-container">
+                        
+                        <!-- Hand Effects Section -->
                         <div class="hands-wrapper">
                             <!-- Left Hand -->
                             <div class="hand-section left-hand-section">
@@ -416,6 +415,7 @@
                             </div>
                         </div>
                     </div>
+
 
                     <!-- Keyboard and Hand Scale Controls -->
                     <div class="keyboard-hand-controls">
