@@ -1563,18 +1563,47 @@ class WordLesson {
     constructor() {
         this.practiceSequence = 'fffffjjjfffjjfjjffjjfjjffjf';
         this.typingTest = null;
+        
+        // Stats tracking similar to TypingTest
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
         this.startTime = null;
-        this.totalTyped = 0;
-        this.correctTyped = 0;
         this.isActive = false;
+        this.timer = null;
+        this.wpmUpdateTimer = null;
+        this.timeElapsed = 0;
+        this.timeLimit = 300; // 5 minutes maximum
+        
+        // Store element references
+        this.wpmValue = null;
+        this.accuracyValue = null;
+        this.timeValue = null;
         
         this.init();
     }
     
+    // Custom rounding function: 0.1-0.5 rounds down, 0.6-0.9 rounds up
+    customRound(value) {
+        const decimal = value - Math.floor(value);
+        if (decimal >= 0.6) {
+            return Math.ceil(value);
+        } else {
+            return Math.floor(value);
+        }
+    }
+    
     init() {
+        // Get element references
+        this.wpmValue = document.getElementById('char-wpm-value');
+        this.accuracyValue = document.getElementById('char-accuracy-value');
+        this.timeValue = document.getElementById('char-time-value');
+        
         this.setupEventListeners();
         this.createCharacterBoxes();
         this.setupTypingInput();
+        this.updateStats();
+        this.updateTimeDisplay();
     }
     
     createCharacterBoxes() {
@@ -1598,86 +1627,158 @@ class WordLesson {
         if (!input) return;
         
         input.addEventListener('input', (e) => {
-            // Start timing on first character
-            if (!this.isActive && e.target.value.length > 0) {
-                this.startPractice();
+            if (!this.isActive) {
+                this.startTest();
             }
-            
-            this.updateStats(e.target.value);
+            this.handleInput(e);
         });
         
-        // Reset stats when input is focused
         input.addEventListener('focus', () => {
-            if (!this.isActive) {
-                this.resetStats();
-            }
+            input.style.borderColor = '#2563eb';
+        });
+        
+        input.addEventListener('blur', () => {
+            input.style.borderColor = '#e5e7eb';
         });
     }
     
-    updateCharacterBoxes(inputValue) {
+    handleInput(e) {
+        let value = e.target.value;
+        
+        // Limit input to the length of the practice sequence
+        if (value.length > this.practiceSequence.length) {
+            value = value.substring(0, this.practiceSequence.length);
+            e.target.value = value;
+        }
+        
+        // Update character counts
+        this.currentIndex = value.length;
+        this.totalChars = value.length;
+        this.correctChars = 0;
+        
+        // Count correct characters and update visual feedback
         const boxes = document.querySelectorAll('.char-box');
-        let correctCount = 0;
-        let totalCount = inputValue.length;
         
         boxes.forEach((box, index) => {
-            if (inputValue[index] === undefined) {
+            if (value[index] === undefined) {
                 box.classList.remove('correct', 'incorrect');
-            } else if (inputValue[index] === box.textContent) {
+            } else if (value[index] === box.textContent) {
                 box.classList.add('correct');
                 box.classList.remove('incorrect');
-                correctCount++;
+                this.correctChars++;
             } else {
                 box.classList.add('incorrect');
                 box.classList.remove('correct');
             }
         });
         
-        return { correctCount, totalCount };
+        this.updateStats();
+        
+        // Check if test is complete
+        if (value.length >= this.practiceSequence.length) {
+            this.endTest();
+        }
     }
     
-    startPractice() {
-        this.startTime = Date.now();
+    startTest() {
         this.isActive = true;
-        this.totalTyped = 0;
-        this.correctTyped = 0;
+        this.startTime = Date.now();
+        this.timeElapsed = 0;
+        
+        // Timer for elapsed time display
+        this.timer = setInterval(() => {
+            this.timeElapsed++;
+            this.updateTimeDisplay();
+            if (this.timeElapsed >= this.timeLimit) {
+                this.endTest();
+            }
+        }, 1000);
+        
+        // Real-time WPM updates every second
+        this.wpmUpdateTimer = setInterval(() => {
+            this.updateStats();
+        }, 1000);
     }
     
-    updateStats(inputValue) {
-        if (!this.isActive) return;
+    endTest() {
+        this.isActive = false;
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        if (this.wpmUpdateTimer) {
+            clearInterval(this.wpmUpdateTimer);
+            this.wpmUpdateTimer = null;
+        }
         
-        const stats = this.updateCharacterBoxes(inputValue);
-        this.totalTyped = stats.totalCount;
-        this.correctTyped = stats.correctCount;
-        
-        // Calculate elapsed time in seconds
-        const elapsedTime = (Date.now() - this.startTime) / 1000;
-        
-        // Calculate WPM (assuming average word length of 5 characters)
-        const wpm = this.totalTyped > 0 ? Math.round((this.correctTyped / 5) / (elapsedTime / 60)) : 0;
+        this.updateStats(); // Final update
+    }
+    
+    updateStats() {
+        // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
+        let wpm = 0;
+        if (this.isActive && this.startTime) {
+            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000; // in seconds
+            
+            // Only calculate WPM if at least 1 second has elapsed to avoid unrealistic values
+            if (timeElapsedSeconds >= 1) {
+                const timeElapsedMinutes = timeElapsedSeconds / 60; // convert to minutes
+                const errors = this.totalChars - this.correctChars;
+                const effectiveChars = this.totalChars - errors;
+                const wordsTyped = effectiveChars / 5; // standard: 5 characters = 1 word
+                wpm = this.customRound(wordsTyped / timeElapsedMinutes);
+            }
+        }
         
         // Calculate accuracy
-        const accuracy = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
+        const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 100;
         
-        // Update display
-        this.updateDisplay(wpm, accuracy, Math.floor(elapsedTime));
+        // Update display elements
+        if (this.wpmValue) this.wpmValue.textContent = wpm;
+        if (this.accuracyValue) this.accuracyValue.textContent = `${accuracy}%`;
     }
     
-    updateDisplay(wpm, accuracy, time) {
-        const wpmElement = document.getElementById('char-wpm-value');
-        const accuracyElement = document.getElementById('char-accuracy-value');
-        const timeElement = document.getElementById('char-time-value');
-        
-        if (wpmElement) wpmElement.textContent = wpm;
-        if (accuracyElement) accuracyElement.textContent = accuracy + '%';
-        if (timeElement) timeElement.textContent = time + 's';
+    updateTimeDisplay() {
+        if (this.timeValue) {
+            this.timeValue.textContent = this.timeElapsed;
+        }
     }
     
-    resetStats() {
-        this.startTime = null;
+    resetTest() {
+        // Clear timers
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        if (this.wpmUpdateTimer) {
+            clearInterval(this.wpmUpdateTimer);
+            this.wpmUpdateTimer = null;
+        }
+        
+        // Reset all tracking variables
         this.isActive = false;
-        this.totalTyped = 0;
-        this.correctTyped = 0;
-        this.updateDisplay(0, 100, 0);
+        this.startTime = null;
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.timeElapsed = 0;
+        
+        // Clear input
+        const input = document.getElementById('char-typing-input');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        
+        // Clear all character box states
+        const boxes = document.querySelectorAll('.char-box');
+        boxes.forEach(box => {
+            box.classList.remove('correct', 'incorrect');
+        });
+        
+        // Reset display
+        this.updateStats();
+        this.updateTimeDisplay();
     }
     
     setupEventListeners() {
@@ -1685,7 +1786,7 @@ class WordLesson {
         const resetBtn = document.getElementById('char-reset-btn');
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
-                this.resetLesson();
+                this.resetTest();
             });
         }
         
@@ -1712,26 +1813,7 @@ class WordLesson {
         const randomSequence = sequences[Math.floor(Math.random() * sequences.length)];
         this.practiceSequence = randomSequence;
         this.createCharacterBoxes();
-        this.resetInput();
-        this.resetStats();
-    }
-    
-    resetLesson() {
-        this.resetInput();
-        this.resetStats();
-        // Clear all character box states
-        const boxes = document.querySelectorAll('.char-box');
-        boxes.forEach(box => {
-            box.classList.remove('correct', 'incorrect');
-        });
-    }
-    
-    resetInput() {
-        const input = document.getElementById('char-typing-input');
-        if (input) {
-            input.value = '';
-            input.focus();
-        }
+        this.resetTest();
     }
     
     forceInputFocus() {
