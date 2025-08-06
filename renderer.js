@@ -1563,6 +1563,10 @@ class WordLesson {
     constructor() {
         this.practiceSequence = 'fffffjjjfffjjfjjffjjfjjffjf';
         this.typingTest = null;
+        this.startTime = null;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.isActive = false;
         
         this.init();
     }
@@ -1593,13 +1597,27 @@ class WordLesson {
         const input = document.getElementById('char-typing-input');
         if (!input) return;
         
-        input.addEventListener('input', () => {
-            this.updateCharacterBoxes(input.value);
+        input.addEventListener('input', (e) => {
+            // Start timing on first character
+            if (!this.isActive && e.target.value.length > 0) {
+                this.startPractice();
+            }
+            
+            this.updateStats(e.target.value);
+        });
+        
+        // Reset stats when input is focused
+        input.addEventListener('focus', () => {
+            if (!this.isActive) {
+                this.resetStats();
+            }
         });
     }
     
     updateCharacterBoxes(inputValue) {
         const boxes = document.querySelectorAll('.char-box');
+        let correctCount = 0;
+        let totalCount = inputValue.length;
         
         boxes.forEach((box, index) => {
             if (inputValue[index] === undefined) {
@@ -1607,11 +1625,59 @@ class WordLesson {
             } else if (inputValue[index] === box.textContent) {
                 box.classList.add('correct');
                 box.classList.remove('incorrect');
+                correctCount++;
             } else {
                 box.classList.add('incorrect');
                 box.classList.remove('correct');
             }
         });
+        
+        return { correctCount, totalCount };
+    }
+    
+    startPractice() {
+        this.startTime = Date.now();
+        this.isActive = true;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+    }
+    
+    updateStats(inputValue) {
+        if (!this.isActive) return;
+        
+        const stats = this.updateCharacterBoxes(inputValue);
+        this.totalTyped = stats.totalCount;
+        this.correctTyped = stats.correctCount;
+        
+        // Calculate elapsed time in seconds
+        const elapsedTime = (Date.now() - this.startTime) / 1000;
+        
+        // Calculate WPM (assuming average word length of 5 characters)
+        const wpm = this.totalTyped > 0 ? Math.round((this.correctTyped / 5) / (elapsedTime / 60)) : 0;
+        
+        // Calculate accuracy
+        const accuracy = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
+        
+        // Update display
+        this.updateDisplay(wpm, accuracy, Math.floor(elapsedTime));
+    }
+    
+    updateDisplay(wpm, accuracy, time) {
+        const wpmElement = document.getElementById('char-wpm-value');
+        const accuracyElement = document.getElementById('char-accuracy-value');
+        const timeElement = document.getElementById('char-time-value');
+        
+        if (wpmElement) wpmElement.textContent = wpm;
+        if (accuracyElement) accuracyElement.textContent = accuracy + '%';
+        if (timeElement) timeElement.textContent = time + 's';
+    }
+    
+    resetStats() {
+        this.startTime = null;
+        this.isActive = false;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.updateDisplay(0, 100, 0);
     }
     
     setupEventListeners() {
@@ -1647,10 +1713,12 @@ class WordLesson {
         this.practiceSequence = randomSequence;
         this.createCharacterBoxes();
         this.resetInput();
+        this.resetStats();
     }
     
     resetLesson() {
         this.resetInput();
+        this.resetStats();
         // Clear all character box states
         const boxes = document.querySelectorAll('.char-box');
         boxes.forEach(box => {
