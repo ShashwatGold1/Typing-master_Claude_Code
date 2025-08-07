@@ -399,7 +399,13 @@ class TypingTest {
         // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
         let wpm = 0;
         if (this.startTime) {
-            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000; // in seconds
+            // Use frozen timeElapsed if test is inactive, otherwise use real-time calculation
+            let timeElapsedSeconds;
+            if (this.isActive) {
+                timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
+            } else {
+                timeElapsedSeconds = this.timeElapsed;
+            }
             
             // Only calculate WPM if at least 1 second has elapsed to avoid unrealistic values
             if (timeElapsedSeconds >= 1) {
@@ -1851,7 +1857,13 @@ class WordLesson {
         // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
         let wpm = 0;
         if (this.startTime) {
-            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000; // in seconds
+            // Use frozen timeElapsed if test is inactive, otherwise use real-time calculation
+            let timeElapsedSeconds;
+            if (this.isActive) {
+                timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
+            } else {
+                timeElapsedSeconds = this.timeElapsed;
+            }
             
             // Only calculate WPM if at least 1 second has elapsed to avoid unrealistic values
             if (timeElapsedSeconds >= 1) {
@@ -2352,7 +2364,14 @@ class ProgressiveLessonSystem {
     calculateWPM() {
         let wpm = 0;
         if (this.startTime) {
-            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
+            // Use frozen timeElapsed if test is inactive, otherwise use real-time calculation
+            let timeElapsedSeconds;
+            if (this.isActive) {
+                timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
+            } else {
+                timeElapsedSeconds = this.timeElapsed;
+            }
+            
             if (timeElapsedSeconds >= 1) {
                 const timeElapsedMinutes = timeElapsedSeconds / 60;
                 const errors = this.totalChars - this.correctChars;
