@@ -122,6 +122,8 @@ class NavigationManager {
             setTimeout(() => {
                 if (window.wordLesson) {
                     window.wordLesson.forceInputFocus();
+                    // Ensure the first character is highlighted when navigating to character lesson
+                    window.wordLesson.updateCharacterBoxes();
                 }
             }, 100);
         } else if (page === 'lesson-interface') {
@@ -1694,6 +1696,12 @@ class WordLesson {
             div.textContent = char;
             container.appendChild(div);
         });
+        
+        // Highlight the first character and show finger guidance
+        // Add a small delay to ensure KeyboardAndHandEffects is initialized
+        setTimeout(() => {
+            this.updateCharacterBoxes();
+        }, 100);
     }
     
     setupKeyboardListeners() {
@@ -1758,22 +1766,47 @@ class WordLesson {
         this.correctChars = 0;
         
         boxes.forEach((box, index) => {
-            if (index >= this.currentIndex) {
-                box.classList.remove('correct', 'incorrect');
-            } else {
+            // Clear all previous states
+            box.classList.remove('correct', 'incorrect', 'next-key');
+            
+            if (index < this.currentIndex) {
+                // Already typed characters
                 const typedChar = this.typedSequence[index];
                 const expectedChar = box.textContent;
                 
                 if (typedChar === expectedChar) {
                     box.classList.add('correct');
-                    box.classList.remove('incorrect');
                     this.correctChars++;
                 } else {
                     box.classList.add('incorrect');
-                    box.classList.remove('correct');
                 }
+            } else if (index === this.currentIndex) {
+                // Current character to type - highlight it
+                box.classList.add('next-key');
+                
+                // Show finger animation for the next character
+                const nextChar = box.textContent;
+                this.highlightFingerForNextCharacter(nextChar);
             }
         });
+    }
+    
+    highlightFingerForNextCharacter(char) {
+        // Use the keyboard and hand effects to show which finger to use
+        if (window.keyboardAndHandEffects) {
+            // Clear all previous highlights
+            window.keyboardAndHandEffects.clearAllFingerHighlights();
+            window.keyboardAndHandEffects.clearAllKeyboardHighlights();
+            
+            // Highlight the finger for the next character (persistent)
+            window.keyboardAndHandEffects.highlightFingerForKey(char, true);
+            
+            // Also highlight the keyboard key (persistent until correct key is pressed)
+            const keyElement = window.keyboardAndHandEffects.findKeyElementByChar(char);
+            if (keyElement) {
+                keyElement.classList.add('next-key-highlight');
+            }
+        }
     }
     
     startTest() {
@@ -1865,15 +1898,22 @@ class WordLesson {
         // Clear typed sequence
         this.typedSequence = '';
         
-        // Clear all character box states
+        // Clear all character box states and keyboard highlights
         const boxes = document.querySelectorAll('.char-box');
         boxes.forEach(box => {
-            box.classList.remove('correct', 'incorrect');
+            box.classList.remove('correct', 'incorrect', 'next-key');
         });
         
-        // Reset display
+        // Clear all highlights
+        if (window.keyboardAndHandEffects) {
+            window.keyboardAndHandEffects.clearAllFingerHighlights();
+            window.keyboardAndHandEffects.clearAllKeyboardHighlights();
+        }
+        
+        // Reset display and highlight first character
         this.updateStats();
         this.updateTimeDisplay();
+        this.updateCharacterBoxes();
     }
     
     setupEventListeners() {
@@ -1959,18 +1999,28 @@ class WordLesson {
             container.appendChild(div);
         });
         
-        // Fade in all boxes
+        // Fade in all boxes and then highlight first character
         setTimeout(() => {
             const boxes = document.querySelectorAll('.char-box.fade-in');
             boxes.forEach((box) => {
                 box.classList.remove('fade-in');
             });
+            
+            // Highlight the first character after animation
+            // Add a small delay to ensure KeyboardAndHandEffects is initialized
+            setTimeout(() => {
+                this.updateCharacterBoxes();
+            }, 50);
         }, 50);
     }
     
     forceInputFocus() {
         // No input field to focus - character lesson works without input now
         // Visual feedback is provided through keyboard and character boxes
+        // Ensure highlighting is active when focus is called
+        setTimeout(() => {
+            this.updateCharacterBoxes();
+        }, 50);
     }
 }
 
@@ -2232,9 +2282,8 @@ class KeyboardAndHandEffects {
         if (keyElement) {
             const keyValue = keyElement.dataset.key;
             this.pressKey(keyElement, keyValue, event.code);
-        } else if (this.handEffectsEnabled && event.key) {
-            this.highlightFingerForKey(event.key, true, event.code);
         }
+        // Removed automatic finger highlighting on key press - this is now handled by WordLesson class
         
         if (['Tab', 'F5', 'F12'].includes(event.key)) {
             event.preventDefault();
@@ -2281,6 +2330,32 @@ class KeyboardAndHandEffects {
         return found;
     }
 
+    findKeyElementByChar(char) {
+        // Find keyboard element by character (for visual highlighting)
+        return Array.from(this.keys).find(key => {
+            const keyData = key.dataset.key;
+            
+            // Direct match for single characters
+            if (keyData === char) {
+                return true;
+            }
+            
+            // Handle numbers (prioritize numpad when available, fall back to number row)
+            if (char.match(/[0-9]/)) {
+                // First try numpad
+                if (keyData === `Numpad${char}`) {
+                    return true;
+                }
+                // Fall back to number row
+                if (keyData === char) {
+                    return true;
+                }
+            }
+            
+            return false;
+        });
+    }
+
     pressKey(keyElement, keyValue, keyCode = null) {
         keyElement.classList.add('pressed');
         
@@ -2288,10 +2363,8 @@ class KeyboardAndHandEffects {
             keyElement.classList.remove('pressed');
         }, 150);
 
-        // Highlight corresponding finger for clicked key
-        if (this.handEffectsEnabled) {
-            this.highlightFingerForKey(keyValue, true, keyCode, keyElement);
-        }
+        // Finger highlighting is now handled by WordLesson class for next-character guidance
+        // Removed automatic finger highlighting on key press to avoid conflicts
 
         // Handle special keys
         switch(keyValue) {
@@ -2368,6 +2441,11 @@ class KeyboardAndHandEffects {
         const activeFingerImages = document.querySelectorAll('.finger-image.active');
         activeFingerImages.forEach(img => img.classList.remove('active'));
         this.activeFingers.clear();
+    }
+    
+    clearAllKeyboardHighlights() {
+        const highlightedKeys = document.querySelectorAll('.key.next-key-highlight');
+        highlightedKeys.forEach(key => key.classList.remove('next-key-highlight'));
     }
 }
 

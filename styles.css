@@ -1104,6 +1104,50 @@ select {
     color: #ff1c1c;
 }
 
+#character-lesson-page .char-box.next-key {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-color: #2563eb;
+    color: white;
+    animation: pulse 1.5s infinite;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
+    }
+    100% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+}
+
+/* Keyboard key highlighting for next character */
+.key.next-key-highlight {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+    animation: keyPulse 1.5s infinite;
+}
+
+@keyframes keyPulse {
+    0% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.8);
+        transform: scale(1.08);
+    }
+    100% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+        transform: scale(1.05);
+    }
+}
+
 
 /* Character Lesson Page Layout */
 #character-lesson-page {
