@@ -1999,8 +1999,6 @@ class KeyboardAndHandEffects {
     }
 
     init() {
-        this.setupScaleControls();
-        this.setupHandScaleControls();
         this.setupKeyboardToggleControls();
         this.applyScale(this.scale);
         this.applyHandScale(this.handScale);
@@ -2024,37 +2022,6 @@ class KeyboardAndHandEffects {
         });
     }
 
-    setupScaleControls() {
-        const scaleSlider = document.getElementById('keyboard-scale-slider');
-        const scaleDisplay = document.getElementById('keyboard-scale-display');
-        
-        if (scaleSlider && scaleDisplay) {
-            scaleSlider.addEventListener('input', (e) => {
-                const scale = parseFloat(e.target.value);
-                this.setScale(scale);
-                scaleDisplay.textContent = `${(scale * 100).toFixed(0)}%`;
-            });
-            
-            scaleDisplay.textContent = `${(this.scale * 100).toFixed(0)}%`;
-            scaleSlider.value = this.scale;
-        }
-    }
-
-    setupHandScaleControls() {
-        const handScaleSlider = document.getElementById('hand-scale-slider');
-        const handScaleDisplay = document.getElementById('hand-scale-display');
-        
-        if (handScaleSlider && handScaleDisplay) {
-            handScaleSlider.addEventListener('input', (e) => {
-                const scale = parseFloat(e.target.value);
-                this.setHandScale(scale);
-                handScaleDisplay.textContent = `${(scale * 100).toFixed(0)}%`;
-            });
-            
-            handScaleDisplay.textContent = `${(this.handScale * 100).toFixed(0)}%`;
-            handScaleSlider.value = this.handScale;
-        }
-    }
 
     setupKeyboardToggleControls() {
         // Automatically detect numpad usage and show/hide numpad

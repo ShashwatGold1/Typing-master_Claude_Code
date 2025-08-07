@@ -118,3 +118,5 @@ logs
 
 # Application specific
 .claude/settings.local.json
+
+nul
