@@ -1048,7 +1048,7 @@ select {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    font-family: monospace;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0 20px;
     flex-shrink: 0;
     min-width: 280px;
@@ -1070,7 +1070,7 @@ select {
 #character-lesson-page .char-box {
     width: 40px;
     height: 40px;
-    border: 2px solid #ccc;
+    border: 1px solid #ccc;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1105,12 +1105,12 @@ select {
 }
 
 #character-lesson-page .char-box.next-key {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border-color: #2563eb;
+    background: linear-gradient(135deg, #a3c7ff 0%, #5280ff 100%);
+    border-color: #0800ff;
     color: white;
-    animation: pulse 1.5s infinite;
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    /* animation: pulse 1.5s infinite; */
+    /* transform: scale(1.1); */
+    /* box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); */
 }
 
 @keyframes pulse {
@@ -1129,7 +1129,6 @@ select {
 .key.next-key-highlight {
     background: linear-gradient(135deg, #a3c7ff 0%, #5280ff 100%);
     border-color: #0800ff;
-    border-width: 2px;
     color: white;
     /* animation: pulse 1.5s infinite; */
     /* transform: scale(1.1); */
@@ -1145,11 +1144,11 @@ select {
 .key[data-key="h"],
 .key[data-key="b"],
 .key[data-key="n"] {
-    background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
-    border: 2px solid #f59e0b;
+    background: linear-gradient(135deg, #fffdf5 0%, #ffeab7 100%);
+    border: 1px solid #e3b361;
     color: #92400e;
     font-weight: 600;
-    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    /* box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); */
 }
 
 /* Maintain highlight on hover and active states */
@@ -1304,7 +1303,7 @@ select {
     border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: #2c3e50;
     user-select: none;
     transition: all 0.15s ease;
@@ -1589,24 +1588,6 @@ select {
     opacity: 0.7;
 }
 
-/* Finger position indicators */
-.key::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    opacity: 0.7;
-}
-
-.key[data-finger="pinky"]::before { background: #8e24aa; }
-.key[data-finger="ring"]::before { background: #5e35b1; }
-.key[data-finger="middle"]::before { background: #1565c0; }
-.key[data-finger="index"]::before { background: #00695c; }
-.key[data-finger="thumb"]::before { background: #424242; }
-
 .section-label {
     font-size: 11px;
     color: #6c757d;
@@ -1696,15 +1677,15 @@ select {
 }
 
 .finger-image.active {
-    opacity: 1;
-    animation: hueShift 3s infinite linear;
+    opacity: 0.6;
+    animation: hueShift 15s infinite linear;
 }
 
 @keyframes hueShift {
-    0% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(180deg) drop-shadow(0 0 8px rgba(0,100,255,0.8)); }
-    33% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(240deg) drop-shadow(0 0 8px rgba(100,0,255,0.8)); }
-    66% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(300deg) drop-shadow(0 0 8px rgba(255,0,150,0.8)); }
-    100% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(180deg) drop-shadow(0 0 8px rgba(0,100,255,0.8)); }
+    0% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(180deg); } 
+    33% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(240deg); }
+    66% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(300deg); }
+    100% { filter: brightness(0.7) contrast(1.8) saturate(2.5) hue-rotate(180deg); }
 }
 
 /* Hide sections when toggled off */
