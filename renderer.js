@@ -1645,6 +1645,11 @@ class WordLesson {
         this.init();
     }
     
+    // Get the maximum number of characters allowed in char-container
+    getMaxCharacterLimit() {
+        return 24;
+    }
+    
     // Custom rounding function: 0.1-0.5 rounds down, 0.6-0.9 rounds up
     customRound(value) {
         const decimal = value - Math.floor(value);
@@ -1678,8 +1683,12 @@ class WordLesson {
         // Clear existing content
         container.innerHTML = '';
         
+        // Limit to maximum allowed characters
+        const maxChars = this.getMaxCharacterLimit();
+        const charactersToShow = this.practiceSequence.slice(0, maxChars);
+        
         // Create character boxes
-        this.practiceSequence.split('').forEach(char => {
+        charactersToShow.split('').forEach(char => {
             const div = document.createElement('div');
             div.classList.add('char-box');
             div.textContent = char;
@@ -1712,8 +1721,10 @@ class WordLesson {
             this.startTest();
         }
         
-        // Don't allow typing beyond the sequence length
-        if (this.currentIndex >= this.practiceSequence.length) {
+        // Don't allow typing beyond the maximum character limit
+        const maxChars = this.getMaxCharacterLimit();
+        const displayedLength = Math.min(this.practiceSequence.length, maxChars);
+        if (this.currentIndex >= displayedLength) {
             return;
         }
         
@@ -1727,7 +1738,7 @@ class WordLesson {
         this.updateStats();
         
         // Check if test is complete
-        if (this.currentIndex >= this.practiceSequence.length) {
+        if (this.currentIndex >= displayedLength) {
             this.endTest();
         }
     }
