@@ -1626,6 +1626,7 @@ document.addEventListener('keydown', (e) => {
 class WordLesson {
     constructor() {
         this.practiceSequence = 'fffffjjjfffjjfjjffjjfjjffjf';
+        this.isNumpadSequence = false; // Flag to indicate if current sequence requires numpad
         this.typingTest = null;
         
         // Stats tracking similar to TypingTest
@@ -1941,25 +1942,34 @@ class WordLesson {
     }
     
     generateNewSequence() {
-        // Generate a random sequence - mix of letters and occasionally numbers for numpad practice
+        // Generate a random sequence - mix of letters and numpad practice
         const sequences = [
-            'fffffjjjfffjjfjjffjjfjjffjf',
-            'jjjjjffffjjffjjffjffjffjjf',
-            'ffjjffjjffjjffjjffjjffjjff',
-            'fjfjfjfjfjfjfjfjfjfjfjfjfj',
-            'ffffjjjjfffffjjjjjfffffjjj',
-            'jffjjjffffjffjjjffffjfjfj',
-            // Numpad practice sequences
-            '1234567890123456789012345',
-            '12312312312312312312312',
-            '456456456456456456456456',
-            '789789789789789789789789',
-            '1472583690147258369014725',
-            '12345123451234512345123'
+            // Regular letter sequences
+            { text: 'fffffjjjfffjjfjjffjjfjjffjf', isNumpad: false },
+            { text: 'jjjjjffffjjffjjffjffjffjjf', isNumpad: false },
+            { text: 'ffjjffjjffjjffjjffjjffjjff', isNumpad: false },
+            { text: 'fjfjfjfjfjfjfjfjfjfjfjfjfj', isNumpad: false },
+            { text: 'ffffjjjjfffffjjjjjfffffjjj', isNumpad: false },
+            { text: 'jffjjjffffjffjjjffffjfjfj', isNumpad: false },
+            // Regular number row sequences (not numpad) - these use main keyboard
+            { text: '1234567890123456789012345', isNumpad: false },
+            { text: '12312312312312312312312', isNumpad: false },
+            { text: '456456456456456456456456', isNumpad: false },
+            { text: '789789789789789789789789', isNumpad: false },
+            { text: '1472583690147258369014725', isNumpad: false },
+            { text: '12345123451234512345123', isNumpad: false },
+            // Actual numpad practice sequences (these will show numpad) - display same numbers but flag as numpad
+            { text: '123123123123123123123123', isNumpad: true },
+            { text: '456456456456456456456456', isNumpad: true },
+            { text: '789789789789789789789789', isNumpad: true },
+            { text: '000...000...000...000...', isNumpad: true },
+            { text: '++--**//++--**//++--**', isNumpad: true },
+            { text: '1472583690147258369014', isNumpad: true }
         ];
         
         const randomSequence = sequences[Math.floor(Math.random() * sequences.length)];
-        this.practiceSequence = randomSequence;
+        this.practiceSequence = randomSequence.text;
+        this.isNumpadSequence = randomSequence.isNumpad;
         this.createCharacterBoxesWithAnimation();
         this.resetTest();
     }
@@ -2159,33 +2169,17 @@ class KeyboardAndHandEffects {
             'NumpadDecimal', 'NumpadEnter', 'NumLock'
         ];
         
-        // Check char-container content periodically
+        // Check if current practice sequence requires numpad
         this.numpadCheckInterval = setInterval(() => {
-            const charContainer = document.getElementById('char-container');
-            if (charContainer && charContainer.textContent) {
-                const containerText = charContainer.textContent;
-                let hasNumpadContent = false;
-                
-                // Check if container has numerical content or characters that suggest numpad use
-                if (containerText.match(/[0-9]/)) {
-                    hasNumpadContent = true;
-                } else {
-                    // Check if any numpad keys are present in the current practice sequence
-                    const wordLesson = window.wordLesson;
-                    if (wordLesson && wordLesson.practiceSequence) {
-                        const sequence = wordLesson.practiceSequence;
-                        if (sequence.match(/[0-9+\-*/.,]/)) {
-                            hasNumpadContent = true;
-                        }
-                    }
-                }
-                
-                // Show/hide numpad based on content
-                this.toggleKeyboardSection('hide-numpad', hasNumpadContent);
+            const wordLesson = window.wordLesson;
+            if (wordLesson) {
+                // Use the explicit numpad flag from WordLesson instead of text analysis
+                const shouldShowNumpad = wordLesson.isNumpadSequence;
+                this.toggleKeyboardSection('hide-numpad', shouldShowNumpad);
             }
         }, 500); // Check every 500ms
         
-        // Also listen for physical numpad key presses
+        // Also listen for physical numpad key presses to show numpad temporarily
         document.addEventListener('keydown', (e) => {
             const characterLessonPage = document.getElementById('character-lesson-page');
             if (!characterLessonPage || !characterLessonPage.classList.contains('active')) {
@@ -2193,7 +2187,7 @@ class KeyboardAndHandEffects {
             }
             
             if (numpadKeys.includes(e.code) || e.code.startsWith('Numpad')) {
-                // Show numpad immediately when numpad key is pressed
+                // Show numpad immediately when numpad key is pressed (override WordLesson flag temporarily)
                 this.toggleKeyboardSection('hide-numpad', true);
                 
                 // Keep it visible for a while
@@ -2201,25 +2195,19 @@ class KeyboardAndHandEffects {
                     clearTimeout(this.numpadHideTimeout);
                 }
                 
-                // Auto-hide after 30 seconds of no numpad usage
+                // Auto-hide after 10 seconds and return to WordLesson control
                 this.numpadHideTimeout = setTimeout(() => {
-                    this.checkIfShouldHideNumpad();
-                }, 30000);
+                    const wordLesson = window.wordLesson;
+                    if (wordLesson) {
+                        // Return to using WordLesson's numpad flag
+                        this.toggleKeyboardSection('hide-numpad', wordLesson.isNumpadSequence);
+                    }
+                }, 10000);
             }
         });
     }
     
-    checkIfShouldHideNumpad() {
-        // Check if char-container still has numpad-related content
-        const charContainer = document.getElementById('char-container');
-        if (charContainer && charContainer.textContent) {
-            const containerText = charContainer.textContent;
-            if (!containerText.match(/[0-9+\-*/.,]/)) {
-                // No numpad content, hide the numpad
-                this.toggleKeyboardSection('hide-numpad', false);
-            }
-        }
-    }
+    // Removed checkIfShouldHideNumpad - now using explicit numpad flag from WordLesson
 
     toggleKeyboardSection(className, isVisible) {
         if (!this.keyboardLayout) return;
@@ -2332,6 +2320,9 @@ class KeyboardAndHandEffects {
 
     findKeyElementByChar(char) {
         // Find keyboard element by character (for visual highlighting)
+        const wordLesson = window.wordLesson;
+        const isNumpadSequence = wordLesson ? wordLesson.isNumpadSequence : false;
+        
         return Array.from(this.keys).find(key => {
             const keyData = key.dataset.key;
             
@@ -2340,14 +2331,32 @@ class KeyboardAndHandEffects {
                 return true;
             }
             
-            // Handle numbers (prioritize numpad when available, fall back to number row)
+            // Handle numbers and numpad symbols
             if (char.match(/[0-9]/)) {
-                // First try numpad
-                if (keyData === `Numpad${char}`) {
-                    return true;
+                if (isNumpadSequence) {
+                    // For numpad sequences, prefer numpad keys
+                    if (keyData === `Numpad${char}`) {
+                        return true;
+                    }
+                } else {
+                    // For regular sequences, prefer number row keys
+                    if (keyData === char) {
+                        return true;
+                    }
                 }
-                // Fall back to number row
-                if (keyData === char) {
+            }
+            
+            // Handle numpad symbols when in numpad mode
+            if (isNumpadSequence) {
+                const symbolMap = {
+                    '+': 'NumpadAdd',
+                    '-': 'NumpadSubtract', 
+                    '*': 'NumpadMultiply',
+                    '/': 'NumpadDivide',
+                    '.': 'NumpadDecimal'
+                };
+                
+                if (symbolMap[char] && keyData === symbolMap[char]) {
                     return true;
                 }
             }
@@ -2408,6 +2417,41 @@ class KeyboardAndHandEffects {
         // Handle space key - can be either thumb
         if (keyValue === ' ') {
             return Math.random() > 0.5 ? 'left-thumb' : 'right-thumb';
+        }
+        
+        // Check if we're in numpad mode
+        const wordLesson = window.wordLesson;
+        const isNumpadSequence = wordLesson ? wordLesson.isNumpadSequence : false;
+        
+        // Handle numbers and symbols based on whether we're using numpad or regular keys
+        if (keyValue.match(/[0-9]/)) {
+            if (isNumpadSequence) {
+                // Use numpad finger mapping
+                const numpadKey = `Numpad${keyValue}`;
+                if (this.keyToFingerMap[numpadKey]) {
+                    return this.keyToFingerMap[numpadKey];
+                }
+            } else {
+                // Use regular number key mapping
+                if (this.keyToFingerMap[keyValue]) {
+                    return this.keyToFingerMap[keyValue];
+                }
+            }
+        }
+        
+        // Handle numpad symbols when in numpad mode
+        if (isNumpadSequence) {
+            const symbolMap = {
+                '+': 'NumpadAdd',
+                '-': 'NumpadSubtract', 
+                '*': 'NumpadMultiply',
+                '/': 'NumpadDivide',
+                '.': 'NumpadDecimal'
+            };
+            
+            if (symbolMap[keyValue] && this.keyToFingerMap[symbolMap[keyValue]]) {
+                return this.keyToFingerMap[symbolMap[keyValue]];
+            }
         }
         
         // First try keyCode for special keys
