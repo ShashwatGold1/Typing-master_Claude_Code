@@ -1808,6 +1808,11 @@ class WordLesson {
         }
         
         this.updateStats(); // Final update
+        
+        // Automatically start next text after a brief pause (2 seconds)
+        setTimeout(() => {
+            this.generateNewSequence();
+        }, 2000);
     }
     
     updateStats() {
