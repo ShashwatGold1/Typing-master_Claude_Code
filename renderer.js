@@ -1809,10 +1809,8 @@ class WordLesson {
         
         this.updateStats(); // Final update
         
-        // Automatically start next text after a brief pause (2 seconds)
-        setTimeout(() => {
-            this.generateNewSequence();
-        }, 2000);
+        // Start fade-out animation for completed text
+        this.animateTextTransition();
     }
     
     updateStats() {
@@ -1891,7 +1889,13 @@ class WordLesson {
         const generateBtn = document.getElementById('generate-new-text-btn');
         if (generateBtn) {
             generateBtn.addEventListener('click', () => {
-                this.generateNewSequence();
+                // If test is active, end it first to trigger animation
+                if (this.isActive) {
+                    this.endTest();
+                } else {
+                    // If test is not active, start animation directly
+                    this.animateTextTransition();
+                }
             });
         }
     }
@@ -1916,8 +1920,64 @@ class WordLesson {
         
         const randomSequence = sequences[Math.floor(Math.random() * sequences.length)];
         this.practiceSequence = randomSequence;
-        this.createCharacterBoxes();
+        this.createCharacterBoxesWithAnimation();
         this.resetTest();
+    }
+    
+    animateTextTransition() {
+        const container = document.getElementById('char-container');
+        const boxes = document.querySelectorAll('.char-box');
+        
+        if (!container || !boxes.length) return;
+        
+        // Add transitioning class to container
+        container.classList.add('transitioning');
+        
+        // Fade out all boxes with staggered timing
+        boxes.forEach((box, index) => {
+            setTimeout(() => {
+                box.classList.add('fade-out');
+            }, index * 30); // 30ms delay between each box
+        });
+        
+        // After all boxes are faded out, generate new sequence
+        setTimeout(() => {
+            this.generateNewSequence();
+        }, boxes.length * 30 + 350); // Wait for all fade-outs plus extra time
+    }
+    
+    createCharacterBoxesWithAnimation() {
+        const container = document.getElementById('char-container');
+        if (!container) return;
+        
+        // Remove transitioning class and add new-text class for container animation
+        container.classList.remove('transitioning');
+        container.classList.add('new-text');
+        
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Limit to maximum allowed characters
+        const maxChars = this.getMaxCharacterLimit();
+        const charactersToShow = this.practiceSequence.slice(0, maxChars);
+        
+        // Create character boxes with fade-in animation
+        charactersToShow.split('').forEach((char, index) => {
+            const div = document.createElement('div');
+            div.classList.add('char-box', 'fade-in');
+            div.textContent = char;
+            container.appendChild(div);
+            
+            // Stagger the fade-in animation
+            setTimeout(() => {
+                div.classList.remove('fade-in');
+            }, index * 50 + 100); // 50ms delay between each box, start after 100ms
+        });
+        
+        // Remove container animation class after animation completes
+        setTimeout(() => {
+            container.classList.remove('new-text');
+        }, 500);
     }
     
     forceInputFocus() {
