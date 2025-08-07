@@ -2323,31 +2323,34 @@ class KeyboardAndHandEffects {
         const wordLesson = window.wordLesson;
         const isNumpadSequence = wordLesson ? wordLesson.isNumpadSequence : false;
         
-        return Array.from(this.keys).find(key => {
+        // Refresh keys collection to ensure we have all keys including numpad
+        this.refreshKeys();
+        
+        let foundKey = null;
+        
+        // Search through all keys
+        for (const key of this.keys) {
             const keyData = key.dataset.key;
             
-            // Direct match for single characters
-            if (keyData === char) {
-                return true;
-            }
-            
-            // Handle numbers and numpad symbols
+            // Handle numbers first - prioritize based on sequence type
             if (char.match(/[0-9]/)) {
                 if (isNumpadSequence) {
                     // For numpad sequences, prefer numpad keys
                     if (keyData === `Numpad${char}`) {
-                        return true;
+                        foundKey = key;
+                        break; // Prefer numpad keys when in numpad mode
                     }
                 } else {
-                    // For regular sequences, prefer number row keys
-                    if (keyData === char) {
-                        return true;
+                    // For regular sequences, prefer number row keys (exclude numpad)
+                    if (keyData === char && !keyData.startsWith('Numpad')) {
+                        foundKey = key;
+                        break; // Use regular number row for non-numpad sequences
                     }
                 }
             }
             
             // Handle numpad symbols when in numpad mode
-            if (isNumpadSequence) {
+            else if (isNumpadSequence) {
                 const symbolMap = {
                     '+': 'NumpadAdd',
                     '-': 'NumpadSubtract', 
@@ -2357,12 +2360,34 @@ class KeyboardAndHandEffects {
                 };
                 
                 if (symbolMap[char] && keyData === symbolMap[char]) {
-                    return true;
+                    foundKey = key;
+                    break; // Use numpad symbols when in numpad mode
                 }
             }
             
-            return false;
-        });
+            // Direct match for other characters (letters, regular symbols)
+            else if (keyData === char) {
+                foundKey = key;
+                break; // Direct match for non-numeric characters
+            }
+        }
+        
+        // Fallback: if numpad key not found, try regular key for numbers
+        if (!foundKey && char.match(/[0-9]/)) {
+            for (const key of this.keys) {
+                if (key.dataset.key === char) {
+                    foundKey = key;
+                    break;
+                }
+            }
+        }
+        
+        return foundKey;
+    }
+    
+    refreshKeys() {
+        // Refresh the keys collection to ensure we have all keys including hidden numpad keys
+        this.keys = document.querySelectorAll('.key');
     }
 
     pressKey(keyElement, keyValue, keyCode = null) {
