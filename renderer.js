@@ -1925,34 +1925,24 @@ class WordLesson {
     }
     
     animateTextTransition() {
-        const container = document.getElementById('char-container');
         const boxes = document.querySelectorAll('.char-box');
         
-        if (!container || !boxes.length) return;
+        if (!boxes.length) return;
         
-        // Add transitioning class to container
-        container.classList.add('transitioning');
-        
-        // Fade out all boxes with staggered timing
-        boxes.forEach((box, index) => {
-            setTimeout(() => {
-                box.classList.add('fade-out');
-            }, index * 30); // 30ms delay between each box
+        // Fade out all boxes
+        boxes.forEach((box) => {
+            box.classList.add('fade-out');
         });
         
-        // After all boxes are faded out, generate new sequence
+        // After fade-out, generate new sequence
         setTimeout(() => {
             this.generateNewSequence();
-        }, boxes.length * 30 + 350); // Wait for all fade-outs plus extra time
+        }, 300); // Wait for fade-out to complete
     }
     
     createCharacterBoxesWithAnimation() {
         const container = document.getElementById('char-container');
         if (!container) return;
-        
-        // Remove transitioning class and add new-text class for container animation
-        container.classList.remove('transitioning');
-        container.classList.add('new-text');
         
         // Clear existing content
         container.innerHTML = '';
@@ -1962,22 +1952,20 @@ class WordLesson {
         const charactersToShow = this.practiceSequence.slice(0, maxChars);
         
         // Create character boxes with fade-in animation
-        charactersToShow.split('').forEach((char, index) => {
+        charactersToShow.split('').forEach((char) => {
             const div = document.createElement('div');
             div.classList.add('char-box', 'fade-in');
             div.textContent = char;
             container.appendChild(div);
-            
-            // Stagger the fade-in animation
-            setTimeout(() => {
-                div.classList.remove('fade-in');
-            }, index * 50 + 100); // 50ms delay between each box, start after 100ms
         });
         
-        // Remove container animation class after animation completes
+        // Fade in all boxes
         setTimeout(() => {
-            container.classList.remove('new-text');
-        }, 500);
+            const boxes = document.querySelectorAll('.char-box.fade-in');
+            boxes.forEach((box) => {
+                box.classList.remove('fade-in');
+            });
+        }, 50);
     }
     
     forceInputFocus() {

@@ -1081,57 +1081,15 @@ select {
     transform: scale(1);
 }
 
-/* Animation classes for text transitions */
+/* Simple fade animations */
 #character-lesson-page .char-box.fade-out {
     opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.3s ease-out;
+    transition: opacity 0.3s ease;
 }
 
 #character-lesson-page .char-box.fade-in {
     opacity: 0;
-    transform: scale(0.8) translateY(10px);
-    animation: fadeInChar 0.4s ease-out forwards;
-}
-
-@keyframes fadeInChar {
-    0% {
-        opacity: 0;
-        transform: scale(0.8) translateY(10px);
-    }
-    50% {
-        opacity: 0.5;
-        transform: scale(1.05) translateY(5px);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-/* Container animation for overall effect */
-#character-lesson-page .char-container.transitioning {
-    opacity: 0.6;
     transition: opacity 0.3s ease;
-}
-
-#character-lesson-page .char-container.new-text {
-    animation: containerPulse 0.5s ease-out;
-}
-
-@keyframes containerPulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    50% {
-        transform: scale(1.02);
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
 }
 
 #character-lesson-page .char-box.correct {
