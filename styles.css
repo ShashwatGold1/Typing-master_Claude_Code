@@ -1244,13 +1244,13 @@ select {
 .key.xxl { width: 70px; }
 .key.tab { width: 64px; }
 .key.caps { width: 80px; }
-.key.enter { width: 93px; }
+.key.enter { width: 89px; }
 .key.shift-left { width: 99px; }
-.key.shift-right { width: 119px; }
-.key.backspace { width: 86px; }
-.key.space { width: 265px; }
+.key.shift-right { width: 115px; }
+.key.backspace { width: 82px; }
+.key.space { width: 261px; }
 .key.wide { width: 87px; }
-.key.backslash { width: 64px; }
+.key.backslash { width: 60px; }
 
 /* Special styles for long key names */
 .key[data-key="PrintScreen"],
@@ -1266,7 +1266,7 @@ select {
 .key.tall { height: 87px; writing-mode: vertical-lr; text-orientation: mixed; }
 
 /* Custom spacing for F1-F4 section */
-.f1-section { margin-left: 35px; }
+.f1-section { margin-left: 31px; }
 
 /* Numpad-specific grid layout */
 .numpad-grid {
@@ -1508,7 +1508,7 @@ select {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     transform-origin: center;
     transition: transform 0.3s ease;
     flex-wrap: wrap;

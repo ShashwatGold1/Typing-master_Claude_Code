@@ -2115,6 +2115,16 @@ class KeyboardAndHandEffects {
         } else {
             this.keyboardLayout.classList.add(className);
         }
+        
+        // Apply scaling for character lesson page when numpad visibility changes
+        if (className === 'hide-numpad') {
+            const characterLessonPage = document.getElementById('character-lesson-page');
+            if (characterLessonPage && characterLessonPage.classList.contains('active')) {
+                // Scale to 0.92 when numpad is visible, back to 1 when hidden
+                const scale = isVisible ? 0.92 : 1;
+                this.applyScale(scale);
+            }
+        }
     }
 
     setScale(scale) {
