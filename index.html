@@ -48,7 +48,7 @@
             
             <!-- Logo -->
             <div class="app-logo" id="app-logo">
-                <span class="logo-text">TM</span>
+                <span class="logo-text">Typing_King</span>
             </div>
             <!-- Sidebar Navigation -->
             <div class="sidebar">
@@ -143,8 +143,20 @@
                 <!-- Character Lesson Page -->
                 <div class="page" id="character-lesson-page">
                     <div class="page-header">
-                        <h1>Character Lesson</h1>
-                        <p>Learn to type individual characters with guided practice</p>
+                        <h1 id="lesson-title-display">Character Lesson</h1>
+                        <p id="lesson-description-display">Learn to type individual characters with guided practice</p>
+                        
+                        <!-- Progressive Lesson Info -->
+                        <div class="lesson-progress-bar">
+                            <div class="progress-info">
+                                <span id="current-lesson-display">Lesson 1</span>
+                                <span id="current-phase-display">Foundation</span>
+                                <span id="lesson-progress-display">1 / 104</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="lesson-progress-fill" style="width: 1%"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="stats-container">
@@ -159,6 +171,10 @@
                         <div class="stat-card">
                             <div class="stat-value" id="char-time-value">0</div>
                             <div class="stat-label">ELAPSED TIME</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="target-accuracy-display">95%</div>
+                            <div class="stat-label">TARGET</div>
                         </div>
                     </div>
 
@@ -595,6 +611,60 @@
         </div>
     </div>
 
+    <!-- Lesson Completion Popup -->
+    <div class="lesson-completion-overlay" id="lesson-completion-overlay">
+        <div class="lesson-completion-popup" id="lesson-completion-popup">
+            <div class="completion-header">
+                <div class="completion-icon">🎉</div>
+                <h2>Lesson Complete!</h2>
+            </div>
+            <div class="completion-content">
+                <div class="completion-message" id="completion-message">
+                    Great job! You've mastered this lesson.
+                </div>
+                <div class="completion-stats">
+                    <div class="completion-stat">
+                        <span class="stat-label">Keys Learned:</span>
+                        <span class="stat-value" id="keys-learned-display">F, J</span>
+                    </div>
+                    <div class="completion-stat">
+                        <span class="stat-label">Accuracy:</span>
+                        <span class="stat-value" id="final-accuracy-display">96%</span>
+                    </div>
+                    <div class="completion-stat">
+                        <span class="stat-label">WPM:</span>
+                        <span class="stat-value" id="final-wpm-display">15</span>
+                    </div>
+                    <div class="completion-stat">
+                        <span class="stat-label">Time:</span>
+                        <span class="stat-value" id="final-time-display">2:30</span>
+                    </div>
+                </div>
+                <div class="completion-progress">
+                    <div class="progress-summary">
+                        <span class="progress-text">Overall Progress:</span>
+                        <span class="progress-percent" id="overall-progress-display">1.5%</span>
+                    </div>
+                    <div class="completion-progress-bar">
+                        <div class="progress-fill" id="completion-progress-fill" style="width: 1.5%"></div>
+                    </div>
+                </div>
+                <div class="next-lesson-preview">
+                    <div class="next-lesson-label">Next Lesson:</div>
+                    <div class="next-lesson-info" id="next-lesson-preview">Adding spacebar for word spacing</div>
+                </div>
+            </div>
+            <div class="completion-footer">
+                <div class="continue-instruction">Press ENTER to continue to next lesson</div>
+                <div class="completion-controls">
+                    <button class="btn btn-secondary" id="lesson-retry-btn">Retry Lesson</button>
+                    <button class="btn btn-primary" id="continue-lesson-btn">Continue (Enter)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lesson-data.js"></script>
     <script src="renderer.js"></script>
 </body>
 </html>

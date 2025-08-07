@@ -120,10 +120,10 @@ class NavigationManager {
             }, 100);
         } else if (page === 'character-lesson') {
             setTimeout(() => {
-                if (window.wordLesson) {
-                    window.wordLesson.forceInputFocus();
+                if (window.progressiveLesson) {
+                    window.progressiveLesson.forceInputFocus();
                     // Ensure the first character is highlighted when navigating to character lesson
-                    window.wordLesson.updateCharacterBoxes();
+                    window.progressiveLesson.updateCharacterBoxes();
                 }
             }, 100);
         } else if (page === 'lesson-interface') {
@@ -2035,6 +2035,630 @@ class WordLesson {
 }
 
 // Keyboard and Hand Effects for Character Lesson
+// Progressive Lesson System - Enhanced WordLesson with 104-key progression
+class ProgressiveLessonSystem {
+    constructor() {
+        this.currentLesson = null;
+        this.practiceText = '';
+        this.typedSequence = '';
+        
+        // Stats tracking
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.startTime = null;
+        this.isActive = false;
+        this.timer = null;
+        this.wpmUpdateTimer = null;
+        this.timeElapsed = 0;
+        this.timeLimit = 600; // 10 minutes maximum
+        
+        // Element references
+        this.wpmValue = null;
+        this.accuracyValue = null;
+        this.timeValue = null;
+        this.targetAccuracyDisplay = null;
+        
+        this.init();
+    }
+    
+    // Get maximum characters to display
+    getMaxCharacterLimit() {
+        return 24;
+    }
+    
+    // Custom rounding function
+    customRound(value) {
+        const decimal = value - Math.floor(value);
+        if (decimal >= 0.6) {
+            return Math.ceil(value);
+        } else {
+            return Math.floor(value);
+        }
+    }
+    
+    init() {
+        // Wait for lessonData to be available
+        const initializeSystem = () => {
+            if (!window.lessonData) {
+                setTimeout(initializeSystem, 50);
+                return;
+            }
+            
+            // Get element references
+            this.wpmValue = document.getElementById('char-wpm-value');
+            this.accuracyValue = document.getElementById('char-accuracy-value');
+            this.timeValue = document.getElementById('char-time-value');
+            this.targetAccuracyDisplay = document.getElementById('target-accuracy-display');
+            
+            // Load current lesson
+            this.loadCurrentLesson();
+            this.setupEventListeners();
+            this.setupKeyboardListeners();
+            this.updateLessonUI();
+            this.createCharacterBoxes();
+            this.updateStats();
+            this.updateTimeDisplay();
+        };
+        
+        initializeSystem();
+    }
+    
+    loadCurrentLesson() {
+        this.currentLesson = window.lessonData.getCurrentLesson();
+        if (this.currentLesson) {
+            this.practiceText = window.lessonData.generatePracticeText(this.currentLesson);
+        }
+    }
+    
+    updateLessonUI() {
+        if (!this.currentLesson) return;
+        
+        // Update lesson title and description
+        const titleDisplay = document.getElementById('lesson-title-display');
+        const descriptionDisplay = document.getElementById('lesson-description-display');
+        const currentLessonDisplay = document.getElementById('current-lesson-display');
+        const currentPhaseDisplay = document.getElementById('current-phase-display');
+        const lessonProgressDisplay = document.getElementById('lesson-progress-display');
+        const progressFill = document.getElementById('lesson-progress-fill');
+        
+        if (titleDisplay) titleDisplay.textContent = this.currentLesson.title;
+        if (descriptionDisplay) descriptionDisplay.textContent = this.currentLesson.description;
+        if (currentLessonDisplay) currentLessonDisplay.textContent = `Lesson ${this.currentLesson.id}`;
+        if (currentPhaseDisplay) currentPhaseDisplay.textContent = this.currentLesson.phase;
+        
+        // Update progress
+        const stats = window.lessonData.getLessonStats();
+        if (lessonProgressDisplay) {
+            lessonProgressDisplay.textContent = `${stats.current} / ${stats.total}`;
+        }
+        if (progressFill) {
+            progressFill.style.width = `${stats.percentComplete}%`;
+        }
+        
+        // Update target accuracy display
+        if (this.targetAccuracyDisplay) {
+            this.targetAccuracyDisplay.textContent = `${this.currentLesson.targetAccuracy}%`;
+        }
+    }
+    
+    createCharacterBoxes() {
+        const container = document.getElementById('char-container');
+        if (!container || !this.practiceText) return;
+        
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Limit to maximum allowed characters
+        const maxChars = this.getMaxCharacterLimit();
+        const charactersToShow = this.practiceText.slice(0, maxChars);
+        
+        // Create character boxes
+        charactersToShow.split('').forEach(char => {
+            const div = document.createElement('div');
+            div.classList.add('char-box');
+            div.textContent = char;
+            container.appendChild(div);
+        });
+        
+        // Add transition class for animations
+        container.classList.add('lesson-transition');
+        setTimeout(() => {
+            container.classList.remove('lesson-transition');
+            this.updateCharacterBoxes();
+        }, 100);
+    }
+    
+    setupKeyboardListeners() {
+        // Listen for keyboard events
+        document.addEventListener('keydown', (e) => {
+            // Only handle keys when on character lesson page
+            const characterLessonPage = document.getElementById('character-lesson-page');
+            if (!characterLessonPage || !characterLessonPage.classList.contains('active')) {
+                return;
+            }
+            
+            // Handle Enter key for lesson completion continuation
+            if (e.key === 'Enter' && window.lessonCompletionManager && window.lessonCompletionManager.isShowing()) {
+                window.lessonCompletionManager.continueToNextLesson();
+                e.preventDefault();
+                return;
+            }
+            
+            // Handle typing
+            if (e.key.length === 1) {
+                this.handleKeyPress(e.key);
+                e.preventDefault();
+            } else if (e.key === 'Backspace') {
+                this.handleBackspace();
+                e.preventDefault();
+            }
+        });
+    }
+    
+    handleKeyPress(key) {
+        if (!this.isActive) {
+            this.startTest();
+        }
+        
+        // Check if test is complete
+        const maxChars = this.getMaxCharacterLimit();
+        const displayedLength = Math.min(this.practiceText.length, maxChars);
+        if (this.currentIndex >= displayedLength) {
+            return;
+        }
+        
+        // Add character to typed sequence
+        this.typedSequence += key;
+        this.currentIndex++;
+        this.totalChars++;
+        
+        // Update visual feedback
+        this.updateCharacterBoxes();
+        this.updateStats();
+        
+        // Check if lesson is complete
+        if (this.currentIndex >= displayedLength) {
+            this.checkLessonCompletion();
+        }
+    }
+    
+    handleBackspace() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            this.totalChars = Math.max(0, this.totalChars - 1);
+            this.typedSequence = this.typedSequence.slice(0, -1);
+            this.updateCharacterBoxes();
+            this.updateStats();
+        }
+    }
+    
+    updateCharacterBoxes() {
+        const boxes = document.querySelectorAll('.char-box');
+        this.correctChars = 0;
+        
+        boxes.forEach((box, index) => {
+            // Clear previous states
+            box.classList.remove('correct', 'incorrect', 'next-key');
+            
+            if (index < this.currentIndex) {
+                // Already typed
+                const typedChar = this.typedSequence[index];
+                const expectedChar = box.textContent;
+                
+                if (typedChar === expectedChar) {
+                    box.classList.add('correct');
+                    this.correctChars++;
+                } else {
+                    box.classList.add('incorrect');
+                }
+            } else if (index === this.currentIndex) {
+                // Current character
+                box.classList.add('next-key');
+                this.highlightFingerForNextCharacter(box.textContent);
+            }
+        });
+    }
+    
+    highlightFingerForNextCharacter(char) {
+        if (window.keyboardAndHandEffects) {
+            window.keyboardAndHandEffects.clearAllFingerHighlights();
+            window.keyboardAndHandEffects.clearAllKeyboardHighlights();
+            window.keyboardAndHandEffects.highlightFingerForKey(char, true);
+            
+            const keyElement = window.keyboardAndHandEffects.findKeyElementByChar(char);
+            if (keyElement) {
+                keyElement.classList.add('next-key-highlight');
+            }
+        }
+    }
+    
+    startTest() {
+        this.isActive = true;
+        this.startTime = Date.now();
+        this.timeElapsed = 0;
+        
+        // Timer for elapsed time display
+        this.timer = setInterval(() => {
+            this.timeElapsed++;
+            this.updateTimeDisplay();
+            if (this.timeElapsed >= this.timeLimit) {
+                this.endTest();
+            }
+        }, 1000);
+        
+        // Real-time WPM updates
+        this.wpmUpdateTimer = setInterval(() => {
+            this.updateStats();
+        }, 1000);
+    }
+    
+    endTest() {
+        this.isActive = false;
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        if (this.wpmUpdateTimer) {
+            clearInterval(this.wpmUpdateTimer);
+            this.wpmUpdateTimer = null;
+        }
+        this.updateStats();
+    }
+    
+    checkLessonCompletion() {
+        this.endTest();
+        
+        if (!this.currentLesson) return;
+        
+        // Calculate final stats
+        const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 0;
+        const wpm = this.calculateWPM();
+        
+        // Check if lesson requirements are met
+        const passedAccuracy = accuracy >= this.currentLesson.targetAccuracy;
+        const passedWPM = wpm >= this.currentLesson.targetWPM;
+        const passedMinChars = this.correctChars >= this.currentLesson.minChars;
+        
+        if (passedAccuracy && passedWPM && passedMinChars) {
+            // Lesson passed - show completion popup
+            this.showLessonCompletion(accuracy, wpm);
+        } else {
+            // Lesson failed - show retry message
+            this.showLessonRetry(accuracy, wpm);
+        }
+    }
+    
+    showLessonCompletion(accuracy, wpm) {
+        if (window.lessonCompletionManager) {
+            window.lessonCompletionManager.showLessonComplete(
+                this.currentLesson,
+                accuracy,
+                wpm,
+                this.timeElapsed
+            );
+        }
+    }
+    
+    showLessonRetry(accuracy, wpm) {
+        if (window.popupManager) {
+            const message = `Lesson not quite complete yet!\n\nYour performance:\n• Accuracy: ${accuracy}% (Need: ${this.currentLesson.targetAccuracy}%)\n• WPM: ${wpm} (Need: ${this.currentLesson.targetWPM})\n\nKeep practicing - you're getting better!`;
+            window.popupManager.show('info', 'Keep Practicing!', message, 'Try Again', () => {
+                this.resetTest();
+            });
+        }
+    }
+    
+    calculateWPM() {
+        let wpm = 0;
+        if (this.isActive && this.startTime) {
+            const timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
+            if (timeElapsedSeconds >= 1) {
+                const timeElapsedMinutes = timeElapsedSeconds / 60;
+                const errors = this.totalChars - this.correctChars;
+                const effectiveChars = this.totalChars - errors;
+                const wordsTyped = effectiveChars / 5;
+                wpm = this.customRound(wordsTyped / timeElapsedMinutes);
+            }
+        }
+        return wpm;
+    }
+    
+    updateStats() {
+        const wpm = this.calculateWPM();
+        const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 100;
+        
+        if (this.wpmValue) this.wpmValue.textContent = wpm;
+        if (this.accuracyValue) this.accuracyValue.textContent = `${accuracy}%`;
+    }
+    
+    updateTimeDisplay() {
+        if (this.timeValue) {
+            const minutes = Math.floor(this.timeElapsed / 60);
+            const seconds = this.timeElapsed % 60;
+            this.timeValue.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    resetTest() {
+        // Clear timers
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        if (this.wmpUpdateTimer) {
+            clearInterval(this.wpmUpdateTimer);
+            this.wmpUpdateTimer = null;
+        }
+        
+        // Reset tracking
+        this.isActive = false;
+        this.startTime = null;
+        this.currentIndex = 0;
+        this.correctChars = 0;
+        this.totalChars = 0;
+        this.timeElapsed = 0;
+        this.typedSequence = '';
+        
+        // Clear visual states
+        const boxes = document.querySelectorAll('.char-box');
+        boxes.forEach(box => {
+            box.classList.remove('correct', 'incorrect', 'next-key');
+        });
+        
+        // Clear keyboard highlights
+        if (window.keyboardAndHandEffects) {
+            window.keyboardAndHandEffects.clearAllFingerHighlights();
+            window.keyboardAndHandEffects.clearAllKeyboardHighlights();
+        }
+        
+        // Reset display
+        this.updateStats();
+        this.updateTimeDisplay();
+        this.updateCharacterBoxes();
+    }
+    
+    setupEventListeners() {
+        // Reset button
+        const resetBtn = document.getElementById('char-reset-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetTest();
+            });
+        }
+        
+        // New text button - now generates next lesson practice
+        const generateBtn = document.getElementById('generate-new-text-btn');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', () => {
+                if (this.currentLesson) {
+                    this.practiceText = window.lessonData.generatePracticeText(this.currentLesson);
+                    this.createCharacterBoxes();
+                    this.resetTest();
+                }
+            });
+        }
+    }
+    
+    // Advance to next lesson
+    advanceToNextLesson() {
+        if (window.lessonData.advanceLesson()) {
+            this.loadCurrentLesson();
+            this.updateLessonUI();
+            this.createCharacterBoxes();
+            this.resetTest();
+        }
+    }
+    
+    forceInputFocus() {
+        // Ensure highlighting is active
+        setTimeout(() => {
+            this.updateCharacterBoxes();
+        }, 50);
+    }
+}
+
+// Lesson Completion Manager - Handles lesson completion popups
+class LessonCompletionManager {
+    constructor() {
+        this.overlay = null;
+        this.popup = null;
+        this.isVisible = false;
+        this.completionKeyListener = null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.overlay = document.getElementById('lesson-completion-overlay');
+        this.popup = document.getElementById('lesson-completion-popup');
+        
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        // Continue button
+        const continueBtn = document.getElementById('continue-lesson-btn');
+        if (continueBtn) {
+            continueBtn.addEventListener('click', () => {
+                this.continueToNextLesson();
+            });
+        }
+        
+        // Retry button
+        const retryBtn = document.getElementById('lesson-retry-btn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                this.retryLesson();
+            });
+        }
+        
+        // Close on overlay click
+        if (this.overlay) {
+            this.overlay.addEventListener('click', (e) => {
+                if (e.target === this.overlay) {
+                    this.continueToNextLesson();
+                }
+            });
+        }
+    }
+    
+    showLessonComplete(lesson, accuracy, wpm, timeElapsed) {
+        if (!this.overlay || !lesson) return;
+        
+        // Update completion content
+        this.updateCompletionContent(lesson, accuracy, wpm, timeElapsed);
+        
+        // Show overlay
+        this.overlay.classList.add('show');
+        this.isVisible = true;
+        
+        // Add keyboard listener for Enter key
+        this.addCompletionKeyListener();
+        
+        // Add completion animation to body
+        document.body.classList.add('completion-active');
+        
+        // Create celebration particles
+        this.createCelebrationParticles();
+    }
+    
+    updateCompletionContent(lesson, accuracy, wpm, timeElapsed) {
+        // Update message
+        const messageEl = document.getElementById('completion-message');
+        if (messageEl) {
+            messageEl.textContent = lesson.completion.message;
+        }
+        
+        // Update keys learned
+        const keysLearnedEl = document.getElementById('keys-learned-display');
+        if (keysLearnedEl) {
+            keysLearnedEl.textContent = lesson.completion.keysLearned.join(', ');
+        }
+        
+        // Update final stats
+        const finalAccuracyEl = document.getElementById('final-accuracy-display');
+        const finalWpmEl = document.getElementById('final-wpm-display');
+        const finalTimeEl = document.getElementById('final-time-display');
+        
+        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
+        if (finalWpmEl) finalWpmEl.textContent = wpm;
+        if (finalTimeEl) {
+            const minutes = Math.floor(timeElapsed / 60);
+            const seconds = timeElapsed % 60;
+            finalTimeEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update overall progress
+        const stats = window.lessonData.getLessonStats();
+        const overallProgressEl = document.getElementById('overall-progress-display');
+        const completionProgressFillEl = document.getElementById('completion-progress-fill');
+        
+        if (overallProgressEl) {
+            overallProgressEl.textContent = `${stats.percentComplete}%`;
+        }
+        if (completionProgressFillEl) {
+            completionProgressFillEl.style.width = `${stats.percentComplete}%`;
+        }
+        
+        // Update next lesson preview
+        const nextLessonEl = document.getElementById('next-lesson-preview');
+        if (nextLessonEl) {
+            nextLessonEl.textContent = lesson.completion.nextPreview;
+        }
+    }
+    
+    createCelebrationParticles() {
+        if (!this.popup) return;
+        
+        // Create particle container
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'completion-particles';
+        this.popup.appendChild(particleContainer);
+        
+        // Create particles
+        for (let i = 0; i < 20; i++) {
+            setTimeout(() => {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particleContainer.appendChild(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 3000);
+            }, i * 100);
+        }
+        
+        // Remove particle container after all particles are done
+        setTimeout(() => {
+            if (particleContainer.parentNode) {
+                particleContainer.parentNode.removeChild(particleContainer);
+            }
+        }, 6000);
+    }
+    
+    addCompletionKeyListener() {
+        this.completionKeyListener = (e) => {
+            if (e.key === 'Enter') {
+                this.continueToNextLesson();
+                e.preventDefault();
+            }
+        };
+        document.addEventListener('keydown', this.completionKeyListener);
+    }
+    
+    removeCompletionKeyListener() {
+        if (this.completionKeyListener) {
+            document.removeEventListener('keydown', this.completionKeyListener);
+            this.completionKeyListener = null;
+        }
+    }
+    
+    continueToNextLesson() {
+        if (!this.isVisible) return;
+        
+        this.hide();
+        
+        // Advance to next lesson
+        if (window.progressiveLesson) {
+            window.progressiveLesson.advanceToNextLesson();
+        }
+    }
+    
+    retryLesson() {
+        if (!this.isVisible) return;
+        
+        this.hide();
+        
+        // Reset current lesson
+        if (window.progressiveLesson) {
+            window.progressiveLesson.resetTest();
+        }
+    }
+    
+    hide() {
+        if (!this.overlay) return;
+        
+        this.overlay.classList.remove('show');
+        this.isVisible = false;
+        
+        // Remove keyboard listener
+        this.removeCompletionKeyListener();
+        
+        // Remove completion animation from body
+        document.body.classList.remove('completion-active');
+    }
+    
+    isShowing() {
+        return this.isVisible;
+    }
+}
+
 class KeyboardAndHandEffects {
     constructor() {
         this.keys = document.querySelectorAll('.key');
@@ -2518,11 +3142,17 @@ class KeyboardAndHandEffects {
     }
 }
 
-// Initialize word lesson system
+// Initialize progressive lesson system
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        // Create word lesson system
-        window.wordLesson = new WordLesson();
+        // Initialize lesson data system
+        window.lessonData = new LessonData();
+        
+        // Initialize lesson completion manager
+        window.lessonCompletionManager = new LessonCompletionManager();
+        
+        // Create progressive lesson system (replaces wordLesson)
+        window.progressiveLesson = new ProgressiveLessonSystem();
         
         // Character lesson now uses its own canvas system
         // TypingTest is disabled for character lesson to use character canvas instead

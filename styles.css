@@ -158,17 +158,17 @@ body {
     position: fixed;
     top: 52px;  /* Same as sidebar toggle */
     left: 64px; /* 20px (toggle left) + 32px (toggle width) + 12px (gap) */
-    width: 48px;
+    width: 115px;
     height: 32px;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    border: 1px solid #d5d5d5;
+    background: linear-gradient(135deg, #004fff 0%, #00adff 100%);
+    border: 0px solid #d5d5d5;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 999;
     transition: all 0.15s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 1);
 }
 
 .app-logo:hover {
@@ -1713,5 +1713,367 @@ select {
         width: 35px;
         height: 35px;
         font-size: 10px;
+    }
+}
+
+/* Progressive Lesson System Styles */
+.lesson-progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.progress-info span {
+    color: #64748b;
+}
+
+#current-lesson-display {
+    color: #2563eb !important;
+    font-weight: 600;
+}
+
+#current-phase-display {
+    color: #7c3aed !important;
+    background: rgba(124, 58, 237, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+/* Lesson Completion Popup Styles */
+.lesson-completion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lesson-completion-overlay.show {
+    display: flex;
+    opacity: 1;
+}
+
+.lesson-completion-popup {
+    background: white;
+    border-radius: 16px;
+    width: 500px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.lesson-completion-overlay.show .lesson-completion-popup {
+    transform: scale(1) translateY(0);
+}
+
+.completion-header {
+    text-align: center;
+    padding: 32px 32px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px 16px 0 0;
+    color: white;
+}
+
+.completion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.completion-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.completion-content {
+    padding: 24px 32px;
+}
+
+.completion-message {
+    font-size: 16px;
+    color: #374151;
+    margin-bottom: 24px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.completion-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.completion-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.completion-stat .stat-label {
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.completion-stat .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.completion-progress {
+    margin-bottom: 24px;
+}
+
+.progress-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.progress-text {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.progress-percent {
+    font-size: 16px;
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.completion-progress-bar {
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.completion-progress-bar .progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.next-lesson-preview {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.next-lesson-label {
+    font-size: 12px;
+    color: #1e40af;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.next-lesson-info {
+    font-size: 14px;
+    color: #1e40af;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.completion-footer {
+    padding: 0 32px 32px;
+    text-align: center;
+}
+
+.continue-instruction {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 16px;
+    font-weight: 500;
+    background: #f1f5f9;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.completion-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.completion-controls .btn {
+    min-width: 120px;
+}
+
+/* Keyboard pulse animation for ENTER key during completion */
+.completion-active #enter-key {
+    animation: completionPulse 1.5s infinite ease-in-out;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
+}
+
+@keyframes completionPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3); }
+}
+
+/* Enhanced character animation styles */
+.char-container {
+    position: relative;
+}
+
+.char-container.lesson-transition {
+    animation: lessonTransition 0.8s ease-in-out;
+}
+
+@keyframes lessonTransition {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; }
+    25% { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
+    50% { transform: scale(0.9) rotate(-1deg); opacity: 0.6; }
+    75% { transform: scale(1.05) rotate(1deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Success particle animation */
+.completion-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #fbbf24;
+    border-radius: 50%;
+    animation: floatUp 3s linear infinite;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(100vh) translateX(0) scale(0);
+    }
+    10% {
+        opacity: 1;
+        transform: translateY(90vh) translateX(0) scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: translateY(10vh) translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(0) translateX(0) scale(0);
+    }
+}
+
+/* Responsive styles for lesson completion popup */
+@media (max-width: 640px) {
+    .lesson-completion-popup {
+        width: 95vw;
+        margin: 16px;
+    }
+    
+    .completion-header {
+        padding: 24px 20px 16px;
+    }
+    
+    .completion-content {
+        padding: 20px;
+    }
+    
+    .completion-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .completion-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .completion-controls .btn {
+        width: 100%;
+        max-width: 200px;
     }
 }
