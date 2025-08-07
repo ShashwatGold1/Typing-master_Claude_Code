@@ -1075,7 +1075,10 @@ select {
     justify-content: center;
     align-items: center;
     font-size: 18px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    transition: all 0.2s ease;
+    border-radius: 5px;
+    opacity: 1;
+    transform: scale(1);
 }
 
 /* Simple fade animations */
@@ -1102,12 +1105,12 @@ select {
 }
 
 #character-lesson-page .char-box.next-key {
-    background: linear-gradient(135deg, #a3c7ff 0%, #5280ff 100%);
-    border-color: #0800ff;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-color: #2563eb;
     color: white;
-    /* animation: pulse 1.5s infinite; */
-    /* transform: scale(1.1); */
-    /* box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); */
+    animation: pulse 1.5s infinite;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 @keyframes pulse {
@@ -1124,78 +1127,11 @@ select {
 
 /* Keyboard key highlighting for next character */
 .key.next-key-highlight {
-    background: linear-gradient(135deg, #a3c7ff 0%, #5280ff 100%);
-    border-color: #0800ff;
-    border-width: 2px;
-    color: white;
-    /* animation: pulse 1.5s infinite; */
-    /* transform: scale(1.1); */
-    /* box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); */
-}
-
-/* Light gray highlighting for all main keyboard finger keys */
-.main-keyboard-container .key:not(.modifier):not(.function):not(.navigation):not(.arrow):not(.number) {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border: 1px solid #cbd5e1;
-    color: #475569;
-    font-weight: 500;
-    box-shadow: 0 1px 3px rgba(148, 163, 184, 0.2);
-}
-
-/* Highlight specific main keyboard keys (override the light gray) */
-.key[data-key="5"],
-.key[data-key="6"],
-.key[data-key="t"],
-.key[data-key="y"],
-.key[data-key="g"],
-.key[data-key="h"],
-.key[data-key="b"],
-.key[data-key="n"] {
-    background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%) !important;
-    border: 2px solid #f59e0b !important;
-    color: #92400e !important;
-    font-weight: 600 !important;
-    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3) !important;
-}
-
-/* Maintain highlight on hover and active states */
-.key[data-key="5"]:hover,
-.key[data-key="6"]:hover,
-.key[data-key="t"]:hover,
-.key[data-key="y"]:hover,
-.key[data-key="g"]:hover,
-.key[data-key="h"]:hover,
-.key[data-key="b"]:hover,
-.key[data-key="n"]:hover {
-    background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-}
-
-.key[data-key="5"]:active,
-.key[data-key="6"]:active,
-.key[data-key="t"]:active,
-.key[data-key="y"]:active,
-.key[data-key="g"]:active,
-.key[data-key="h"]:active,
-.key[data-key="b"]:active,
-.key[data-key="n"]:active {
-    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-    transform: translateY(0);
-    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
-}
-
-/* Hover and active states for light gray main keyboard keys */
-.main-keyboard-container .key:not(.modifier):not(.function):not(.navigation):not(.arrow):not(.number):hover:not([data-key="5"]):not([data-key="6"]):not([data-key="t"]):not([data-key="y"]):not([data-key="g"]):not([data-key="h"]):not([data-key="b"]):not([data-key="n"]) {
-    background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(148, 163, 184, 0.3);
-}
-
-.main-keyboard-container .key:not(.modifier):not(.function):not(.navigation):not(.arrow):not(.number):active:not([data-key="5"]):not([data-key="6"]):not([data-key="t"]):not([data-key="y"]):not([data-key="g"]):not([data-key="h"]):not([data-key="b"]):not([data-key="n"]) {
-    background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(148, 163, 184, 0.2);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+    animation: keyPulse 1.5s infinite;
 }
 
 @keyframes keyPulse {
@@ -1318,8 +1254,8 @@ select {
     justify-content: center;
     width: 42px;
     height: 42px;
-    background: #f5f5f5;
-    border: 1px solid #858585;
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
     border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
@@ -1342,28 +1278,7 @@ select {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Pressed state for special highlighted keys */
-.key.pressed[data-key="5"],
-.key.pressed[data-key="6"],
-.key.pressed[data-key="t"],
-.key.pressed[data-key="y"],
-.key.pressed[data-key="g"],
-.key.pressed[data-key="h"],
-.key.pressed[data-key="b"],
-.key.pressed[data-key="n"] {
-    background: #d97706 !important;
-    color: white !important;
-    border: 3px solid #ffffff !important;
-}
-
-/* Pressed state for light gray main keyboard keys */
-.main-keyboard-container .key.pressed:not(.modifier):not(.function):not(.navigation):not(.arrow):not(.number):not([data-key="5"]):not([data-key="6"]):not([data-key="t"]):not([data-key="y"]):not([data-key="g"]):not([data-key="h"]):not([data-key="b"]):not([data-key="n"]) {
-    background: #64748b !important;
-    color: white !important;
-    border: 3px solid #ffffff !important;
-}
-
-/* Generic pressed state for regular keys (NOT modifier keys) - fallback */
+/* Generic pressed state for regular keys (NOT modifier keys) */
 .key.pressed:not(.modifier):not(.function):not(.number):not(.navigation):not(.arrow) {
     background: #0056b3;
     color: white;
@@ -1614,6 +1529,24 @@ select {
     border-radius: 10px;
     opacity: 0.7;
 }
+
+/* Finger position indicators */
+.key::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.key[data-finger="pinky"]::before { background: #8e24aa; }
+.key[data-finger="ring"]::before { background: #5e35b1; }
+.key[data-finger="middle"]::before { background: #1565c0; }
+.key[data-finger="index"]::before { background: #00695c; }
+.key[data-finger="thumb"]::before { background: #424242; }
 
 .section-label {
     font-size: 11px;
