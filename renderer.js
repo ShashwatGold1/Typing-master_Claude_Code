@@ -398,7 +398,7 @@ class TypingTest {
     updateStats() {
         // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
         let wpm = 0;
-        if (this.isActive && this.startTime) {
+        if (this.startTime) {
             const timeElapsedSeconds = (Date.now() - this.startTime) / 1000; // in seconds
             
             // Only calculate WPM if at least 1 second has elapsed to avoid unrealistic values
@@ -1850,7 +1850,7 @@ class WordLesson {
     updateStats() {
         // Calculate WPM using correct formula: (Total characters - errors) ÷ 5 ÷ time in minutes
         let wpm = 0;
-        if (this.isActive && this.startTime) {
+        if (this.startTime) {
             const timeElapsedSeconds = (Date.now() - this.startTime) / 1000; // in seconds
             
             // Only calculate WPM if at least 1 second has elapsed to avoid unrealistic values
@@ -2351,7 +2351,7 @@ class ProgressiveLessonSystem {
     
     calculateWPM() {
         let wpm = 0;
-        if (this.isActive && this.startTime) {
+        if (this.startTime) {
             const timeElapsedSeconds = (Date.now() - this.startTime) / 1000;
             if (timeElapsedSeconds >= 1) {
                 const timeElapsedMinutes = timeElapsedSeconds / 60;
