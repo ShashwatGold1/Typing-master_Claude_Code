@@ -2888,7 +2888,8 @@ class LessonCompletionManager {
             // Reset retry mode flag
             this.isRetryMode = false;
         } else {
-            // Advance to next lesson (normal completion)
+            // Only advance to next lesson if lesson was actually completed successfully
+            // This ensures failed lessons don't advance automatically
             if (window.progressiveLesson) {
                 window.progressiveLesson.advanceToNextLesson();
             }
