@@ -2544,19 +2544,23 @@ class ProgressiveLessonSystem {
     }
     
     showLessonRetry(accuracy, wpm) {
-        if (window.popupManager) {
-            const message = `Lesson not quite complete yet!\n\nYour performance:\n• Accuracy: ${accuracy}% (Need: ${this.currentLesson.targetAccuracy}%)\n• WPM: ${wpm} (Need: ${this.currentLesson.targetWPM})\n\nKeep practicing - you're getting better!`;
-            window.popupManager.show({
-                type: 'info',
-                title: 'Keep Practicing!',
-                content: message.replace(/\n/g, '<br>'),
-                showCancel: false,
-                confirmText: 'Try Again',
-                onConfirm: () => {
-                    this.resetTest();
-                }
-            });
+        console.log('=== LESSON RETRY DEBUG ===');
+        console.log('Current lesson object:', this.currentLesson);
+        console.log('Performance - Accuracy:', accuracy, '%, WPM:', wpm);
+        console.log('Time elapsed:', this.timeElapsed, 'seconds');
+        
+        if (window.lessonCompletionManager) {
+            console.log('LessonCompletionManager found, calling showLessonRetry');
+            window.lessonCompletionManager.showLessonRetry(
+                this.currentLesson,
+                accuracy,
+                wpm,
+                this.timeElapsed
+            );
+        } else {
+            console.error('ERROR: LessonCompletionManager not found!');
         }
+        console.log('=== END LESSON RETRY DEBUG ===');
     }
     
     calculateWPM() {
@@ -2706,6 +2710,7 @@ class LessonCompletionManager {
         this.popup = null;
         this.isVisible = false;
         this.completionKeyListener = null;
+        this.isRetryMode = false; // Track if showing retry instead of completion
         
         this.init();
     }
@@ -2746,6 +2751,9 @@ class LessonCompletionManager {
     
     showLessonComplete(lesson, accuracy, wpm, timeElapsed) {
         if (!this.overlay || !lesson) return;
+        
+        // Reset retry mode flag
+        this.isRetryMode = false;
         
         // Update completion content
         this.updateCompletionContent(lesson, accuracy, wpm, timeElapsed);
@@ -2872,9 +2880,18 @@ class LessonCompletionManager {
         
         this.hide();
         
-        // Advance to next lesson
-        if (window.progressiveLesson) {
-            window.progressiveLesson.advanceToNextLesson();
+        if (this.isRetryMode) {
+            // If in retry mode, reset current lesson instead of advancing
+            if (window.progressiveLesson) {
+                window.progressiveLesson.resetTest();
+            }
+            // Reset retry mode flag
+            this.isRetryMode = false;
+        } else {
+            // Advance to next lesson (normal completion)
+            if (window.progressiveLesson) {
+                window.progressiveLesson.advanceToNextLesson();
+            }
         }
     }
     
@@ -2886,6 +2903,92 @@ class LessonCompletionManager {
         // Reset current lesson
         if (window.progressiveLesson) {
             window.progressiveLesson.resetTest();
+        }
+    }
+
+    showLessonRetry(lesson, accuracy, wpm, timeElapsed) {
+        if (!this.overlay || !lesson) return;
+        
+        // Set retry mode flag
+        this.isRetryMode = true;
+        
+        // Update content for retry scenario
+        this.updateRetryContent(lesson, accuracy, wpm, timeElapsed);
+        
+        // Show overlay
+        this.overlay.classList.add('show');
+        this.isVisible = true;
+        
+        // Add keyboard listener for Enter key
+        this.addCompletionKeyListener();
+        
+        // Add completion animation to body
+        document.body.classList.add('completion-active');
+    }
+
+    updateRetryContent(lesson, accuracy, wpm, timeElapsed) {
+        // Update header for retry
+        const headerEl = this.popup.querySelector('.completion-header h2');
+        if (headerEl) {
+            headerEl.textContent = 'Keep Practicing!';
+        }
+        
+        const iconEl = this.popup.querySelector('.completion-icon');
+        if (iconEl) {
+            iconEl.textContent = '💪';
+        }
+        
+        // Update message for retry
+        const messageEl = document.getElementById('completion-message');
+        if (messageEl) {
+            const retryMessage = `Lesson not quite complete yet! Your performance was good, but let's aim for the targets.`;
+            messageEl.textContent = retryMessage;
+        }
+        
+        // Update final stats with current performance
+        const finalAccuracyEl = document.getElementById('final-accuracy-display');
+        const finalWpmEl = document.getElementById('final-wpm-display');
+        const finalTimeEl = document.getElementById('final-time-display');
+        
+        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
+        if (finalWpmEl) finalWpmEl.textContent = wpm;
+        if (finalTimeEl) {
+            const minutes = Math.floor(timeElapsed / 60);
+            const seconds = timeElapsed % 60;
+            finalTimeEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update progress display
+        if (window.lessonData) {
+            const stats = window.lessonData.getLessonStats();
+            const progressDisplayEl = document.getElementById('overall-progress-display');
+            const progressFillEl = document.getElementById('completion-progress-fill');
+            
+            if (progressDisplayEl) {
+                progressDisplayEl.textContent = `${stats.percentComplete}%`;
+            }
+            if (progressFillEl) {
+                progressFillEl.style.width = `${stats.percentComplete}%`;
+            }
+        }
+        
+        // Update next lesson preview to show targets
+        const nextLessonEl = document.getElementById('next-lesson-preview');
+        if (nextLessonEl) {
+            const targetMessage = `Target: ${lesson.targetAccuracy}% accuracy, ${lesson.targetWPM} WPM`;
+            nextLessonEl.textContent = targetMessage;
+        }
+        
+        // Update continue instruction for retry
+        const instructionEl = this.popup.querySelector('.continue-instruction');
+        if (instructionEl) {
+            instructionEl.textContent = 'Press ENTER to try again';
+        }
+        
+        // Update button text
+        const continueBtn = document.getElementById('continue-lesson-btn');
+        if (continueBtn) {
+            continueBtn.textContent = 'Try Again (Enter)';
         }
     }
     
@@ -2900,6 +3003,9 @@ class LessonCompletionManager {
         
         // Remove completion animation from body
         document.body.classList.remove('completion-active');
+        
+        // Reset retry mode when hiding
+        this.isRetryMode = false;
     }
     
     isShowing() {
