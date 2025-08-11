@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Completion Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .test-result { margin: 10px 0; padding: 10px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { margin: 5px; padding: 10px 15px; }
+    </style>
+</head>
+<body>
+    <h1>Lesson Completion System Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: PopupManager Enhanced Fallbacks</h3>
+        <button onclick="testPopupManager()">Test PopupManager</button>
+        <div id="popup-test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: LessonCompletionManager Fallbacks</h3>
+        <button onclick="testLessonCompletionManager()">Test LessonCompletionManager</button>
+        <div id="lesson-test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Lesson Data Validation</h3>
+        <button onclick="testLessonDataValidation()">Test Lesson Data</button>
+        <div id="data-test-result"></div>
+    </div>
+
+    <!-- Test HTML elements for popups -->
+    <div id="popup-overlay" style="display: none;">
+        <div id="popup">
+            <div id="popup-title"></div>
+            <div id="popup-content"></div>
+            <div id="popup-footer">
+                <button id="popup-close">Close</button>
+                <button id="popup-cancel">Cancel</button>
+                <button id="popup-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lesson-completion-overlay" style="display: none;">
+        <div id="lesson-completion-popup">
+            <div id="completion-message"></div>
+            <div id="keys-learned-display"></div>
+            <div id="next-preview-display"></div>
+            <div id="final-accuracy-display"></div>
+            <div id="final-wpm-display"></div>
+            <div id="final-time-display"></div>
+            <div id="overall-progress-display"></div>
+            <div id="completion-progress-fill"></div>
+            <div id="next-lesson-preview"></div>
+            <button id="continue-lesson-btn">Continue</button>
+        </div>
+    </div>
+
+    <script src="lesson-data.js"></script>
+    <script src="renderer.js"></script>
+    <script src="lessonCompletionEnhancements.js"></script>
+    
+    <script>
+        // Test functions
+        function testPopupManager() {
+            const resultDiv = document.getElementById('popup-test-result');
+            try {
+                // Initialize PopupManager
+                window.popupManager = new PopupManager();
+                
+                // Test 1: No content provided
+                console.log('Testing PopupManager with no content...');
+                window.popupManager.show({
+                    title: 'Test Popup',
+                    type: 'success'
+                });
+                
+                // Check if fallback content was used
+                const content = document.getElementById('popup-content').innerHTML;
+                if (content.includes('Great job!') || content.includes('successfully')) {
+                    resultDiv.innerHTML = '<div class="success">✓ PopupManager fallback working correctly</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="error">✗ PopupManager fallback not working: ' + content + '</div>';
+                }
+                
+                // Close the popup
+                setTimeout(() => {
+                    document.getElementById('popup-overlay').classList.remove('active');
+                }, 1000);
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">✗ PopupManager test failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function testLessonCompletionManager() {
+            const resultDiv = document.getElementById('lesson-test-result');
+            try {
+                // Initialize LessonCompletionManager
+                window.lessonCompletionManager = new LessonCompletionManager();
+                
+                // Test with missing lesson completion data
+                const testLesson = {
+                    title: "Test Lesson - F & J",
+                    keys: ['F', 'J']
+                    // No completion object
+                };
+                
+                console.log('Testing LessonCompletionManager with incomplete lesson data...');
+                
+                // Test the enhancement methods
+                if (typeof window.lessonCompletionManager.validateAndEnhanceLessonData === 'function') {
+                    const result = window.lessonCompletionManager.validateAndEnhanceLessonData(testLesson, 85, 35);
+                    
+                    if (result.message && result.keysLearned && result.message !== 'No content provided') {
+                        resultDiv.innerHTML = '<div class="success">✓ LessonCompletionManager fallbacks working correctly<br>' +
+                                            'Message: ' + result.message + '<br>' +
+                                            'Keys: ' + result.keysLearned + '</div>';
+                    } else {
+                        resultDiv.innerHTML = '<div class="error">✗ LessonCompletionManager fallbacks not working properly</div>';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div class="error">✗ Enhancement methods not loaded properly</div>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">✗ LessonCompletionManager test failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function testLessonDataValidation() {
+            const resultDiv = document.getElementById('data-test-result');
+            try {
+                // Check if lesson data has completion objects
+                if (typeof window.lessonData !== 'undefined' || typeof LessonData !== 'undefined') {
+                    let lessonData;
+                    if (window.lessonData) {
+                        lessonData = window.lessonData;
+                    } else {
+                        lessonData = new LessonData();
+                    }
+                    
+                    const currentLesson = lessonData.getCurrentLesson ? 
+                        lessonData.getCurrentLesson() : lessonData.lessonStructure[0];
+                    
+                    if (currentLesson && currentLesson.completion) {
+                        resultDiv.innerHTML = '<div class="success">✓ Lesson data structure is correct<br>' +
+                                            'Current lesson has completion data: ' + currentLesson.completion.message.substring(0, 50) + '...</div>';
+                    } else {
+                        resultDiv.innerHTML = '<div class="error">✗ Lesson data missing completion objects</div>';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div class="error">✗ Lesson data not loaded</div>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">✗ Lesson data test failed: ' + error.message + '</div>';
+            }
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Running automatic tests...');
+                testPopupManager();
+                setTimeout(() => testLessonCompletionManager(), 1000);
+                setTimeout(() => testLessonDataValidation(), 2000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

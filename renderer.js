@@ -469,6 +469,13 @@ class TypingTest {
         
         // Show popup if popupManager is available
         if (window.popupManager) {
+            // Don't show TypingTest popups when on character lesson page - let ProgressiveLessonSystem handle it
+            const characterLessonPage = document.getElementById('character-lesson-page');
+            if (characterLessonPage && characterLessonPage.classList.contains('active')) {
+                console.log('TypingTest: Skipping popup on character lesson page - handled by ProgressiveLessonSystem');
+                return;
+            }
+            
             // Check if this is a lesson completion
             if (this.currentLesson && this.lessonIndex !== undefined) {
                 this.handleLessonCompletion(wpmNum, accuracyNum, popupType, title, message);
@@ -494,8 +501,14 @@ class TypingTest {
     }
 
     handleLessonCompletion(wpm, accuracy, popupType, title, message) {
+        console.log('=== GENERAL POPUP COMPLETION DEBUG ===');
+        console.log('handleLessonCompletion called with WPM:', wpm, 'Accuracy:', accuracy);
+        
         const lesson = this.currentLesson;
+        console.log('Current lesson for popup:', lesson);
+        
         const targetMet = wpm >= lesson.targetWPM && accuracy >= lesson.targetAccuracy;
+        console.log('Target met:', targetMet, '(Target WPM:', lesson.targetWPM, 'Target Accuracy:', lesson.targetAccuracy, ')');
         
         let completionTitle, completionMessage, completionType;
         
@@ -1475,11 +1488,25 @@ class PopupManager {
         // Set title
         this.title.textContent = options.title || 'Message';
         
-        // Set content
+        // Set content with better fallback handling
         if (typeof options.content === 'string') {
             this.content.innerHTML = `<p>${options.content}</p>`;
+        } else if (options.content) {
+            this.content.innerHTML = options.content;
         } else {
-            this.content.innerHTML = options.content || '<p>No content provided</p>';
+            // Enhanced fallback content based on popup type
+            let fallbackContent = '<p>Operation completed successfully!</p>';
+            if (options.type === 'success') {
+                fallbackContent = '<p>Great job! You\'ve completed this successfully!</p>';
+            } else if (options.type === 'warning') {
+                fallbackContent = '<p>Keep practicing to improve your performance!</p>';
+            } else if (options.type === 'info') {
+                fallbackContent = '<p>Information displayed.</p>';
+            }
+            this.content.innerHTML = fallbackContent;
+            
+            // Log warning for debugging
+            console.warn('PopupManager: No content provided, using fallback for type:', options.type);
         }
         
         // Set popup type/variant
@@ -2467,21 +2494,38 @@ class ProgressiveLessonSystem {
     }
     
     showLessonCompletion(accuracy, wpm) {
+        console.log('=== LESSON COMPLETION DEBUG ===');
+        console.log('Current lesson object:', this.currentLesson);
+        console.log('Lesson completion data:', this.currentLesson ? this.currentLesson.completion : 'No lesson');
+        console.log('Performance - Accuracy:', accuracy, '%, WPM:', wpm);
+        console.log('Time elapsed:', this.timeElapsed, 'seconds');
+        
         if (window.lessonCompletionManager) {
+            console.log('LessonCompletionManager found, calling showLessonComplete');
             window.lessonCompletionManager.showLessonComplete(
                 this.currentLesson,
                 accuracy,
                 wpm,
                 this.timeElapsed
             );
+        } else {
+            console.error('ERROR: LessonCompletionManager not found!');
         }
+        console.log('=== END LESSON COMPLETION DEBUG ===');
     }
     
     showLessonRetry(accuracy, wpm) {
         if (window.popupManager) {
             const message = `Lesson not quite complete yet!\n\nYour performance:\n• Accuracy: ${accuracy}% (Need: ${this.currentLesson.targetAccuracy}%)\n• WPM: ${wpm} (Need: ${this.currentLesson.targetWPM})\n\nKeep practicing - you're getting better!`;
-            window.popupManager.show('info', 'Keep Practicing!', message, 'Try Again', () => {
-                this.resetTest();
+            window.popupManager.show({
+                type: 'info',
+                title: 'Keep Practicing!',
+                content: message.replace(/\n/g, '<br>'),
+                showCancel: false,
+                confirmText: 'Try Again',
+                onConfirm: () => {
+                    this.resetTest();
+                }
             });
         }
     }
@@ -2679,25 +2723,20 @@ class LessonCompletionManager {
         console.log('Updating completion content for lesson:', lesson);
         console.log('Lesson completion object:', lesson ? lesson.completion : 'No lesson provided');
         
+        // Enhanced lesson data validation and fallback generation
+        const lessonData = this.validateAndEnhanceLessonData(lesson, accuracy, wpm);
+        
         // Update message
         const messageEl = document.getElementById('completion-message');
-        if (messageEl && lesson && lesson.completion) {
-            messageEl.textContent = lesson.completion.message;
-            console.log('Updated message:', lesson.completion.message);
-        } else {
-            console.log('Missing lesson completion data:', lesson);
-            // Fallback message
-            if (messageEl) {
-                messageEl.textContent = 'Lesson completed successfully!';
-            }
+        if (messageEl) {
+            messageEl.textContent = lessonData.message;
+            console.log('Updated message:', lessonData.message);
         }
         
         // Update keys learned
         const keysLearnedEl = document.getElementById('keys-learned-display');
-        if (keysLearnedEl && lesson && lesson.completion && lesson.completion.keysLearned) {
-            keysLearnedEl.textContent = lesson.completion.keysLearned.join(', ');
-        } else if (keysLearnedEl) {
-            keysLearnedEl.textContent = 'New Skills Mastered';
+        if (keysLearnedEl) {
+            keysLearnedEl.textContent = lessonData.keysLearned;
         }
         
         // Update final stats
@@ -2713,8 +2752,14 @@ class LessonCompletionManager {
             finalTimeEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
         
+        // Update next lesson preview with enhanced data
+        const nextLessonEl = document.getElementById('next-lesson-preview');
+        if (nextLessonEl) {
+            nextLessonEl.textContent = lessonData.nextPreview || 'Continue your typing journey!';
+        }
+        
         // Update overall progress
-        const stats = window.lessonData.getLessonStats();
+        const stats = this.getSafeStats();
         const overallProgressEl = document.getElementById('overall-progress-display');
         const completionProgressFillEl = document.getElementById('completion-progress-fill');
         
@@ -2723,14 +2768,6 @@ class LessonCompletionManager {
         }
         if (completionProgressFillEl) {
             completionProgressFillEl.style.width = `${stats.percentComplete}%`;
-        }
-        
-        // Update next lesson preview
-        const nextLessonEl = document.getElementById('next-lesson-preview');
-        if (nextLessonEl && lesson && lesson.completion && lesson.completion.nextPreview) {
-            nextLessonEl.textContent = lesson.completion.nextPreview;
-        } else if (nextLessonEl) {
-            nextLessonEl.textContent = 'Continue your typing journey!';
         }
     }
     
@@ -2822,6 +2859,81 @@ class LessonCompletionManager {
     
     isShowing() {
         return this.isVisible;
+    }
+    
+    // Fallback method in case lessonCompletionEnhancements.js doesn't load
+    validateAndEnhanceLessonData(lesson, accuracy, wpm) {
+        const result = {
+            message: '',
+            keysLearned: '',
+            nextPreview: ''
+        };
+        
+        // Check if lesson has valid completion data
+        if (lesson && lesson.completion) {
+            result.message = lesson.completion.message || this.generateFallbackMessage(lesson, accuracy, wpm);
+            result.keysLearned = Array.isArray(lesson.completion.keysLearned) 
+                ? lesson.completion.keysLearned.join(', ')
+                : lesson.completion.keysLearned || this.generateFallbackKeysLearned(lesson);
+            result.nextPreview = lesson.completion.nextPreview || '';
+        } else {
+            // Generate complete fallback data
+            result.message = this.generateFallbackMessage(lesson, accuracy, wpm);
+            result.keysLearned = this.generateFallbackKeysLearned(lesson);
+            result.nextPreview = 'Continue your typing journey!';
+            
+            console.warn('LessonCompletionManager: No completion data found for lesson, using fallbacks');
+        }
+        
+        return result;
+    }
+    
+    // Generate contextual fallback messages based on performance
+    generateFallbackMessage(lesson, accuracy, wpm) {
+        const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
+        
+        if (accuracy >= 95 && wpm >= 40) {
+            return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
+        } else if (accuracy >= 90) {
+            return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
+        } else if (wpm >= 30) {
+            return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
+        } else {
+            return `Lesson completed! You've successfully finished the ${lessonTitle}. Practice makes perfect!`;
+        }
+    }
+    
+    // Generate fallback keys learned text
+    generateFallbackKeysLearned(lesson) {
+        if (lesson && lesson.keys) {
+            return Array.isArray(lesson.keys) ? lesson.keys.join(', ').toUpperCase() : lesson.keys.toUpperCase();
+        }
+        if (lesson && lesson.title) {
+            // Extract keys from common lesson title patterns
+            const keyMatch = lesson.title.match(/([A-Z0-9\&\-\;\,\.\'\\/\[\]\\\\\\`]+)/g);
+            if (keyMatch) {
+                return keyMatch.slice(-2).join(', '); // Take last 2 key groups from title
+            }
+        }
+        return 'New Typing Skills';
+    }
+    
+    // Safe stats getter with fallbacks
+    getSafeStats() {
+        try {
+            if (window.lessonData && typeof window.lessonData.getLessonStats === 'function') {
+                return window.lessonData.getLessonStats();
+            }
+        } catch (error) {
+            console.warn('Error getting lesson stats:', error);
+        }
+        
+        // Fallback stats
+        return {
+            percentComplete: 0,
+            lessonsCompleted: 0,
+            totalLessons: 41
+        };
     }
 }
 
@@ -3545,3 +3657,4 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 100); // Small delay to ensure typing tests are initialized
 });
+// Enhanced LessonCompletionManager methods added via prototype
