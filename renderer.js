@@ -2941,7 +2941,7 @@ class LessonCompletionManager {
         // Update message for retry
         const messageEl = document.getElementById('completion-message');
         if (messageEl) {
-            const retryMessage = `Lesson not quite complete yet! Your performance was good, but let's aim for the targets.`;
+            const retryMessage = `You're making great progress! Every keystroke brings you closer to mastery. Let's practice a bit more to hit those targets!`;
             messageEl.textContent = retryMessage;
         }
         
@@ -2982,13 +2982,13 @@ class LessonCompletionManager {
         // Update continue instruction for retry
         const instructionEl = this.popup.querySelector('.continue-instruction');
         if (instructionEl) {
-            instructionEl.textContent = 'Press ENTER to try again';
+            instructionEl.textContent = 'Press ENTER to continue your learning journey';
         }
         
         // Update button text
         const continueBtn = document.getElementById('continue-lesson-btn');
         if (continueBtn) {
-            continueBtn.textContent = 'Try Again (Enter)';
+            continueBtn.textContent = 'Keep Learning (Enter)';
         }
     }
     
