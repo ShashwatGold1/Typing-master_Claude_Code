@@ -1040,7 +1040,36 @@ class LessonManager {
     startLesson(lessonIndex) {
         const lesson = this.lessons[lessonIndex];
         if (lesson && lesson.unlocked) {
-            // Switch to lesson interface page
+            // Check if this is a character lesson (lessons 1-5 are foundation/character lessons)
+            if (lessonIndex < 5) {
+                // Character lessons use the progressive lesson system
+                navigationManager.navigateTo('character-lesson');
+                
+                // Set the specific lesson for the progressive system
+                setTimeout(() => {
+                    if (window.progressiveLesson && window.lessonData) {
+                        // Map lesson index to lesson data structure (1-based)
+                        const progressiveLessonIndex = lessonIndex + 1;
+                        const lessonDataStructure = window.lessonData.lessonStructure[lessonIndex];
+                        
+                        if (lessonDataStructure) {
+                            window.progressiveLesson.currentLesson = lessonDataStructure;
+                            window.progressiveLesson.practiceText = window.lessonData.generatePracticeText(lessonDataStructure);
+                            window.progressiveLesson.resetTest();
+                            
+                            // Update lesson display
+                            const titleEl = document.getElementById('lesson-title-display');
+                            const descEl = document.getElementById('lesson-description-display');
+                            if (titleEl) titleEl.textContent = lessonDataStructure.title;
+                            if (descEl) descEl.textContent = lessonDataStructure.description;
+                        }
+                    }
+                }, 100);
+                
+                return;
+            }
+            
+            // Switch to lesson interface page for non-character lessons
             navigationManager.navigateTo('lesson-interface');
             
             // Small delay to ensure page is loaded before setting lesson
@@ -2634,6 +2663,22 @@ class ProgressiveLessonSystem {
             this.updateLessonUI();
             this.createCharacterBoxes();
             this.resetTest();
+            
+            // Sync with traditional lesson manager for first 5 lessons
+            if (window.lessonManager && window.lessonData.currentLesson <= 5) {
+                const lessonIndex = window.lessonData.currentLesson - 1;
+                if (lessonIndex < window.lessonManager.lessons.length) {
+                    // Mark current lesson as completed and unlock next
+                    if (lessonIndex > 0) {
+                        window.lessonManager.lessons[lessonIndex - 1].completed = true;
+                    }
+                    window.lessonManager.lessons[lessonIndex].unlocked = true;
+                    
+                    // Save progress and update UI
+                    window.lessonManager.saveLessonProgress();
+                    window.lessonManager.updateAllLessonCards();
+                }
+            }
             
             // Refresh lesson carousel to show new progress
             if (window.lessonCarousel) {
