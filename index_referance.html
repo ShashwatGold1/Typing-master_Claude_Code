@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Horizontal Scrollable Cards</title>
+<style>
+  :root{
+    --card-w: 300px;    /* base card width */
+    --gap: 1rem;
+    --accent: #0ea5ff;
+    --shadow: 0 6px 18px rgba(2,6,23,0.12);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin:24px;
+    background:#f7fbff;
+    color:#0b1220;
+  }
+
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:0.75rem;
+    gap:12px;
+  }
+
+  .title{
+    font-weight:600;
+    font-size:1.05rem;
+  }
+
+  .btn{
+    appearance:none;
+    border:0;
+    background:transparent;
+    padding:8px;
+    border-radius:8px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .btn[aria-disabled="true"]{opacity:.4; cursor:default}
+
+  .icon{
+    width:34px;height:34px;border-radius:8px;
+    display:inline-grid;place-items:center;
+    background:linear-gradient(180deg,white,#eef6ff);
+    box-shadow:var(--shadow);
+  }
+
+  /* Container that scrolls */
+  .carousel{
+    overflow-x:auto;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:10px; /* room for focus outline */
+    /* performance hint: promote to its own layer */
+    transform: translateZ(0);
+    will-change: scroll-position;
+  }
+
+  /* The strip of cards */
+  .cards{
+    display:flex;
+    gap:var(--gap);
+    padding: 12px 8px;
+    /* scroll snapping */
+    scroll-snap-type: x mandatory;
+  }
+
+  /* Each card */
+  .card{
+    flex: 0 0 var(--card-w); /* fixed width card */
+    background:white;
+    border-radius:12px;
+    padding:14px;
+    box-shadow:var(--shadow);
+    scroll-snap-align: center;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    min-height:180px;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .card:focus-within, .card:hover{
+    transform: translateY(-6px) scale(1.01);
+  }
+
+  .thumb{
+    width:100%;
+    height:140px;
+    border-radius:8px;
+    object-fit:cover;
+    background:#e6f2ff;
+    display:block;
+  }
+
+  .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+  }
+
+  .title-card{font-weight:600; font-size:0.98rem}
+  .desc{font-size:.88rem;color:#4b5563;line-height:1.2}
+
+  /* Tiny accessible focus ring */
+  .card a, .card button{
+    outline:none;
+  }
+  .card:focus-within{
+    box-shadow: 0 8px 28px rgba(14,165,255,0.12), 0 0 0 3px rgba(14,165,255,0.08);
+  }
+
+  /* Hide default scrollbar visually but keep it accessible */
+  .carousel::-webkit-scrollbar{height:10px}
+  .carousel::-webkit-scrollbar-thumb{background:rgba(11,17,32,0.12);border-radius:999px}
+  /* For a cleaner look on large screens, optionally hide track */
+  .carousel{
+    scrollbar-width:thin;
+    scrollbar-color: rgba(11,17,32,0.12) transparent;
+  }
+
+  /* Responsive: smaller cards on narrow screens */
+  @media (max-width:720px){
+    :root{--card-w: 82vw}
+    .controls{gap:8px}
+  }
+
+  /* Accessibility helper: visually hidden */
+  .sr-only{
+    position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;border:0;padding:0;margin:-1px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="carouselWrap">
+    <div class="controls" aria-hidden="false">
+      <div class="title">Top picks</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="prev" class="btn" aria-label="Scroll left">
+          <div class="icon">◀︎</div>
+        </button>
+        <button id="next" class="btn" aria-label="Scroll right">
+          <div class="icon">▶︎</div>
+        </button>
+      </div>
+    </div>
+    <div class="carousel" id="carousel" role="list" aria-label="Scrollable cards">
+      <div class="cards" id="cards">
+
+        <!-- CARD 1 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1015/600/400" alt="Mountain view" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Mountains Retreat</div>
+            <div style="font-size:0.86rem;color:#64748b">₹1,499</div>
+          </div>
+          <p class="desc">A calm getaway with fresh air and excellent hiking trails.</p>
+        </article>
+
+        <!-- CARD 2 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1025/600/400" alt="Beach scene" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Seaside Escape</div>
+            <div style="font-size:0.86rem;color:#64748b">₹2,499</div>
+          </div>
+          <p class="desc">Sun, sand and beautiful sunsets — perfect for relaxation.</p>
+        </article>
+
+        <!-- CARD 3 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1003/600/400" alt="City skyline" loading="lazy">
+          <div class="meta">
+            <div class="title-card">City Lights</div>
+            <div style="font-size:0.86rem;color:#64748b">₹1,199</div>
+          </div>
+          <p class="desc">Explore the vibrant nightlife and top restaurants.</p>
+        </article>
+
+        <!-- CARD 4 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1016/600/400" alt="Forest" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Forest Cabin</div>
+            <div style="font-size:0.86rem;color:#64748b">₹1,899</div>
+          </div>
+          <p class="desc">Stay in a cozy wooden cabin deep in the forest.</p>
+        </article>
+
+        <!-- CARD 5 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1011/600/400" alt="Desert" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Desert Adventure</div>
+            <div style="font-size:0.86rem;color:#64748b">₹2,199</div>
+          </div>
+          <p class="desc">Ride the dunes and camp under the starry sky.</p>
+        </article>
+
+        <!-- CARD 6 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1035/600/400" alt="Lake" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Lakeside View</div>
+            <div style="font-size:0.86rem;color:#64748b">₹1,799</div>
+          </div>
+          <p class="desc">Enjoy peaceful mornings by the crystal-clear lake.</p>
+        </article>
+
+        <!-- CARD 7 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1043/600/400" alt="Countryside" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Countryside Stay</div>
+            <div style="font-size:0.86rem;color:#64748b">₹1,299</div>
+          </div>
+          <p class="desc">Experience farm life and fresh produce straight from the source.</p>
+        </article>
+
+        <!-- CARD 8 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1052/600/400" alt="Snowy hills" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Snow Escape</div>
+            <div style="font-size:0.86rem;color:#64748b">₹2,799</div>
+          </div>
+          <p class="desc">Ski, snowboard, or just enjoy hot cocoa by the fire.</p>
+        </article>
+
+        <!-- CARD 9 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1067/600/400" alt="Island" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Island Paradise</div>
+            <div style="font-size:0.86rem;color:#64748b">₹3,499</div>
+          </div>
+          <p class="desc">Turquoise waters, white sands, and pure bliss.</p>
+        </article>
+
+        <!-- CARD 10 -->
+        <article class="card" role="listitem" tabindex="0">
+          <img class="thumb" src="https://picsum.photos/id/1074/600/400" alt="Canyon" loading="lazy">
+          <div class="meta">
+            <div class="title-card">Canyon Trails</div>
+            <div style="font-size:0.86rem;color:#64748b">₹2,099</div>
+          </div>
+          <p class="desc">Hike through stunning rock formations and scenic paths.</p>
+        </article>
+
+      </div>
+    </div>
+
+        <!-- add as many cards as needed -->
+      </div>
+    </div>
+    <p class="sr-only" id="announce" aria-live="polite"></p>
+  </div>
+
+<script>
+/* Minimal, high-performance JS:
+   - prev/next scroll by the "page" (card width + gap)
+   - supports keyboard left/right
+   - updates aria-disabled for controls
+   - ResizeObserver to adapt if card width changes (responsive)
+*/
+
+(function(){
+  const carousel = document.getElementById('carousel');
+  const cards = document.getElementById('cards');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  const announce = document.getElementById('announce');
+
+  let cardWidth = computeStep();
+
+  function computeStep(){
+    const firstCard = cards.querySelector('.card');
+    if(!firstCard) return 300;
+    const style = getComputedStyle(cards);
+    const gap = parseFloat(getComputedStyle(cards).gap) || 16;
+    const w = firstCard.getBoundingClientRect().width;
+    return Math.round(w + gap);
+  }
+
+  // Scroll by one "card" step
+  function scrollByStep(direction = 1){
+    carousel.scrollBy({left: direction * cardWidth, behavior:'smooth'});
+  }
+
+  prevBtn.addEventListener('click', ()=> scrollByStep(-1));
+  nextBtn.addEventListener('click', ()=> scrollByStep(1));
+
+  // Keyboard: left/right to control scroll when focus is inside carousel
+  carousel.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight'){ e.preventDefault(); scrollByStep(1); }
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); scrollByStep(-1); }
+  });
+
+  // Update disabled state of buttons based on scroll position
+  function updateControls(){
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+    // small epsilon for float issues
+    const eps = 2;
+    prevBtn.setAttribute('aria-disabled', carousel.scrollLeft <= eps ? 'true' : 'false');
+    nextBtn.setAttribute('aria-disabled', carousel.scrollLeft >= maxScroll - eps ? 'true' : 'false');
+  }
+
+  // Announce current visible card index for screen readers
+  function announceIndex(){
+    const children = Array.from(cards.children);
+    if(children.length === 0) return;
+    // find card closest to center
+    const center = carousel.scrollLeft + carousel.clientWidth/2;
+    let closestIndex = 0, closestDist = Infinity;
+    children.forEach((c,i)=>{
+      const rect = c.getBoundingClientRect();
+      const left = c.offsetLeft;
+      const mid = left + (rect.width/2);
+      const d = Math.abs(mid - center);
+      if(d < closestDist){ closestDist = d; closestIndex = i; }
+    });
+    announce.textContent = `Showing ${closestIndex + 1} of ${children.length}`;
+  }
+
+  // Update on scroll (throttle using requestAnimationFrame)
+  let raf;
+  carousel.addEventListener('scroll', ()=>{
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(()=>{
+      updateControls();
+    });
+  });
+
+  // On focus move the focused card into view (accessible)
+  cards.addEventListener('focusin', (e)=>{
+    const card = e.target.closest('.card');
+    if(card){
+      // center the card
+      const left = card.offsetLeft - (carousel.clientWidth - card.offsetWidth)/2;
+      carousel.scrollTo({left, behavior:'smooth'});
+      // announce after short delay
+      setTimeout(announceIndex, 350);
+    }
+  });
+
+  // ResizeObserver to recompute step if layout changes
+  const ro = new ResizeObserver(()=> {
+    cardWidth = computeStep();
+  });
+  ro.observe(cards);
+
+  // Initialize
+  updateControls();
+  // Also update controls after images load because scrollWidth might change
+  window.addEventListener('load', ()=> setTimeout(()=> updateControls(), 120));
+
+  // Optional: support PageUp/PageDown to jump by visible width
+  carousel.addEventListener('keydown', (e)=>{
+    if(e.key === 'PageDown'){ e.preventDefault(); carousel.scrollBy({left: carousel.clientWidth, behavior:'smooth'}); }
+    if(e.key === 'PageUp'){ e.preventDefault(); carousel.scrollBy({left: -carousel.clientWidth, behavior:'smooth'}); }
+  });
+
+  // For better keyboard usability allow tab into carousel
+  carousel.setAttribute('tabindex', '0');
+
+})();
+</script>
+</body>
+</html>

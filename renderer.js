@@ -570,7 +570,12 @@ class LessonManager {
                 targetAccuracy: 90,
                 unlocked: true,
                 icon: '🏠',
-                text: 'asdf jkl; asdf jkl; sad lad ask dad flask glass; ask lads; glad flask; dad said; flask ask; lads glass'
+                text: 'asdf jkl; asdf jkl; sad lad ask dad flask glass; ask lads; glad flask; dad said; flask ask; lads glass',
+                completion: {
+                    message: "Excellent! You've mastered the home row foundation keys.",
+                    keysLearned: ['A', 'S', 'D', 'F', 'J', 'K', 'L', ';'],
+                    nextPreview: "Next: Practice common words using home row keys"
+                }
             },
             {
                 id: 'home-row-words',
@@ -581,7 +586,12 @@ class LessonManager {
                 targetAccuracy: 88,
                 unlocked: false,
                 icon: '🎯',
-                text: 'ask dad lad sad flask glass fads lads asks glass flasks dads lads sad ask glass dad flask'
+                text: 'ask dad lad sad flask glass fads lads asks glass flasks dads lads sad ask glass dad flask',
+                completion: {
+                    message: "Perfect! You can now form words with home row keys.",
+                    keysLearned: ['Home Row Words'],
+                    nextPreview: "Next: Expand to the top row keys"
+                }
             },
 
             // Top Row Introduction
@@ -594,7 +604,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '⬆️',
-                text: 'qwer tyui op qwer tyui op quest water power quote riot type pretty output'
+                text: 'qwer tyui op qwer tyui op quest water power quote riot type pretty output',
+                completion: {
+                    message: "Fantastic! Top row keys are now under your control.",
+                    keysLearned: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                    nextPreview: "Next: Combine top and home rows"
+                }
             },
             {
                 id: 'top-row-combo',
@@ -605,7 +620,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '🔗',
-                text: 'fast port sweet trade power quest after pretty tools; sister poetry water trade'
+                text: 'fast port sweet trade power quest after pretty tools; sister poetry water trade',
+                completion: {
+                    message: "Excellent! You're mastering multi-row combinations.",
+                    keysLearned: ['Top + Home Row Combos'],
+                    nextPreview: "Next: Complete the alphabet with bottom row"
+                }
             },
 
             // Bottom Row
@@ -618,7 +638,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '⬇️',
-                text: 'zxcv bnm zxcv bnm zoom box cave vibe mango number maze carbon vitamin'
+                text: 'zxcv bnm zxcv bnm zoom box cave vibe mango number maze carbon vitamin',
+                completion: {
+                    message: "Great job! Bottom row keys mastered completely.",
+                    keysLearned: ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+                    nextPreview: "Next: Practice with the complete alphabet"
+                }
             },
             {
                 id: 'full-alphabet',
@@ -629,7 +654,12 @@ class LessonManager {
                 targetAccuracy: 88,
                 unlocked: false,
                 icon: '🔤',
-                text: 'the quick brown fox jumps over lazy dog; amazingly complex words; zero maximum boxes; every junction'
+                text: 'the quick brown fox jumps over lazy dog; amazingly complex words; zero maximum boxes; every junction',
+                completion: {
+                    message: "Outstanding! Complete alphabet mastery achieved.",
+                    keysLearned: ['All Letters A-Z'],
+                    nextPreview: "Next: Learn capital letters with Shift"
+                }
             },
 
             // Capital Letters & Shift
@@ -642,7 +672,12 @@ class LessonManager {
                 targetAccuracy: 90,
                 unlocked: false,
                 icon: '🆙',
-                text: 'Apple Box Cat Dog Eagle Fish Great Hope Jack King Lion Mouse Name Open'
+                text: 'Apple Box Cat Dog Eagle Fish Great Hope Jack King Lion Mouse Name Open',
+                completion: {
+                    message: "Brilliant! You've mastered the Shift key for capitals.",
+                    keysLearned: ['Capital Letters', 'Shift Key'],
+                    nextPreview: "Next: Advanced capitalization in sentences"
+                }
             },
             {
                 id: 'shift-practice',
@@ -653,7 +688,12 @@ class LessonManager {
                 targetAccuracy: 90,
                 unlocked: false,
                 icon: '⇧',
-                text: 'The Quick Brown Fox. Every Good Dog Jumps High. Amazing Views From Mountain Tops.'
+                text: 'The Quick Brown Fox. Every Good Dog Jumps High. Amazing Views From Mountain Tops.',
+                completion: {
+                    message: "Perfect! Advanced shift key combinations mastered.",
+                    keysLearned: ['Advanced Capitalization'],
+                    nextPreview: "Next: Learn numbers 1-5"
+                }
             },
 
             // Numbers Row
@@ -666,7 +706,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '🔢',
-                text: '12345 12345 123 234 345 12 23 34 45 51 52 53 54 55 numbers dates'
+                text: '12345 12345 123 234 345 12 23 34 45 51 52 53 54 55 numbers dates',
+                completion: {
+                    message: "Great start! Left-hand numbers 1-5 mastered.",
+                    keysLearned: ['1', '2', '3', '4', '5'],
+                    nextPreview: "Next: Complete the number row 0-9"
+                }
             },
             {
                 id: 'numbers-full',
@@ -677,7 +722,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '🔟',
-                text: '1234567890 0987654321 dates like 2024 year 1995 phone 555123 address 42nd street'
+                text: '1234567890 0987654321 dates like 2024 year 1995 phone 555123 address 42nd street',
+                completion: {
+                    message: "Excellent! Complete number row mastery achieved.",
+                    keysLearned: ['All Numbers 0-9'],
+                    nextPreview: "Next: Learn basic punctuation"
+                }
             },
 
             // Common Punctuation
@@ -690,7 +740,12 @@ class LessonManager {
                 targetAccuracy: 88,
                 unlocked: false,
                 icon: '❓',
-                text: 'Hello, world. How are you? Fine, thanks. What time is it? Around noon, I think.'
+                text: 'Hello, world. How are you? Fine, thanks. What time is it? Around noon, I think.',
+                completion: {
+                    message: "Perfect! Basic punctuation mastered beautifully.",
+                    keysLearned: ['.', ',', '?'],
+                    nextPreview: "Next: Master all punctuation marks"
+                }
             },
             {
                 id: 'full-punctuation',
@@ -701,7 +756,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '💯',
-                text: 'Hello! How are you? Fine, thanks... What\'s new? "Nothing much," she said. @email.com #hashtag'
+                text: 'Hello! How are you? Fine, thanks... What\'s new? "Nothing much," she said. @email.com #hashtag',
+                completion: {
+                    message: "Outstanding! Complete punctuation mastery achieved.",
+                    keysLearned: ['All Punctuation'],
+                    nextPreview: "Next: Learn common symbols"
+                }
             },
 
             // Advanced Symbols
@@ -714,7 +774,12 @@ class LessonManager {
                 targetAccuracy: 82,
                 unlocked: false,
                 icon: '💰',
-                text: 'email@domain.com #hashtag $100 50% savings AT&T 2*3=6 1+1=2 100% success'
+                text: 'email@domain.com #hashtag $100 50% savings AT&T 2*3=6 1+1=2 100% success',
+                completion: {
+                    message: "Excellent! Common symbols are now second nature.",
+                    keysLearned: ['@', '#', '$', '%', '&', '*', '+', '='],
+                    nextPreview: "Next: Advanced symbol combinations"
+                }
             },
             {
                 id: 'symbols-advanced',
@@ -725,7 +790,12 @@ class LessonManager {
                 targetAccuracy: 80,
                 unlocked: false,
                 icon: '⚡',
-                text: '[brackets] {curly} <angle> forward/slash back\\slash pipe|symbol ^caret ~tilde'
+                text: '[brackets] {curly} <angle> forward/slash back\\slash pipe|symbol ^caret ~tilde',
+                completion: {
+                    message: "Amazing! Advanced symbols conquered completely.",
+                    keysLearned: ['[]', '{}', '<>', '/', '\\', '|', '^', '~'],
+                    nextPreview: "Next: Programming syntax patterns"
+                }
             },
 
             // Programming Basics
@@ -738,7 +808,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '💻',
-                text: 'function() { return true; } if (x == 5) { print("hello"); } array[0] = "value";'
+                text: 'function() { return true; } if (x == 5) { print("hello"); } array[0] = "value";',
+                completion: {
+                    message: "Brilliant! Programming syntax mastery achieved.",
+                    keysLearned: ['Programming Symbols'],
+                    nextPreview: "Next: Speed building with common words"
+                }
             },
 
             // Speed Building
@@ -751,7 +826,12 @@ class LessonManager {
                 targetAccuracy: 90,
                 unlocked: false,
                 icon: '🏃',
-                text: 'the and for you that with have this will been from they know want been'
+                text: 'the and for you that with have this will been from they know want been',
+                completion: {
+                    message: "Fantastic speed! Common words flow naturally now.",
+                    keysLearned: ['Speed Typing I'],
+                    nextPreview: "Next: Advanced speed building with sentences"
+                }
             },
             {
                 id: 'speed-builder-2',
@@ -762,7 +842,12 @@ class LessonManager {
                 targetAccuracy: 88,
                 unlocked: false,
                 icon: '🚀',
-                text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.'
+                text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.',
+                completion: {
+                    message: "Incredible speed! You're becoming a typing rocket.",
+                    keysLearned: ['Speed Typing II'],
+                    nextPreview: "Next: Master race for ultimate speed"
+                }
             },
             {
                 id: 'speed-builder-3',
@@ -773,7 +858,12 @@ class LessonManager {
                 targetAccuracy: 85,
                 unlocked: false,
                 icon: '⚡',
-                text: 'Advanced typing requires consistent practice and proper technique. Focus on accuracy first, then gradually increase speed while maintaining precision.'
+                text: 'Advanced typing requires consistent practice and proper technique. Focus on accuracy first, then gradually increase speed while maintaining precision.',
+                completion: {
+                    message: "Lightning fast! You've achieved advanced speed mastery.",
+                    keysLearned: ['Advanced Speed'],
+                    nextPreview: "Next: Focus on accuracy training"
+                }
             },
 
             // Accuracy Drills
@@ -786,7 +876,12 @@ class LessonManager {
                 targetAccuracy: 95,
                 unlocked: false,
                 icon: '🎯',
-                text: 'barn born burn; form from firm; calm clam claim; trail trial tribal; angle ankle'
+                text: 'barn born burn; form from firm; calm clam claim; trail trial tribal; angle ankle',
+                completion: {
+                    message: "Bullseye! Your precision is outstanding.",
+                    keysLearned: ['Precision Typing'],
+                    nextPreview: "Next: Advanced accuracy challenges"
+                }
             },
             {
                 id: 'accuracy-drill-2',
@@ -797,7 +892,12 @@ class LessonManager {
                 targetAccuracy: 93,
                 unlocked: false,
                 icon: '🏹',
-                text: 'minimum aluminum millennium; statistical statistical; unprecedented unprecedented; accommodate accommodate'
+                text: 'minimum aluminum millennium; statistical statistical; unprecedented unprecedented; accommodate accommodate',
+                completion: {
+                    message: "Perfect aim! Advanced accuracy mastery achieved.",
+                    keysLearned: ['Advanced Accuracy'],
+                    nextPreview: "You've completed all essential typing skills!"
+                }
             },
 
             // Real-World Applications
@@ -2418,9 +2518,7 @@ class ProgressiveLessonSystem {
     
     updateTimeDisplay() {
         if (this.timeValue) {
-            const minutes = Math.floor(this.timeElapsed / 60);
-            const seconds = this.timeElapsed % 60;
-            this.timeValue.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            this.timeValue.textContent = this.timeElapsed;
         }
     }
     
@@ -2492,6 +2590,11 @@ class ProgressiveLessonSystem {
             this.updateLessonUI();
             this.createCharacterBoxes();
             this.resetTest();
+            
+            // Refresh lesson carousel to show new progress
+            if (window.lessonCarousel) {
+                window.lessonCarousel.refresh();
+            }
             return true;
         } else {
             console.log('Cannot advance - reached end of lessons');
@@ -3197,6 +3300,219 @@ class KeyboardAndHandEffects {
 }
 
 // Initialize progressive lesson system
+// Lesson Carousel Manager
+class LessonCarousel {
+    constructor() {
+        this.currentLesson = 1;
+        this.totalLessons = 0;
+        this.carousel = null;
+        this.cardsContainer = null;
+        this.prevBtn = null;
+        this.nextBtn = null;
+        this.cardWidth = 292; // 280px + 12px gap
+        this.init();
+    }
+
+    init() {
+        // Wait for DOM and lesson data to be ready
+        const initCarousel = () => {
+            if (!window.lessonData || !document.getElementById('lesson-carousel')) {
+                setTimeout(initCarousel, 50);
+                return;
+            }
+            this.setupElements();
+            this.generateLessonCards();
+            this.attachEventListeners();
+            this.updateCarousel();
+        };
+        initCarousel();
+    }
+
+    setupElements() {
+        this.carousel = document.getElementById('lesson-carousel');
+        this.cardsContainer = document.getElementById('lesson-cards');
+        this.prevBtn = document.getElementById('lesson-prev');
+        this.nextBtn = document.getElementById('lesson-next');
+        this.totalLessons = window.lessonData.maxLesson;
+        this.currentLesson = window.lessonData.currentLesson;
+    }
+
+    generateLessonCards() {
+        if (!this.cardsContainer || !window.lessonData) return;
+
+        this.cardsContainer.innerHTML = '';
+        
+        for (let i = 1; i <= this.totalLessons; i++) {
+            const lesson = window.lessonData.lessonStructure[i - 1];
+            if (!lesson) continue;
+
+            const card = this.createLessonCard(lesson, i);
+            this.cardsContainer.appendChild(card);
+        }
+    }
+
+    createLessonCard(lesson, lessonNumber) {
+        const card = document.createElement('div');
+        card.className = 'lesson-card';
+        card.dataset.lesson = lessonNumber;
+
+        // Determine card status
+        if (lessonNumber < this.currentLesson) {
+            card.classList.add('completed');
+        } else if (lessonNumber === this.currentLesson) {
+            card.classList.add('current');
+        } else {
+            card.classList.add('locked');
+        }
+
+        // Get lesson keys for display
+        const lessonKeys = lesson.keys ? lesson.keys.slice(0, 6).join(' ') : '';
+        const moreKeys = lesson.keys && lesson.keys.length > 6 ? ` +${lesson.keys.length - 6}` : '';
+
+        card.innerHTML = `
+            <div class="lesson-status"></div>
+            <div class="lesson-number">${lessonNumber}</div>
+            <div class="lesson-title">${lesson.title}</div>
+            <div class="lesson-meta">
+                <div class="lesson-phase">${lesson.phase}</div>
+                <div class="lesson-target">${lesson.targetWPM} WPM</div>
+            </div>
+            <div class="lesson-keys">${lessonKeys}${moreKeys}</div>
+        `;
+
+        // Add click handler for navigation (only for unlocked lessons)
+        if (lessonNumber <= this.currentLesson) {
+            card.addEventListener('click', () => {
+                this.selectLesson(lessonNumber);
+            });
+        }
+
+        return card;
+    }
+
+    selectLesson(lessonNumber) {
+        if (lessonNumber > this.currentLesson) return; // Can't select locked lessons
+
+        // Update lesson data
+        window.lessonData.currentLesson = lessonNumber;
+        window.lessonData.saveProgress();
+
+        // Update progressive lesson system
+        if (window.progressiveLesson) {
+            window.progressiveLesson.loadCurrentLesson();
+            window.progressiveLesson.updateLessonUI();
+            window.progressiveLesson.createCharacterBoxes();
+            window.progressiveLesson.resetTest();
+        }
+
+        // Update carousel
+        this.currentLesson = lessonNumber;
+        this.updateCarousel();
+    }
+
+    updateCarousel() {
+        // Update card states
+        const cards = this.cardsContainer.querySelectorAll('.lesson-card');
+        cards.forEach((card, index) => {
+            const lessonNum = index + 1;
+            card.className = 'lesson-card';
+            
+            if (lessonNum < this.currentLesson) {
+                card.classList.add('completed');
+            } else if (lessonNum === this.currentLesson) {
+                card.classList.add('current');
+            } else {
+                card.classList.add('locked');
+            }
+        });
+
+        // Scroll current lesson into view
+        this.scrollToCurrentLesson();
+        
+        // Update navigation buttons
+        this.updateNavigationButtons();
+    }
+
+    scrollToCurrentLesson() {
+        const currentCard = this.cardsContainer.querySelector('.lesson-card.current');
+        if (currentCard && this.carousel) {
+            const cardRect = currentCard.getBoundingClientRect();
+            const carouselRect = this.carousel.getBoundingClientRect();
+            
+            if (cardRect.left < carouselRect.left || cardRect.right > carouselRect.right) {
+                const scrollLeft = currentCard.offsetLeft - (this.carousel.clientWidth / 2) + (this.cardWidth / 2);
+                this.carousel.scrollTo({
+                    left: Math.max(0, scrollLeft),
+                    behavior: 'smooth'
+                });
+            }
+        }
+    }
+
+    updateNavigationButtons() {
+        if (!this.prevBtn || !this.nextBtn || !this.carousel) return;
+
+        const maxScroll = this.carousel.scrollWidth - this.carousel.clientWidth;
+        const currentScroll = this.carousel.scrollLeft;
+
+        this.prevBtn.disabled = currentScroll <= 0;
+        this.nextBtn.disabled = currentScroll >= maxScroll - 1;
+    }
+
+    attachEventListeners() {
+        // Navigation buttons
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => {
+                this.carousel.scrollBy({
+                    left: -this.cardWidth * 2,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => {
+                this.carousel.scrollBy({
+                    left: this.cardWidth * 2,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        // Scroll event for button updates
+        if (this.carousel) {
+            this.carousel.addEventListener('scroll', () => {
+                this.updateNavigationButtons();
+            });
+        }
+
+        // Keyboard navigation
+        if (this.carousel) {
+            this.carousel.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    this.carousel.scrollBy({
+                        left: -this.cardWidth,
+                        behavior: 'smooth'
+                    });
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    this.carousel.scrollBy({
+                        left: this.cardWidth,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
+    }
+
+    // Public method to refresh carousel when lesson advances
+    refresh() {
+        this.currentLesson = window.lessonData?.currentLesson || 1;
+        this.updateCarousel();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Initialize lesson data system
@@ -3214,6 +3530,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initialize keyboard and hand effects (only for character lesson page)
         window.keyboardAndHandEffects = new KeyboardAndHandEffects();
+
+        // Initialize lesson carousel
+        window.lessonCarousel = new LessonCarousel();
         
     }, 100); // Small delay to ensure typing tests are initialized
 });
