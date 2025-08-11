@@ -2677,6 +2677,7 @@ class LessonCompletionManager {
     
     updateCompletionContent(lesson, accuracy, wpm, timeElapsed) {
         console.log('Updating completion content for lesson:', lesson);
+        console.log('Lesson completion object:', lesson ? lesson.completion : 'No lesson provided');
         
         // Update message
         const messageEl = document.getElementById('completion-message');
@@ -2726,8 +2727,10 @@ class LessonCompletionManager {
         
         // Update next lesson preview
         const nextLessonEl = document.getElementById('next-lesson-preview');
-        if (nextLessonEl) {
+        if (nextLessonEl && lesson && lesson.completion && lesson.completion.nextPreview) {
             nextLessonEl.textContent = lesson.completion.nextPreview;
+        } else if (nextLessonEl) {
+            nextLessonEl.textContent = 'Continue your typing journey!';
         }
     }
     
