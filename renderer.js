@@ -2467,6 +2467,9 @@ class ProgressiveLessonSystem {
     }
     
     showLessonCompletion(accuracy, wpm) {
+        console.log('ProgressiveLessonSystem - showing completion for lesson:', this.currentLesson);
+        console.log('ProgressiveLessonSystem - lesson has completion?', this.currentLesson && !!this.currentLesson.completion);
+        
         if (window.lessonCompletionManager) {
             window.lessonCompletionManager.showLessonComplete(
                 this.currentLesson,
@@ -2677,6 +2680,8 @@ class LessonCompletionManager {
     
     updateCompletionContent(lesson, accuracy, wpm, timeElapsed) {
         console.log('Updating completion content for lesson:', lesson);
+        console.log('Lesson has completion?', lesson && !!lesson.completion);
+        console.log('Lesson completion data:', lesson && lesson.completion);
         
         // Update message
         const messageEl = document.getElementById('completion-message');
@@ -2685,12 +2690,22 @@ class LessonCompletionManager {
             console.log('Updated message:', lesson.completion.message);
         } else {
             console.log('Missing lesson completion data:', lesson);
+            console.log('MessageEl exists?', !!messageEl);
+            console.log('Lesson exists?', !!lesson);
+            console.log('Lesson.completion exists?', lesson && !!lesson.completion);
+            
+            // Fallback message for debugging
+            if (messageEl) {
+                messageEl.textContent = 'Lesson completed successfully!';
+            }
         }
         
         // Update keys learned
         const keysLearnedEl = document.getElementById('keys-learned-display');
-        if (keysLearnedEl) {
+        if (keysLearnedEl && lesson && lesson.completion && lesson.completion.keysLearned) {
             keysLearnedEl.textContent = lesson.completion.keysLearned.join(', ');
+        } else if (keysLearnedEl) {
+            keysLearnedEl.textContent = 'New Skills Mastered';
         }
         
         // Update final stats
