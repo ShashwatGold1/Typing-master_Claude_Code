@@ -2492,17 +2492,17 @@ class ProgressiveLessonSystem {
             requiredMinChars: requiredMinChars
         });
         
-        // Check if lesson requirements are met (with very generous flexibility for better UX)
+        // Check if lesson requirements are met (with reasonable flexibility for character lessons)
         const passedAccuracy = accuracy >= Math.max(70, this.currentLesson.targetAccuracy - 20); // Allow 20% flexibility, min 70%
-        const passedWPM = wpm >= Math.max(2, cappedTargetWPM - 10); // Allow 10 WPM flexibility, min 2 WPM, max target 25
+        const passedWPM = wpm >= Math.max(2, cappedTargetWPM - 3); // Allow only 3 WPM flexibility for capped targets, min 2 WPM
         
         // User-friendly approach: Pass if ANY of these conditions are met:
         // 1. Met the reduced min chars requirement, OR  
-        // 2. Practiced for 8+ seconds with 75%+ accuracy and typed at least 5 chars, OR
-        // 3. Practiced for 15+ seconds with 70%+ accuracy and typed at least 3 chars
+        // 2. Practiced for 8+ seconds with 75%+ accuracy, typed at least 5 chars AND met WPM requirement, OR
+        // 3. Practiced for 15+ seconds with 70%+ accuracy, typed at least 3 chars AND met WPM requirement
         const passedMinChars = this.correctChars >= requiredMinChars || 
-                              (this.timeElapsed >= 8 && accuracy >= 75 && this.correctChars >= 5) ||
-                              (this.timeElapsed >= 15 && accuracy >= 70 && this.correctChars >= 3);
+                              (this.timeElapsed >= 8 && accuracy >= 75 && this.correctChars >= 5 && passedWPM) ||
+                              (this.timeElapsed >= 15 && accuracy >= 70 && this.correctChars >= 3 && passedWPM);
         
         console.log('Lesson completion results:', {
             passedAccuracy,
