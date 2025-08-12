@@ -2456,6 +2456,12 @@ class ProgressiveLessonSystem {
     checkLessonCompletion() {
         this.endTest();
         
+        // Prevent completion check immediately after reset
+        if (this.justReset) {
+            console.log('Skipping completion check - lesson was just reset');
+            return;
+        }
+        
         if (!this.currentLesson) {
             console.error('No current lesson to check completion for');
             return;
@@ -2465,6 +2471,8 @@ class ProgressiveLessonSystem {
         const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 0;
         const wpm = this.calculateWPM();
         
+        const requiredMinChars = Math.max(5, Math.floor(this.currentLesson.minChars * 0.5));
+        
         console.log('Lesson completion check:', {
             lesson: this.currentLesson.id,
             accuracy: accuracy,
@@ -2472,13 +2480,14 @@ class ProgressiveLessonSystem {
             wpm: wpm,
             targetWPM: this.currentLesson.targetWPM,
             correctChars: this.correctChars,
-            minChars: this.currentLesson.minChars
+            originalMinChars: this.currentLesson.minChars,
+            requiredMinChars: requiredMinChars
         });
         
-        // Check if lesson requirements are met (with some flexibility for testing)
-        const passedAccuracy = accuracy >= Math.max(80, this.currentLesson.targetAccuracy - 10); // Allow 10% flexibility
-        const passedWPM = wpm >= Math.max(5, this.currentLesson.targetWPM - 5); // Allow 5 WPM flexibility
-        const passedMinChars = this.correctChars >= Math.max(10, this.currentLesson.minChars - 10); // Reduce min chars requirement
+        // Check if lesson requirements are met (with generous flexibility for better UX)
+        const passedAccuracy = accuracy >= Math.max(75, this.currentLesson.targetAccuracy - 15); // Allow 15% flexibility
+        const passedWPM = wpm >= Math.max(3, this.currentLesson.targetWPM - 8); // Allow 8 WPM flexibility  
+        const passedMinChars = this.correctChars >= requiredMinChars; // Require only 50% of min chars
         
         console.log('Lesson completion results:', {
             passedAccuracy,
@@ -2594,6 +2603,13 @@ class ProgressiveLessonSystem {
         this.timeElapsed = 0;
         this.typedSequence = '';
         
+        // Add flag to prevent immediate completion check after reset
+        this.justReset = true;
+        setTimeout(() => {
+            this.justReset = false;
+            console.log('justReset flag cleared - ready for new input');
+        }, 1000); // Allow 1 second for user to start typing
+        
         // Clear visual states
         const boxes = document.querySelectorAll('.char-box');
         boxes.forEach(box => {
@@ -2656,6 +2672,11 @@ class ProgressiveLessonSystem {
             
             this.resetTest();
             console.log('Test reset complete');
+            
+            // Add a small delay to ensure UI is fully updated before allowing new input
+            setTimeout(() => {
+                console.log('New lesson ready for input');
+            }, 100);
             
             // Character lessons and word lessons are now completely independent systems
             // No cross-system synchronization to avoid conflicts
