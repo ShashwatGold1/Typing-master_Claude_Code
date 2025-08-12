@@ -2472,13 +2472,15 @@ class ProgressiveLessonSystem {
         const wpm = this.calculateWPM();
         
         const requiredMinChars = Math.max(3, Math.floor(this.currentLesson.minChars * 0.2)); // Only require 20% of min chars
+        const cappedTargetWPM = Math.min(25, this.currentLesson.targetWPM); // Cap WPM at 25 for character lessons
         
         console.log('Lesson completion check:', {
             lesson: this.currentLesson.id,
             accuracy: accuracy,
             targetAccuracy: this.currentLesson.targetAccuracy,
             wpm: wpm,
-            targetWPM: this.currentLesson.targetWPM,
+            originalTargetWPM: this.currentLesson.targetWPM,
+            cappedTargetWPM: cappedTargetWPM,
             correctChars: this.correctChars,
             originalMinChars: this.currentLesson.minChars,
             requiredMinChars: requiredMinChars
@@ -2486,7 +2488,7 @@ class ProgressiveLessonSystem {
         
         // Check if lesson requirements are met (with very generous flexibility for better UX)
         const passedAccuracy = accuracy >= Math.max(70, this.currentLesson.targetAccuracy - 20); // Allow 20% flexibility, min 70%
-        const passedWPM = wpm >= Math.max(2, this.currentLesson.targetWPM - 10); // Allow 10 WPM flexibility, min 2 WPM
+        const passedWPM = wpm >= Math.max(2, cappedTargetWPM - 10); // Allow 10 WPM flexibility, min 2 WPM, max target 25
         
         // User-friendly approach: Pass if ANY of these conditions are met:
         // 1. Met the reduced min chars requirement, OR  
