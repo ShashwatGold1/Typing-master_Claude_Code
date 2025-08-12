@@ -2934,11 +2934,12 @@ class LessonCompletionManager {
     generateFallbackMessage(lesson, accuracy, wpm) {
         const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
         
-        if (accuracy >= 95 && wpm >= 40) {
+        // Character lesson friendly WPM thresholds (capped at 25 WPM max)
+        if (accuracy >= 95 && wpm >= 20) {
             return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
         } else if (accuracy >= 90) {
             return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
-        } else if (wpm >= 30) {
+        } else if (wpm >= 15) {
             return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
         } else {
             return `Lesson completed! You've successfully finished the ${lessonTitle}. Practice makes perfect!`;
@@ -3214,11 +3215,12 @@ class LessonCompletionManager {
     generateFallbackMessage(lesson, accuracy, wpm) {
         const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
         
-        if (accuracy >= 95 && wpm >= 40) {
+        // Character lesson friendly WPM thresholds (capped at 25 WPM max)
+        if (accuracy >= 95 && wpm >= 20) {
             return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
         } else if (accuracy >= 90) {
             return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
-        } else if (wpm >= 30) {
+        } else if (wpm >= 15) {
             return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
         } else {
             return `Lesson completed! You've successfully finished the ${lessonTitle}. Practice makes perfect!`;
