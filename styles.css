@@ -2021,6 +2021,13 @@ select {
     color: #1e293b;
 }
 
+.completion-stat .target-info {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    margin-left: 2px;
+}
+
 .completion-progress {
     margin-bottom: 24px;
 }

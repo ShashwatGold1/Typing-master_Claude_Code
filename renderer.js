@@ -2508,9 +2508,10 @@ class ProgressiveLessonSystem {
             passedAccuracy,
             passedWPM,
             passedMinChars,
+            wpmRequirement: `${wpm} >= ${Math.max(2, cappedTargetWPM - 3)} (${passedWPM})`,
             condition1: `${this.correctChars} >= ${requiredMinChars} (${this.correctChars >= requiredMinChars})`,
-            condition2: `${this.timeElapsed}s >= 8s && ${accuracy}% >= 75% && ${this.correctChars} >= 5 (${this.timeElapsed >= 8 && accuracy >= 75 && this.correctChars >= 5})`,
-            condition3: `${this.timeElapsed}s >= 15s && ${accuracy}% >= 70% && ${this.correctChars} >= 3 (${this.timeElapsed >= 15 && accuracy >= 70 && this.correctChars >= 3})`
+            condition2: `${this.timeElapsed}s >= 8s && ${accuracy}% >= 75% && ${this.correctChars} >= 5 && WPM passed (${this.timeElapsed >= 8 && accuracy >= 75 && this.correctChars >= 5 && passedWPM})`,
+            condition3: `${this.timeElapsed}s >= 15s && ${accuracy}% >= 70% && ${this.correctChars} >= 3 && WPM passed (${this.timeElapsed >= 15 && accuracy >= 70 && this.correctChars >= 3 && passedWPM})`
         });
         
         if (passedAccuracy && passedWPM && passedMinChars) {
@@ -2826,10 +2827,12 @@ class LessonCompletionManager {
         // Update final stats
         const finalAccuracyEl = document.getElementById('final-accuracy-display');
         const finalWpmEl = document.getElementById('final-wpm-display');
+        const targetWpmEl = document.getElementById('target-wpm-display');
         const finalTimeEl = document.getElementById('final-time-display');
         
         if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
         if (finalWpmEl) finalWpmEl.textContent = wpm;
+        if (targetWpmEl) targetWpmEl.textContent = getDisplayWPM(lesson);
         if (finalTimeEl) {
             const minutes = Math.floor(timeElapsed / 60);
             const seconds = timeElapsed % 60;
@@ -3112,10 +3115,12 @@ class LessonCompletionManager {
         // Update final stats with current performance
         const finalAccuracyEl = document.getElementById('final-accuracy-display');
         const finalWpmEl = document.getElementById('final-wpm-display');
+        const targetWpmEl = document.getElementById('target-wpm-display');
         const finalTimeEl = document.getElementById('final-time-display');
         
         if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
         if (finalWpmEl) finalWpmEl.textContent = wpm;
+        if (targetWpmEl) targetWpmEl.textContent = getDisplayWPM(lesson);
         if (finalTimeEl) {
             const minutes = Math.floor(timeElapsed / 60);
             const seconds = timeElapsed % 60;
