@@ -2352,7 +2352,11 @@ class ProgressiveLessonSystem {
             
             // Handle Enter key for lesson completion continuation
             if (e.key === 'Enter' && window.lessonCompletionManager && window.lessonCompletionManager.isShowing()) {
-                window.lessonCompletionManager.continueToNextLesson();
+                if (window.lessonCompletionManager.isRetryMode) {
+                    window.lessonCompletionManager.retryLesson();
+                } else {
+                    window.lessonCompletionManager.continueToNextLesson();
+                }
                 e.preventDefault();
                 return;
             }
@@ -2744,7 +2748,11 @@ class LessonCompletionManager {
         if (this.overlay) {
             this.overlay.addEventListener('click', (e) => {
                 if (e.target === this.overlay) {
-                    this.continueToNextLesson();
+                    if (this.isRetryMode) {
+                        this.retryLesson();
+                    } else {
+                        this.continueToNextLesson();
+                    }
                 }
             });
         }
