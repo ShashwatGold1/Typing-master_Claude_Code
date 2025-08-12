@@ -2710,6 +2710,7 @@ class LessonCompletionManager {
         this.popup = null;
         this.isVisible = false;
         this.completionKeyListener = null;
+        this.retryKeyListener = null;
         this.isRetryMode = false; // Track if showing retry instead of completion
         
         this.init();
@@ -2822,6 +2823,17 @@ class LessonCompletionManager {
         if (completionProgressFillEl) {
             completionProgressFillEl.style.width = `${stats.percentComplete}%`;
         }
+        
+        // Ensure button text is correct for completion (restore defaults)
+        const instructionEl = this.popup.querySelector('.continue-instruction');
+        if (instructionEl) {
+            instructionEl.textContent = 'Press ENTER to continue to next lesson';
+        }
+        
+        const continueBtn = document.getElementById('continue-lesson-btn');
+        if (continueBtn) {
+            continueBtn.textContent = 'Continue (Enter)';
+        }
     }
     
     createCelebrationParticles() {
@@ -2875,24 +2887,34 @@ class LessonCompletionManager {
         }
     }
     
+    addRetryKeyListener() {
+        this.retryKeyListener = (e) => {
+            if (e.key === 'Enter') {
+                this.retryCurrentLesson();
+                e.preventDefault();
+            }
+        };
+        document.addEventListener('keydown', this.retryKeyListener);
+    }
+    
+    removeRetryKeyListener() {
+        if (this.retryKeyListener) {
+            document.removeEventListener('keydown', this.retryKeyListener);
+            this.retryKeyListener = null;
+        }
+    }
+    
     continueToNextLesson() {
         if (!this.isVisible) return;
         
         this.hide();
         
-        if (this.isRetryMode) {
-            // If in retry mode, reset current lesson instead of advancing
-            if (window.progressiveLesson) {
-                window.progressiveLesson.resetTest();
-            }
-            // Reset retry mode flag
-            this.isRetryMode = false;
-        } else {
-            // Only advance to next lesson if lesson was actually completed successfully
-            // This ensures failed lessons don't advance automatically
-            if (window.progressiveLesson) {
-                window.progressiveLesson.advanceToNextLesson();
-            }
+        // Reset any retry mode flag (should not be set for successful lessons)
+        this.isRetryMode = false;
+        
+        // Advance to next lesson (only called for successful completions)
+        if (window.progressiveLesson) {
+            window.progressiveLesson.advanceToNextLesson();
         }
     }
     
@@ -2902,6 +2924,20 @@ class LessonCompletionManager {
         this.hide();
         
         // Reset current lesson
+        if (window.progressiveLesson) {
+            window.progressiveLesson.resetTest();
+        }
+    }
+    
+    retryCurrentLesson() {
+        if (!this.isVisible) return;
+        
+        this.hide();
+        
+        // Explicitly reset retry mode to prevent any advancement
+        this.isRetryMode = false;
+        
+        // Reset current lesson without advancing
         if (window.progressiveLesson) {
             window.progressiveLesson.resetTest();
         }
@@ -2920,8 +2956,8 @@ class LessonCompletionManager {
         this.overlay.classList.add('show');
         this.isVisible = true;
         
-        // Add keyboard listener for Enter key
-        this.addCompletionKeyListener();
+        // Add keyboard listener for Enter key (retry handler)
+        this.addRetryKeyListener();
         
         // Add completion animation to body
         document.body.classList.add('completion-active');
@@ -2983,13 +3019,13 @@ class LessonCompletionManager {
         // Update continue instruction for retry
         const instructionEl = this.popup.querySelector('.continue-instruction');
         if (instructionEl) {
-            instructionEl.textContent = 'Press ENTER to continue your learning journey';
+            instructionEl.textContent = 'Press ENTER to try this lesson again';
         }
         
         // Update button text
         const continueBtn = document.getElementById('continue-lesson-btn');
         if (continueBtn) {
-            continueBtn.textContent = 'Keep Learning (Enter)';
+            continueBtn.textContent = 'Try Again (Enter)';
         }
     }
     
@@ -2999,8 +3035,9 @@ class LessonCompletionManager {
         this.overlay.classList.remove('show');
         this.isVisible = false;
         
-        // Remove keyboard listener
+        // Remove keyboard listeners
         this.removeCompletionKeyListener();
+        this.removeRetryKeyListener();
         
         // Remove completion animation from body
         document.body.classList.remove('completion-active');
