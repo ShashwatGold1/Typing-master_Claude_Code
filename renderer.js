@@ -2636,23 +2636,41 @@ class ProgressiveLessonSystem {
     
     // Advance to next lesson
     advanceToNextLesson() {
+        console.log('=== ADVANCE TO NEXT LESSON DEBUG ===');
+        console.log('Current lesson before advance:', window.lessonData.currentLesson);
+        console.log('Max lesson:', window.lessonData.maxLesson);
+        console.log('Can advance:', window.lessonData.canAdvance());
+        
         if (window.lessonData.advanceLesson()) {
-            console.log('Advanced to lesson:', window.lessonData.currentLesson);
+            console.log('Successfully advanced to lesson:', window.lessonData.currentLesson);
+            console.log('Loading new lesson...');
+            
             this.loadCurrentLesson();
+            console.log('Lesson loaded, updating UI...');
+            
             this.updateLessonUI();
+            console.log('UI updated, creating character boxes...');
+            
             this.createCharacterBoxes();
+            console.log('Character boxes created, resetting test...');
+            
             this.resetTest();
+            console.log('Test reset complete');
             
             // Character lessons and word lessons are now completely independent systems
             // No cross-system synchronization to avoid conflicts
             
             // Refresh lesson carousel to show new progress
             if (window.lessonCarousel) {
+                console.log('Refreshing lesson carousel...');
                 window.lessonCarousel.refresh();
+                console.log('Carousel refreshed');
             }
+            console.log('=== ADVANCE SUCCESSFUL ===');
             return true;
         } else {
             console.log('Cannot advance - reached end of lessons');
+            console.log('=== ADVANCE FAILED ===');
             return false;
         }
     }
@@ -2686,20 +2704,24 @@ class LessonCompletionManager {
     }
     
     setupEventListeners() {
-        // Continue button
-        const continueBtn = document.getElementById('continue-lesson-btn');
-        if (continueBtn) {
-            continueBtn.addEventListener('click', () => {
-                this.continueToNextLesson();
+        // New character lesson action button
+        const actionBtn = document.getElementById('character-lesson-action-btn');
+        if (actionBtn) {
+            // Remove any existing listeners to avoid duplicates
+            actionBtn.replaceWith(actionBtn.cloneNode(true));
+            const newActionBtn = document.getElementById('character-lesson-action-btn');
+            
+            newActionBtn.addEventListener('click', () => {
+                console.log('Action button clicked, retry mode:', this.isRetryMode);
+                if (this.isRetryMode) {
+                    this.retryCurrentLesson();
+                } else {
+                    this.continueToNextLesson();
+                }
             });
-        }
-        
-        // Retry button
-        const retryBtn = document.getElementById('lesson-retry-btn');
-        if (retryBtn) {
-            retryBtn.addEventListener('click', () => {
-                this.retryLesson();
-            });
+            console.log('Character lesson action button event listener attached');
+        } else {
+            console.error('Character lesson action button not found!');
         }
         
         // Close on overlay click
@@ -2721,6 +2743,9 @@ class LessonCompletionManager {
         
         // Reset retry mode flag
         this.isRetryMode = false;
+        
+        // Add success state styling
+        this.popup.className = 'lesson-completion-popup success';
         
         // Update completion content
         this.updateCompletionContent(lesson, accuracy, wpm, timeElapsed);
@@ -2790,15 +2815,18 @@ class LessonCompletionManager {
             completionProgressFillEl.style.width = `${stats.percentComplete}%`;
         }
         
-        // Ensure button text is correct for completion (restore defaults)
-        const instructionEl = this.popup.querySelector('.continue-instruction');
-        if (instructionEl) {
-            instructionEl.textContent = 'Press ENTER to continue to next lesson';
-        }
+        // Update button for success mode
+        const actionBtn = document.getElementById('character-lesson-action-btn');
+        const btnIcon = actionBtn ? actionBtn.querySelector('.btn-icon') : null;
+        const btnText = actionBtn ? actionBtn.querySelector('.btn-text') : null;
         
-        const continueBtn = document.getElementById('continue-lesson-btn');
-        if (continueBtn) {
-            continueBtn.textContent = 'Continue (Enter)';
+        if (btnIcon) btnIcon.textContent = '🎉';
+        if (btnText) btnText.textContent = 'Continue';
+        
+        // Update instruction text
+        const instructionEl = document.getElementById('action-instruction') || this.popup.querySelector('.action-instruction');
+        if (instructionEl) {
+            instructionEl.textContent = 'Press ENTER or click the button above';
         }
     }
     
@@ -2836,14 +2864,91 @@ class LessonCompletionManager {
         }, 6000);
     }
     
+    // Enhanced lesson data validation with intelligent fallbacks
+    validateAndEnhanceLessonData(lesson, accuracy, wpm) {
+        const result = {
+            message: '',
+            keysLearned: '',
+            nextPreview: ''
+        };
+        
+        // Check if lesson has valid completion data
+        if (lesson && lesson.completion) {
+            result.message = lesson.completion.message || this.generateFallbackMessage(lesson, accuracy, wpm);
+            result.keysLearned = Array.isArray(lesson.completion.keysLearned) 
+                ? lesson.completion.keysLearned.join(', ')
+                : lesson.completion.keysLearned || this.generateFallbackKeysLearned(lesson);
+            result.nextPreview = lesson.completion.nextPreview || '';
+        } else {
+            // Generate complete fallback data
+            result.message = this.generateFallbackMessage(lesson, accuracy, wpm);
+            result.keysLearned = this.generateFallbackKeysLearned(lesson);
+            result.nextPreview = 'Continue your typing journey!';
+            
+            console.warn('LessonCompletionManager: No completion data found for lesson, using intelligent fallbacks');
+        }
+        
+        return result;
+    }
+    
+    // Generate contextual fallback messages based on performance
+    generateFallbackMessage(lesson, accuracy, wpm) {
+        const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
+        
+        if (accuracy >= 95 && wpm >= 40) {
+            return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
+        } else if (accuracy >= 90) {
+            return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
+        } else if (wpm >= 30) {
+            return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
+        } else {
+            return `Lesson completed! You've successfully finished the ${lessonTitle}. Practice makes perfect!`;
+        }
+    }
+    
+    // Generate fallback keys learned text
+    generateFallbackKeysLearned(lesson) {
+        if (lesson && lesson.keys) {
+            return Array.isArray(lesson.keys) ? lesson.keys.join(', ') : lesson.keys;
+        }
+        if (lesson && lesson.title) {
+            // Extract keys from common lesson title patterns
+            const keyMatch = lesson.title.match(/([A-Z0-9\&\-\;\,\.\'\\/\[\]\\\\\\`]+)/g);
+            if (keyMatch) {
+                return keyMatch.slice(-2).join(', '); // Take last 2 key groups from title
+            }
+        }
+        return 'New Typing Skills';
+    }
+    
+    // Safe stats getter with fallbacks
+    getSafeStats() {
+        try {
+            if (window.lessonData && typeof window.lessonData.getLessonStats === 'function') {
+                return window.lessonData.getLessonStats();
+            }
+        } catch (error) {
+            console.warn('Error getting lesson stats:', error);
+        }
+        
+        // Fallback stats
+        return {
+            percentComplete: 0,
+            lessonsCompleted: 0,
+            totalLessons: 41
+        };
+    }
+    
     addCompletionKeyListener() {
         this.completionKeyListener = (e) => {
             if (e.key === 'Enter') {
+                console.log('Enter key pressed for lesson completion');
                 this.continueToNextLesson();
                 e.preventDefault();
             }
         };
         document.addEventListener('keydown', this.completionKeyListener);
+        console.log('Completion key listener added');
     }
     
     removeCompletionKeyListener() {
@@ -2871,7 +2976,15 @@ class LessonCompletionManager {
     }
     
     continueToNextLesson() {
-        if (!this.isVisible) return;
+        console.log('=== CONTINUE TO NEXT LESSON DEBUG ===');
+        console.log('Popup visible:', this.isVisible);
+        console.log('Retry mode:', this.isRetryMode);
+        console.log('Progressive lesson exists:', !!window.progressiveLesson);
+        
+        if (!this.isVisible) {
+            console.log('Popup not visible, returning early');
+            return;
+        }
         
         this.hide();
         
@@ -2880,8 +2993,13 @@ class LessonCompletionManager {
         
         // Advance to next lesson (only called for successful completions)
         if (window.progressiveLesson) {
-            window.progressiveLesson.advanceToNextLesson();
+            console.log('Calling advanceToNextLesson...');
+            const result = window.progressiveLesson.advanceToNextLesson();
+            console.log('Advance result:', result);
+        } else {
+            console.error('ERROR: window.progressiveLesson not found!');
         }
+        console.log('=== END CONTINUE TO NEXT LESSON DEBUG ===');
     }
     
     retryLesson() {
@@ -2914,6 +3032,9 @@ class LessonCompletionManager {
         
         // Set retry mode flag
         this.isRetryMode = true;
+        
+        // Add retry state styling
+        this.popup.className = 'lesson-completion-popup retry';
         
         // Update content for retry scenario
         this.updateRetryContent(lesson, accuracy, wpm, timeElapsed);
@@ -2982,16 +3103,18 @@ class LessonCompletionManager {
             nextLessonEl.textContent = targetMessage;
         }
         
-        // Update continue instruction for retry
-        const instructionEl = this.popup.querySelector('.continue-instruction');
-        if (instructionEl) {
-            instructionEl.textContent = 'Press ENTER to try this lesson again';
-        }
+        // Update button for retry mode  
+        const actionBtn = document.getElementById('character-lesson-action-btn');
+        const btnIcon = actionBtn ? actionBtn.querySelector('.btn-icon') : null;
+        const btnText = actionBtn ? actionBtn.querySelector('.btn-text') : null;
         
-        // Update button text
-        const continueBtn = document.getElementById('continue-lesson-btn');
-        if (continueBtn) {
-            continueBtn.textContent = 'Try Again (Enter)';
+        if (btnIcon) btnIcon.textContent = '💪';
+        if (btnText) btnText.textContent = 'Try Again';
+        
+        // Update instruction text for retry
+        const instructionEl = document.querySelector('.action-instruction');
+        if (instructionEl) {
+            instructionEl.textContent = 'Let\'s practice more! Press ENTER or click above';
         }
     }
     
@@ -3007,6 +3130,11 @@ class LessonCompletionManager {
         
         // Remove completion animation from body
         document.body.classList.remove('completion-active');
+        
+        // Reset popup state classes
+        if (this.popup) {
+            this.popup.className = 'lesson-completion-popup';
+        }
         
         // Reset retry mode when hiding
         this.isRetryMode = false;
