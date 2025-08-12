@@ -2643,21 +2643,8 @@ class ProgressiveLessonSystem {
             this.createCharacterBoxes();
             this.resetTest();
             
-            // Sync with traditional lesson manager for first 5 lessons
-            if (window.lessonManager && window.lessonData.currentLesson <= 5) {
-                const lessonIndex = window.lessonData.currentLesson - 1;
-                if (lessonIndex < window.lessonManager.lessons.length) {
-                    // Mark current lesson as completed and unlock next
-                    if (lessonIndex > 0) {
-                        window.lessonManager.lessons[lessonIndex - 1].completed = true;
-                    }
-                    window.lessonManager.lessons[lessonIndex].unlocked = true;
-                    
-                    // Save progress and update UI
-                    window.lessonManager.saveLessonProgress();
-                    window.lessonManager.updateAllLessonCards();
-                }
-            }
+            // Character lessons and word lessons are now completely independent systems
+            // No cross-system synchronization to avoid conflicts
             
             // Refresh lesson carousel to show new progress
             if (window.lessonCarousel) {
