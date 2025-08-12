@@ -2471,7 +2471,7 @@ class ProgressiveLessonSystem {
         const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 0;
         const wpm = this.calculateWPM();
         
-        const requiredMinChars = Math.max(5, Math.floor(this.currentLesson.minChars * 0.5));
+        const requiredMinChars = Math.max(3, Math.floor(this.currentLesson.minChars * 0.2)); // Only require 20% of min chars
         
         console.log('Lesson completion check:', {
             lesson: this.currentLesson.id,
@@ -2484,15 +2484,25 @@ class ProgressiveLessonSystem {
             requiredMinChars: requiredMinChars
         });
         
-        // Check if lesson requirements are met (with generous flexibility for better UX)
-        const passedAccuracy = accuracy >= Math.max(75, this.currentLesson.targetAccuracy - 15); // Allow 15% flexibility
-        const passedWPM = wpm >= Math.max(3, this.currentLesson.targetWPM - 8); // Allow 8 WPM flexibility  
-        const passedMinChars = this.correctChars >= requiredMinChars; // Require only 50% of min chars
+        // Check if lesson requirements are met (with very generous flexibility for better UX)
+        const passedAccuracy = accuracy >= Math.max(70, this.currentLesson.targetAccuracy - 20); // Allow 20% flexibility, min 70%
+        const passedWPM = wpm >= Math.max(2, this.currentLesson.targetWPM - 10); // Allow 10 WPM flexibility, min 2 WPM
+        
+        // User-friendly approach: Pass if ANY of these conditions are met:
+        // 1. Met the reduced min chars requirement, OR  
+        // 2. Practiced for 8+ seconds with 75%+ accuracy and typed at least 5 chars, OR
+        // 3. Practiced for 15+ seconds with 70%+ accuracy and typed at least 3 chars
+        const passedMinChars = this.correctChars >= requiredMinChars || 
+                              (this.timeElapsed >= 8 && accuracy >= 75 && this.correctChars >= 5) ||
+                              (this.timeElapsed >= 15 && accuracy >= 70 && this.correctChars >= 3);
         
         console.log('Lesson completion results:', {
             passedAccuracy,
             passedWPM,
-            passedMinChars
+            passedMinChars,
+            condition1: `${this.correctChars} >= ${requiredMinChars} (${this.correctChars >= requiredMinChars})`,
+            condition2: `${this.timeElapsed}s >= 8s && ${accuracy}% >= 75% && ${this.correctChars} >= 5 (${this.timeElapsed >= 8 && accuracy >= 75 && this.correctChars >= 5})`,
+            condition3: `${this.timeElapsed}s >= 15s && ${accuracy}% >= 70% && ${this.correctChars} >= 3 (${this.timeElapsed >= 15 && accuracy >= 70 && this.correctChars >= 3})`
         });
         
         if (passedAccuracy && passedWPM && passedMinChars) {
