@@ -1040,36 +1040,7 @@ class LessonManager {
     startLesson(lessonIndex) {
         const lesson = this.lessons[lessonIndex];
         if (lesson && lesson.unlocked) {
-            // Check if this is a character lesson (lessons 1-5 are foundation/character lessons)
-            if (lessonIndex < 5) {
-                // Character lessons use the progressive lesson system
-                navigationManager.navigateTo('character-lesson');
-                
-                // Set the specific lesson for the progressive system
-                setTimeout(() => {
-                    if (window.progressiveLesson && window.lessonData) {
-                        // Map lesson index to lesson data structure (1-based)
-                        const progressiveLessonIndex = lessonIndex + 1;
-                        const lessonDataStructure = window.lessonData.lessonStructure[lessonIndex];
-                        
-                        if (lessonDataStructure) {
-                            window.progressiveLesson.currentLesson = lessonDataStructure;
-                            window.progressiveLesson.practiceText = window.lessonData.generatePracticeText(lessonDataStructure);
-                            window.progressiveLesson.resetTest();
-                            
-                            // Update lesson display
-                            const titleEl = document.getElementById('lesson-title-display');
-                            const descEl = document.getElementById('lesson-description-display');
-                            if (titleEl) titleEl.textContent = lessonDataStructure.title;
-                            if (descEl) descEl.textContent = lessonDataStructure.description;
-                        }
-                    }
-                }, 100);
-                
-                return;
-            }
-            
-            // Switch to lesson interface page for non-character lessons
+            // All lessons in the lesson manager use the lesson interface (word-based lessons)
             navigationManager.navigateTo('lesson-interface');
             
             // Small delay to ensure page is loaded before setting lesson
