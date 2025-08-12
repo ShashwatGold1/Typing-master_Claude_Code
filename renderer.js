@@ -1,5 +1,11 @@
 const { ipcRenderer } = require('electron');
 
+// Helper function to get display WPM for character lessons (capped at 25)
+function getDisplayWPM(lesson) {
+    // Cap character lesson WPM display at 25 for better UX
+    return Math.min(25, lesson.targetWPM);
+}
+
 // Title bar controls
 document.getElementById('minimize-btn').addEventListener('click', () => {
     ipcRenderer.send('window-minimize');
@@ -3132,7 +3138,7 @@ class LessonCompletionManager {
         // Update next lesson preview to show targets
         const nextLessonEl = document.getElementById('next-lesson-preview');
         if (nextLessonEl) {
-            const targetMessage = `Target: ${lesson.targetAccuracy}% accuracy, ${lesson.targetWPM} WPM`;
+            const targetMessage = `Target: ${lesson.targetAccuracy}% accuracy, ${getDisplayWPM(lesson)} WPM`;
             nextLessonEl.textContent = targetMessage;
         }
         
@@ -3812,7 +3818,7 @@ class LessonCarousel {
             <div class="lesson-title">${lesson.title}</div>
             <div class="lesson-meta">
                 <div class="lesson-phase">${lesson.phase}</div>
-                <div class="lesson-target">${lesson.targetWPM} WPM</div>
+                <div class="lesson-target">${getDisplayWPM(lesson)} WPM</div>
             </div>
             <div class="lesson-keys">${lessonKeys}${moreKeys}</div>
         `;
