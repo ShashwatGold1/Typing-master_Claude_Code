@@ -1320,7 +1320,7 @@ class AnimationManager {
 
     setupHoverEffects() {
         // Add smooth hover effects to interactive elements
-        const interactiveElements = document.querySelectorAll('.nav-item, .btn, .lesson-card, .game-card, .stat-card');
+        const interactiveElements = document.querySelectorAll('.nav-item, .btn, .lesson-card, .character-lesson-card, .game-card, .stat-card');
         
         interactiveElements.forEach(element => {
             element.addEventListener('mouseenter', () => {
@@ -3629,7 +3629,7 @@ class LessonCarousel {
 
     createLessonCard(lesson, lessonNumber) {
         const card = document.createElement('div');
-        card.className = 'lesson-card';
+        card.className = 'character-lesson-card';
         card.dataset.lesson = lessonNumber;
 
         // Determine card status
@@ -3688,10 +3688,10 @@ class LessonCarousel {
 
     updateCarousel() {
         // Update card states
-        const cards = this.cardsContainer.querySelectorAll('.lesson-card');
+        const cards = this.cardsContainer.querySelectorAll('.character-lesson-card');
         cards.forEach((card, index) => {
             const lessonNum = index + 1;
-            card.className = 'lesson-card';
+            card.className = 'character-lesson-card';
             
             if (lessonNum < this.currentLesson) {
                 card.classList.add('completed');
@@ -3710,7 +3710,7 @@ class LessonCarousel {
     }
 
     scrollToCurrentLesson() {
-        const currentCard = this.cardsContainer.querySelector('.lesson-card.current');
+        const currentCard = this.cardsContainer.querySelector('.character-lesson-card.current');
         if (currentCard && this.carousel) {
             const cardRect = currentCard.getBoundingClientRect();
             const carouselRect = this.carousel.getBoundingClientRect();
