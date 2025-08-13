@@ -3020,13 +3020,17 @@ class LessonCompletionManager {
             }
         }
         
-        // Format the preview message
+        // Get target information
+        const targetWPM = nextLesson.targetWPM ? Math.min(25, nextLesson.targetWPM) : 'TBD';
+        const targetAccuracy = nextLesson.targetAccuracy || 'TBD';
+        
+        // Format the preview message with both keys and targets
         if (nextKeys.length > 0) {
             const keyList = nextKeys.join(', ');
-            return `Next: Learn ${keyList}`;
+            return `Next: Learn ${keyList} • Target: ${targetAccuracy}% accuracy, ${targetWPM} WPM`;
         } else {
-            // Fallback to lesson title
-            return `Next: ${nextLesson.title || 'Continue your journey'}`;
+            // Fallback with just targets
+            return `Next: ${nextLesson.title || 'Continue your journey'} • Target: ${targetAccuracy}% accuracy, ${targetWPM} WPM`;
         }
     }
     
