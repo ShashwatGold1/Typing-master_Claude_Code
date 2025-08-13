@@ -2936,20 +2936,53 @@ class LessonCompletionManager {
         return result;
     }
     
+    // Success messages for character lessons
+    getSuccessMessages() {
+        return [
+            "Your fingers are learning! Keep building that muscle memory.",
+            "Muscle memory is developing nicely. Practice makes it automatic.",
+            "You're doing great! Every practice session makes you better.",
+            "Skills are growing! You're becoming a better typist daily.",
+            "Keep practicing! You're getting better every single session.",
+            "Progress made! Your typing abilities are steadily getting stronger.",
+            "Foundation built! Now let's refine your speed and precision.",
+            "Great work! Consistency is the secret to mastery.",
+            "Each keystroke trains your fingers. Keep building those patterns!",
+            "Nice effort! Practice is the key to improvement.",
+            "Your hands are getting stronger. Muscle memory takes time.",
+            "Technique improving! You're developing excellent typing form and rhythm.",
+            "Keep going! Your dedication will pay off soon enough.",
+            "Skills unlocked! Your typing journey is moving in right direction.",
+            "Well done! Keep going to strengthen your technique."
+        ];
+    }
+    
+    // Failure messages for character lessons
+    getFailureMessages() {
+        return [
+            "Muscle memory takes time. Keep training those fingers!",
+            "Your fingers need more practice to learn patterns.",
+            "Don't worry! Every expert was once a beginner.",
+            "Keep trying! Progress happens one keystroke at a time.",
+            "Learning happens through practice. Let's try again together!",
+            "Each attempt teaches your fingers something new today.",
+            "Persistence pays off! Let's practice this lesson again.",
+            "You're building foundations! Rome wasn't built in a day.",
+            "Try again! Practice makes perfect with time and patience.",
+            "Keep going! You're learning something new every attempt.",
+            "Stay positive! Learning takes patience and consistent practice.",
+            "Mistakes are part of learning. Keep practicing patiently!",
+            "Your brain is processing new patterns. Give it time.",
+            "Each attempt trains your muscles. Keep building memory!",
+            "Stay focused! Your dedication will lead to success."
+        ];
+    }
+    
     // Generate contextual fallback messages based on performance
     generateFallbackMessage(lesson, accuracy, wpm) {
-        const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
-        
-        // Character lesson friendly WPM thresholds (capped at 25 WPM max)
-        if (accuracy >= 95 && wpm >= 20) {
-            return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
-        } else if (accuracy >= 90) {
-            return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
-        } else if (wpm >= 15) {
-            return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
-        } else {
-            return `Lesson completed! You've successfully finished the ${lessonTitle}. Practice makes perfect!`;
-        }
+        const successMessages = this.getSuccessMessages();
+        const randomIndex = Math.floor(Math.random() * successMessages.length);
+        return successMessages[randomIndex];
     }
     
     // Generate fallback keys learned text
@@ -3111,7 +3144,9 @@ class LessonCompletionManager {
         // Update message for retry
         const messageEl = document.getElementById('completion-message');
         if (messageEl) {
-            const retryMessage = `You're making great progress! Every keystroke brings you closer to mastery. Let's practice a bit more to hit those targets!`;
+            const failureMessages = this.getFailureMessages();
+            const randomIndex = Math.floor(Math.random() * failureMessages.length);
+            const retryMessage = failureMessages[randomIndex];
             messageEl.textContent = retryMessage;
         }
         
@@ -3221,18 +3256,9 @@ class LessonCompletionManager {
     
     // Generate contextual fallback messages based on performance
     generateFallbackMessage(lesson, accuracy, wpm) {
-        const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
-        
-        // Character lesson friendly WPM thresholds (capped at 25 WPM max)
-        if (accuracy >= 95 && wpm >= 20) {
-            return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
-        } else if (accuracy >= 90) {
-            return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
-        } else if (wpm >= 15) {
-            return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
-        } else {
-            return `Lesson completed! You've successfully finished the ${lessonTitle}. Practice makes perfect!`;
-        }
+        const successMessages = this.getSuccessMessages();
+        const randomIndex = Math.floor(Math.random() * successMessages.length);
+        return successMessages[randomIndex];
     }
     
     // Generate fallback keys learned text
