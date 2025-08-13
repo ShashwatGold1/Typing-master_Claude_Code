@@ -2492,9 +2492,9 @@ class ProgressiveLessonSystem {
             requiredMinChars: requiredMinChars
         });
         
-        // Check if lesson requirements are met (with balanced flexibility for character lessons)
-        const passedAccuracy = accuracy >= Math.max(80, this.currentLesson.targetAccuracy - 10); // Allow 10% flexibility, min 80%
-        const passedWPM = wpm >= Math.max(2, cappedTargetWPM - 3); // Allow only 3 WPM flexibility for capped targets, min 2 WPM
+        // Check if lesson requirements are met (strict target validation)
+        const passedAccuracy = accuracy >= this.currentLesson.targetAccuracy; // Must meet exact target accuracy
+        const passedWPM = wpm >= cappedTargetWPM; // Must meet exact target WPM (capped at 25)
         
         // Require BOTH accuracy AND WPM targets, with flexible character requirements:
         // Pass if character requirement is met through ANY of these conditions:
@@ -2509,7 +2509,7 @@ class ProgressiveLessonSystem {
             passedAccuracy,
             passedWPM,
             passedMinChars,
-            wpmRequirement: `${wpm} >= ${Math.max(2, cappedTargetWPM - 3)} (${passedWPM})`,
+            wpmRequirement: `${wpm} >= ${cappedTargetWPM} (${passedWPM})`,
             condition1: `${this.correctChars} >= ${requiredMinChars} (${this.correctChars >= requiredMinChars})`,
             condition2: `${this.timeElapsed}s >= 8s && ${this.correctChars} >= 5 (${this.timeElapsed >= 8 && this.correctChars >= 5})`,
             condition3: `${this.timeElapsed}s >= 15s && ${this.correctChars} >= 3 (${this.timeElapsed >= 15 && this.correctChars >= 3})`
