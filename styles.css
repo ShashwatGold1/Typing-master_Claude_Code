@@ -1991,11 +1991,13 @@ select {
 
 .completion-stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 86px 104px 86px 86px;
+    gap: 12px;
     margin-bottom: 24px;
     padding: 20px;
-    background: #f8fafc;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    /* box-shadow: 1px 1px 4px #c5be95, -1px -1px 4px #d0d1b8; */
     border-radius: 12px;
 }
 
@@ -2120,13 +2122,12 @@ select {
     color: white;
     border: none;
     border-radius: 12px;
-    padding: 16px 32px;
+    padding: 10px 16px 10px 16px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-    min-width: 200px;
     margin-bottom: 16px;
     overflow: hidden;
 }

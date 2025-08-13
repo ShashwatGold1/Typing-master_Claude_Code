@@ -2832,7 +2832,7 @@ class LessonCompletionManager {
         const targetAccuracyEl = document.getElementById('target-accuracy-display-popup');
         const finalTimeEl = document.getElementById('final-time-display');
         
-        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
+        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}`;
         if (finalWpmEl) finalWpmEl.textContent = wpm;
         if (targetWpmEl) targetWpmEl.textContent = getDisplayWPM(lesson);
         if (targetAccuracyEl) targetAccuracyEl.textContent = `${lesson.targetAccuracy}%`;
@@ -3121,7 +3121,7 @@ class LessonCompletionManager {
         const targetWpmEl = document.getElementById('target-wpm-display');
         const finalTimeEl = document.getElementById('final-time-display');
         
-        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
+        if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}`;
         if (finalWpmEl) finalWpmEl.textContent = wpm;
         if (targetWpmEl) targetWpmEl.textContent = getDisplayWPM(lesson);
         if (finalTimeEl) {
