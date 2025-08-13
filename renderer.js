@@ -2829,11 +2829,13 @@ class LessonCompletionManager {
         const finalAccuracyEl = document.getElementById('final-accuracy-display');
         const finalWpmEl = document.getElementById('final-wpm-display');
         const targetWpmEl = document.getElementById('target-wpm-display');
+        const targetAccuracyEl = document.getElementById('target-accuracy-display-popup');
         const finalTimeEl = document.getElementById('final-time-display');
         
         if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}%`;
         if (finalWpmEl) finalWpmEl.textContent = wpm;
         if (targetWpmEl) targetWpmEl.textContent = getDisplayWPM(lesson);
+        if (targetAccuracyEl) targetAccuracyEl.textContent = `${lesson.targetAccuracy}%`;
         if (finalTimeEl) {
             const minutes = Math.floor(timeElapsed / 60);
             const seconds = timeElapsed % 60;
