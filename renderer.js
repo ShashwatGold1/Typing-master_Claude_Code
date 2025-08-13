@@ -2982,8 +2982,8 @@ class LessonCompletionManager {
     generateNextLessonPreview(currentLessonId) {
         // Get lessons from available sources
         let lessons = [];
-        if (window.lessonData && window.lessonData.lessons) {
-            lessons = window.lessonData.lessons;
+        if (window.lessonData && window.lessonData.lessonStructure) {
+            lessons = window.lessonData.lessonStructure;
         } else if (window.lessonManager && window.lessonManager.lessons) {
             lessons = window.lessonManager.lessons;
         } else if (window.progressiveLesson && window.progressiveLesson.lessons) {
@@ -2992,8 +2992,8 @@ class LessonCompletionManager {
         
         if (!lessons.length) return 'Continue your typing journey!';
         
-        // Find current lesson index
-        const currentIndex = lessons.findIndex(lesson => lesson.id === currentLessonId);
+        // Find current lesson index (handle both numeric and string IDs)
+        const currentIndex = lessons.findIndex(lesson => lesson.id == currentLessonId);
         if (currentIndex === -1 || currentIndex >= lessons.length - 1) {
             return 'You\'ve completed all typing lessons! 🎉';
         }
@@ -3002,8 +3002,10 @@ class LessonCompletionManager {
         const nextLesson = lessons[currentIndex + 1];
         if (!nextLesson) return 'Continue your typing journey!';
         
-        // Extract keys from completion data if available
+        // Extract keys from multiple sources
         let nextKeys = [];
+        
+        // First try completion.keysLearned
         if (nextLesson.completion && nextLesson.completion.keysLearned) {
             if (Array.isArray(nextLesson.completion.keysLearned)) {
                 nextKeys = nextLesson.completion.keysLearned;
@@ -3012,7 +3014,12 @@ class LessonCompletionManager {
             }
         }
         
-        // Extract keys from lesson title or description if no completion data
+        // Try lesson.keys array (from lesson-data.js format)
+        if (!nextKeys.length && nextLesson.keys && Array.isArray(nextLesson.keys)) {
+            nextKeys = nextLesson.keys.map(key => key === ' ' ? 'Space' : key.toUpperCase());
+        }
+        
+        // Extract keys from lesson title as fallback
         if (!nextKeys.length && nextLesson.title) {
             const keyMatches = nextLesson.title.match(/([A-Z0-9\&\-\;\,\.\'\\/\[\]\\\\\\`\(\)\{\}\<\>\|\^\~\@\#\$\%\*\+\=]+)/g);
             if (keyMatches) {
@@ -3235,11 +3242,11 @@ class LessonCompletionManager {
             }
         }
         
-        // Update next lesson preview to show targets
+        // Update next lesson preview with enhanced data
         const nextLessonEl = document.getElementById('next-lesson-preview');
         if (nextLessonEl) {
-            const targetMessage = `Target: ${lesson.targetAccuracy}% accuracy, ${getDisplayWPM(lesson)} WPM`;
-            nextLessonEl.textContent = targetMessage;
+            const nextPreview = this.generateNextLessonPreview(lesson.id);
+            nextLessonEl.textContent = nextPreview;
         }
         
         // Update button for retry mode  
