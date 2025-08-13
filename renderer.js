@@ -3242,11 +3242,10 @@ class LessonCompletionManager {
             }
         }
         
-        // Update next lesson preview with enhanced data
+        // Update next lesson preview for retry - show "Try again current lesson"
         const nextLessonEl = document.getElementById('next-lesson-preview');
         if (nextLessonEl) {
-            const nextPreview = this.generateNextLessonPreview(lesson.id);
-            nextLessonEl.textContent = nextPreview;
+            nextLessonEl.textContent = 'Try again current lesson';
         }
         
         // Update button for retry mode  
