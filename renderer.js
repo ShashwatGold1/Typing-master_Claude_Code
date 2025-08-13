@@ -2923,12 +2923,12 @@ class LessonCompletionManager {
             result.keysLearned = Array.isArray(lesson.completion.keysLearned) 
                 ? lesson.completion.keysLearned.join(', ')
                 : lesson.completion.keysLearned || this.generateFallbackKeysLearned(lesson);
-            result.nextPreview = lesson.completion.nextPreview || '';
+            result.nextPreview = lesson.completion.nextPreview || this.generateNextLessonPreview(lesson.id);
         } else {
             // Generate complete fallback data
             result.message = this.generateFallbackMessage(lesson, accuracy, wpm);
             result.keysLearned = this.generateFallbackKeysLearned(lesson);
-            result.nextPreview = 'Continue your typing journey!';
+            result.nextPreview = this.generateNextLessonPreview(lesson.id);
             
             console.warn('LessonCompletionManager: No completion data found for lesson, using intelligent fallbacks');
         }
@@ -2976,6 +2976,58 @@ class LessonCompletionManager {
             "Each attempt trains your muscles. Keep building memory!",
             "Stay focused! Your dedication will lead to success."
         ];
+    }
+    
+    // Generate enhanced next lesson preview
+    generateNextLessonPreview(currentLessonId) {
+        // Get lessons from available sources
+        let lessons = [];
+        if (window.lessonData && window.lessonData.lessons) {
+            lessons = window.lessonData.lessons;
+        } else if (window.lessonManager && window.lessonManager.lessons) {
+            lessons = window.lessonManager.lessons;
+        } else if (window.progressiveLesson && window.progressiveLesson.lessons) {
+            lessons = window.progressiveLesson.lessons;
+        }
+        
+        if (!lessons.length) return 'Continue your typing journey!';
+        
+        // Find current lesson index
+        const currentIndex = lessons.findIndex(lesson => lesson.id === currentLessonId);
+        if (currentIndex === -1 || currentIndex >= lessons.length - 1) {
+            return 'You\'ve completed all typing lessons! 🎉';
+        }
+        
+        // Get next lesson
+        const nextLesson = lessons[currentIndex + 1];
+        if (!nextLesson) return 'Continue your typing journey!';
+        
+        // Extract keys from completion data if available
+        let nextKeys = [];
+        if (nextLesson.completion && nextLesson.completion.keysLearned) {
+            if (Array.isArray(nextLesson.completion.keysLearned)) {
+                nextKeys = nextLesson.completion.keysLearned;
+            } else if (typeof nextLesson.completion.keysLearned === 'string') {
+                nextKeys = [nextLesson.completion.keysLearned];
+            }
+        }
+        
+        // Extract keys from lesson title or description if no completion data
+        if (!nextKeys.length && nextLesson.title) {
+            const keyMatches = nextLesson.title.match(/([A-Z0-9\&\-\;\,\.\'\\/\[\]\\\\\\`\(\)\{\}\<\>\|\^\~\@\#\$\%\*\+\=]+)/g);
+            if (keyMatches) {
+                nextKeys = keyMatches.slice(-5); // Take last 5 key groups
+            }
+        }
+        
+        // Format the preview message
+        if (nextKeys.length > 0) {
+            const keyList = nextKeys.join(', ');
+            return `Next: Learn ${keyList}`;
+        } else {
+            // Fallback to lesson title
+            return `Next: ${nextLesson.title || 'Continue your journey'}`;
+        }
     }
     
     // Generate contextual fallback messages based on performance
@@ -3241,12 +3293,12 @@ class LessonCompletionManager {
             result.keysLearned = Array.isArray(lesson.completion.keysLearned) 
                 ? lesson.completion.keysLearned.join(', ')
                 : lesson.completion.keysLearned || this.generateFallbackKeysLearned(lesson);
-            result.nextPreview = lesson.completion.nextPreview || '';
+            result.nextPreview = lesson.completion.nextPreview || this.generateNextLessonPreview(lesson.id);
         } else {
             // Generate complete fallback data
             result.message = this.generateFallbackMessage(lesson, accuracy, wpm);
             result.keysLearned = this.generateFallbackKeysLearned(lesson);
-            result.nextPreview = 'Continue your typing journey!';
+            result.nextPreview = this.generateNextLessonPreview(lesson.id);
             
             console.warn('LessonCompletionManager: No completion data found for lesson, using fallbacks');
         }

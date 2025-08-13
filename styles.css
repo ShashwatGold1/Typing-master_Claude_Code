@@ -2022,9 +2022,9 @@ select {
 .completion-stats {
     display: grid;
     grid-template-columns: 104px 86px 86px;
-    gap: 12px;
+    gap: 40px;
     margin-bottom: 24px;
-    padding: 20px;
+    padding: 20px 38px 20px 38px;
     background: #ffffff;
     border: 1px solid #eeeeee;
     /* box-shadow: 1px 1px 4px #c5be95, -1px -1px 4px #d0d1b8; */
