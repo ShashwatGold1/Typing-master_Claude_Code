@@ -3024,13 +3024,13 @@ class LessonCompletionManager {
         const targetWPM = nextLesson.targetWPM ? Math.min(25, nextLesson.targetWPM) : 'TBD';
         const targetAccuracy = nextLesson.targetAccuracy || 'TBD';
         
-        // Format the preview message with both keys and targets
+        // Format the preview message with targets first, then keys
         if (nextKeys.length > 0) {
             const keyList = nextKeys.join(', ');
-            return `Next: Learn ${keyList} • Target: ${targetAccuracy}% accuracy, ${targetWPM} WPM`;
+            return `Target: ${targetAccuracy}% accuracy, ${targetWPM} WPM | Next lesson keys: ${keyList}`;
         } else {
             // Fallback with just targets
-            return `Next: ${nextLesson.title || 'Continue your journey'} • Target: ${targetAccuracy}% accuracy, ${targetWPM} WPM`;
+            return `Target: ${targetAccuracy}% accuracy, ${targetWPM} WPM | Next: ${nextLesson.title || 'Continue your journey'}`;
         }
     }
     
