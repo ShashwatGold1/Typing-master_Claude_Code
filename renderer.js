@@ -2194,6 +2194,14 @@ class ProgressiveLessonSystem {
         this.startTime = null;
         this.isActive = false;
         this.timer = null;
+        
+        // Batch tracking for minimum practice requirement
+        this.completedBatches = 0;
+        this.minRequiredBatches = 5;
+        this.batchCorrectChars = 0; // Track correct chars in current batch only
+        this.totalCorrectChars = 0; // Track cumulative correct chars across all batches
+        this.totalTypedChars = 0; // Track cumulative typed chars across all batches
+        this.currentBatchSequence = ''; // Track current batch typing only
         this.wpmUpdateTimer = null;
         this.timeElapsed = 0;
         this.timeLimit = 600; // 10 minutes maximum
@@ -2271,7 +2279,8 @@ class ProgressiveLessonSystem {
         const lessonProgressDisplay = document.getElementById('lesson-progress-display');
         const progressFill = document.getElementById('lesson-progress-fill');
         
-        if (titleDisplay) titleDisplay.textContent = this.currentLesson.title;
+        // Update title with batch progress
+        this.updateLessonTitleWithProgress();
         if (descriptionDisplay) descriptionDisplay.textContent = this.currentLesson.description;
         if (currentLessonDisplay) currentLessonDisplay.textContent = `Lesson ${this.currentLesson.id}`;
         if (currentPhaseDisplay) currentPhaseDisplay.textContent = this.currentLesson.phase;
@@ -2361,25 +2370,27 @@ class ProgressiveLessonSystem {
             return;
         }
         
-        // Add character to typed sequence
-        this.typedSequence += key;
+        // Add character to current batch sequence and full sequence
+        this.currentBatchSequence += key;
+        this.typedSequence += key; // Still keep full sequence for other functionality
         this.currentIndex++;
-        this.totalChars++;
+        // Note: totalChars is now calculated in updateCharacterBoxes() to handle batches correctly
         
         // Update visual feedback
         this.updateCharacterBoxes();
         this.updateStats();
         
-        // Check if lesson is complete
+        // Check if we've completed current batch of 24 characters
         if (this.currentIndex >= displayedLength) {
-            this.checkLessonCompletion();
+            this.handleBatchCompletion();
         }
     }
     
     handleBackspace() {
         if (this.currentIndex > 0) {
             this.currentIndex--;
-            this.totalChars = Math.max(0, this.totalChars - 1);
+            // Note: totalChars is now calculated in updateCharacterBoxes() to handle batches correctly
+            this.currentBatchSequence = this.currentBatchSequence.slice(0, -1);
             this.typedSequence = this.typedSequence.slice(0, -1);
             this.updateCharacterBoxes();
             this.updateStats();
@@ -2388,20 +2399,20 @@ class ProgressiveLessonSystem {
     
     updateCharacterBoxes() {
         const boxes = document.querySelectorAll('.char-box');
-        this.correctChars = 0;
+        this.batchCorrectChars = 0; // Reset current batch counter only
         
         boxes.forEach((box, index) => {
             // Clear previous states
             box.classList.remove('correct', 'incorrect', 'next-key');
             
             if (index < this.currentIndex) {
-                // Already typed
-                const typedChar = this.typedSequence[index];
+                // Already typed in current batch
+                const typedChar = this.currentBatchSequence[index];
                 const expectedChar = box.textContent;
                 
                 if (typedChar === expectedChar) {
                     box.classList.add('correct');
-                    this.correctChars++;
+                    this.batchCorrectChars++;
                 } else {
                     box.classList.add('incorrect');
                 }
@@ -2411,6 +2422,12 @@ class ProgressiveLessonSystem {
                 this.highlightFingerForNextCharacter(box.textContent);
             }
         });
+        
+        // Update cumulative correct chars (previous batches + current batch)
+        this.correctChars = this.totalCorrectChars + this.batchCorrectChars;
+        
+        // Update cumulative total chars (previous batches + current batch position)  
+        this.totalChars = this.totalTypedChars + this.currentIndex;
     }
     
     highlightFingerForNextCharacter(char) {
@@ -2457,6 +2474,86 @@ class ProgressiveLessonSystem {
             this.wpmUpdateTimer = null;
         }
         this.updateStats();
+    }
+    
+    handleBatchCompletion() {
+        // Increment completed batches counter
+        this.completedBatches++;
+        
+        // Calculate current stats
+        const accuracy = this.totalChars > 0 ? Math.round((this.correctChars / this.totalChars) * 100) : 0;
+        const wpm = this.calculateWPM();
+        
+        // Check if we've met the minimum requirements to potentially complete the lesson
+        const requiredMinChars = Math.max(5, Math.floor(this.currentLesson.minChars * 0.5));
+        const cappedTargetWPM = Math.min(25, this.currentLesson.targetWPM);
+        
+        const passedAccuracy = accuracy >= this.currentLesson.targetAccuracy;
+        const passedWPM = wpm >= cappedTargetWPM;
+        const passedMinChars = this.correctChars >= requiredMinChars || 
+                              (this.timeElapsed >= 8 && this.correctChars >= 5) ||
+                              (this.timeElapsed >= 15 && this.correctChars >= 3);
+        
+        // NEW: Check minimum batch requirement
+        const passedMinBatches = this.completedBatches >= this.minRequiredBatches;
+        
+        console.log('Batch completion check:', {
+            lesson: this.currentLesson.id,
+            completedBatches: this.completedBatches,
+            minRequiredBatches: this.minRequiredBatches,
+            accuracy: accuracy,
+            wpm: wpm,
+            correctChars: this.correctChars,
+            requiredMinChars: requiredMinChars,
+            passedAccuracy,
+            passedWPM, 
+            passedMinChars,
+            passedMinBatches,
+            canComplete: passedAccuracy && passedWPM && passedMinChars && passedMinBatches
+        });
+        
+        // If all requirements are met INCLUDING minimum batches, complete the lesson
+        if (passedAccuracy && passedWPM && passedMinChars && passedMinBatches) {
+            this.checkLessonCompletion();
+        } else {
+            // Otherwise, generate new text and continue practicing
+            if (!passedMinBatches) {
+                console.log(`Must complete at least ${this.minRequiredBatches} batches. Current: ${this.completedBatches}`);
+            }
+            this.generateNewTextAndContinue();
+        }
+    }
+    
+    generateNewTextAndContinue() {
+        console.log('Generating new text to continue practicing...');
+        
+        // Save current batch stats to cumulative totals before starting new batch
+        this.totalCorrectChars += this.batchCorrectChars;
+        this.totalTypedChars += this.currentIndex;
+        
+        console.log('Batch completed - Stats saved:', {
+            batchCorrectChars: this.batchCorrectChars,
+            batchTotalChars: this.currentIndex,
+            cumulativeCorrectChars: this.totalCorrectChars,
+            cumulativeTotalChars: this.totalTypedChars,
+            completedBatches: this.completedBatches
+        });
+        
+        // Generate new practice text
+        this.practiceText = window.lessonData.generatePracticeText(this.currentLesson);
+        console.log('New practice text generated:', this.practiceText);
+        
+        // Reset current batch tracking only (keep cumulative stats)
+        this.currentIndex = 0;
+        this.batchCorrectChars = 0;
+        this.currentBatchSequence = ''; // Reset current batch sequence for new batch
+        // Note: Don't reset typedSequence here as it tracks the full session
+        
+        // Recreate character boxes with new text
+        this.createCharacterBoxes();
+        
+        // Continue the test without resetting cumulative stats
+        console.log('Continuing practice with new text batch');
     }
     
     checkLessonCompletion() {
@@ -2595,6 +2692,36 @@ class ProgressiveLessonSystem {
         
         if (this.wpmValue) this.wpmValue.textContent = wpm;
         if (this.accuracyValue) this.accuracyValue.textContent = `${accuracy}%`;
+        
+        // Update batch progress indicator (optional UI element)
+        const batchProgressElement = document.getElementById('batch-progress');
+        if (batchProgressElement) {
+            const progress = `${this.completedBatches}/${this.minRequiredBatches} batches`;
+            batchProgressElement.textContent = progress;
+        }
+        
+        // Update lesson title with batch progress
+        this.updateLessonTitleWithProgress();
+        
+        // Log batch progress for debugging
+        if (this.completedBatches > 0 || this.currentIndex > 0) {
+            console.log('Batch Progress:', {
+                currentBatch: this.completedBatches + 1,
+                minRequired: this.minRequiredBatches,
+                currentBatchProgress: `${this.currentIndex}/24`,
+                cumulativeStats: `${this.correctChars}/${this.totalChars}`
+            });
+        }
+    }
+    
+    updateLessonTitleWithProgress() {
+        const titleElement = document.getElementById('lesson-title-display');
+        if (titleElement && this.currentLesson) {
+            const baseTitle = this.currentLesson.title;
+            const currentBatch = this.completedBatches + 1;
+            const progressTitle = `${baseTitle} - Batch ${currentBatch}/${this.minRequiredBatches}`;
+            titleElement.textContent = progressTitle;
+        }
     }
     
     updateTimeDisplay() {
@@ -2622,6 +2749,13 @@ class ProgressiveLessonSystem {
         this.totalChars = 0;
         this.timeElapsed = 0;
         this.typedSequence = '';
+        
+        // Reset all batch tracking for new lesson attempt
+        this.completedBatches = 0;
+        this.batchCorrectChars = 0;
+        this.totalCorrectChars = 0;
+        this.totalTypedChars = 0;
+        this.currentBatchSequence = '';
         
         // Add flag to prevent immediate completion check after reset
         this.justReset = true;
