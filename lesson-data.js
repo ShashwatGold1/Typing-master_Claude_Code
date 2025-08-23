@@ -4,19 +4,37 @@
 class LessonData {
     constructor() {
         this.lessonStructure = this.initializeLessonStructure();
-        this.currentLesson = this.loadProgress() || 1;
+        const progress = this.loadProgress();
+        this.currentLesson = progress.currentLesson || 1;
+        this.maxUnlockedLesson = progress.maxUnlockedLesson || 1;
         this.maxLesson = this.lessonStructure.length;
     }
 
     // Load progress from localStorage
     loadProgress() {
         const saved = localStorage.getItem('progressive-lesson-progress');
-        return saved ? parseInt(saved) : 1;
+        if (saved) {
+            try {
+                const progress = JSON.parse(saved);
+                // Handle both old format (number) and new format (object)
+                if (typeof progress === 'number') {
+                    return { currentLesson: progress, maxUnlockedLesson: progress };
+                }
+                return progress;
+            } catch (error) {
+                console.warn('Error parsing lesson progress, using defaults:', error);
+            }
+        }
+        return { currentLesson: 1, maxUnlockedLesson: 1 };
     }
 
     // Save progress to localStorage
     saveProgress() {
-        localStorage.setItem('progressive-lesson-progress', this.currentLesson.toString());
+        const progress = {
+            currentLesson: this.currentLesson,
+            maxUnlockedLesson: this.maxUnlockedLesson
+        };
+        localStorage.setItem('progressive-lesson-progress', JSON.stringify(progress));
     }
 
     // Get current lesson data
@@ -33,6 +51,10 @@ class LessonData {
     advanceLesson() {
         if (this.canAdvance()) {
             this.currentLesson++;
+            // Update max unlocked lesson if we've progressed further than before
+            if (this.currentLesson > this.maxUnlockedLesson) {
+                this.maxUnlockedLesson = this.currentLesson;
+            }
             this.saveProgress();
             return true;
         }
@@ -42,7 +64,23 @@ class LessonData {
     // Reset to lesson 1
     resetProgress() {
         this.currentLesson = 1;
+        this.maxUnlockedLesson = 1;
         this.saveProgress();
+    }
+
+    // Set current lesson for practice (doesn't affect max unlocked)
+    setCurrentLessonForPractice(lessonNumber) {
+        if (lessonNumber >= 1 && lessonNumber <= this.maxUnlockedLesson) {
+            this.currentLesson = lessonNumber;
+            this.saveProgress();
+            return true;
+        }
+        return false;
+    }
+
+    // Check if a lesson is unlocked
+    isLessonUnlocked(lessonNumber) {
+        return lessonNumber <= this.maxUnlockedLesson;
     }
 
     // Get new keys introduced in current lesson
@@ -806,8 +844,9 @@ class LessonData {
     getLessonStats() {
         return {
             current: this.currentLesson,
+            maxUnlocked: this.maxUnlockedLesson,
             total: this.maxLesson,
-            percentComplete: Math.round((this.currentLesson / this.maxLesson) * 100),
+            percentComplete: Math.round((this.maxUnlockedLesson / this.maxLesson) * 100),
             phase: this.getCurrentLesson()?.phase || "Unknown"
         };
     }

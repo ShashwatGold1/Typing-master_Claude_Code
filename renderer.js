@@ -3862,11 +3862,16 @@ class LessonCarousel {
         card.className = 'character-lesson-card';
         card.dataset.lesson = lessonNumber;
 
-        // Determine card status
-        if (lessonNumber < this.currentLesson) {
+        // Determine card status using max unlocked lesson
+        const maxUnlocked = window.lessonData?.maxUnlockedLesson || 1;
+        const current = window.lessonData?.currentLesson || 1;
+        
+        if (lessonNumber < current && lessonNumber <= maxUnlocked) {
             card.classList.add('completed');
-        } else if (lessonNumber === this.currentLesson) {
+        } else if (lessonNumber === current) {
             card.classList.add('current');
+        } else if (lessonNumber <= maxUnlocked) {
+            card.classList.add('available'); // Unlocked but not current
         } else {
             card.classList.add('locked');
         }
@@ -3887,7 +3892,7 @@ class LessonCarousel {
         `;
 
         // Add click handler for navigation (only for unlocked lessons)
-        if (lessonNumber <= this.currentLesson) {
+        if (lessonNumber <= maxUnlocked) {
             card.addEventListener('click', () => {
                 this.selectLesson(lessonNumber);
             });
@@ -3897,11 +3902,11 @@ class LessonCarousel {
     }
 
     selectLesson(lessonNumber) {
-        if (lessonNumber > this.currentLesson) return; // Can't select locked lessons
+        // Check if lesson is unlocked using the new method
+        if (!window.lessonData.isLessonUnlocked(lessonNumber)) return;
 
-        // Update lesson data
-        window.lessonData.currentLesson = lessonNumber;
-        window.lessonData.saveProgress();
+        // Set current lesson for practice (doesn't affect max unlocked)
+        window.lessonData.setCurrentLessonForPractice(lessonNumber);
 
         // Update progressive lesson system
         if (window.progressiveLesson) {
@@ -3911,22 +3916,27 @@ class LessonCarousel {
             window.progressiveLesson.resetTest();
         }
 
-        // Update carousel
-        this.currentLesson = lessonNumber;
+        // Update carousel - use lesson data's current lesson
+        this.currentLesson = window.lessonData.currentLesson;
         this.updateCarousel();
     }
 
     updateCarousel() {
-        // Update card states
+        // Update card states using the new progress system
         const cards = this.cardsContainer.querySelectorAll('.character-lesson-card');
+        const maxUnlocked = window.lessonData?.maxUnlockedLesson || 1;
+        const current = window.lessonData?.currentLesson || 1;
+        
         cards.forEach((card, index) => {
             const lessonNum = index + 1;
             card.className = 'character-lesson-card';
             
-            if (lessonNum < this.currentLesson) {
+            if (lessonNum < current && lessonNum <= maxUnlocked) {
                 card.classList.add('completed');
-            } else if (lessonNum === this.currentLesson) {
+            } else if (lessonNum === current) {
                 card.classList.add('current');
+            } else if (lessonNum <= maxUnlocked) {
+                card.classList.add('available'); // Unlocked but not current
             } else {
                 card.classList.add('locked');
             }
