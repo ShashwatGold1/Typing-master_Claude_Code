@@ -3478,55 +3478,20 @@ class KeyboardAndHandEffects {
         // Initially hide the numpad
         this.toggleKeyboardSection('hide-numpad', false);
         
-        // Monitor for numpad keys in the character container
-        this.monitorCharContainerForNumpadKeys();
+        // Monitor for numpad requirement based on lesson content only
+        this.monitorLessonNumpadRequirement();
     }
     
-    monitorCharContainerForNumpadKeys() {
-        // Define numpad keys that should trigger numpad display
-        const numpadKeys = [
-            'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 
-            'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9',
-            'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide',
-            'NumpadDecimal', 'NumpadEnter', 'NumLock'
-        ];
-        
-        // Check if current practice sequence requires numpad
+    monitorLessonNumpadRequirement() {
+        // Check if current practice sequence requires numpad based on lesson flag only
         this.numpadCheckInterval = setInterval(() => {
             const wordLesson = window.wordLesson;
             if (wordLesson) {
-                // Use the explicit numpad flag from WordLesson instead of text analysis
+                // Use the explicit numpad flag from WordLesson
                 const shouldShowNumpad = wordLesson.isNumpadSequence;
                 this.toggleKeyboardSection('hide-numpad', shouldShowNumpad);
             }
         }, 500); // Check every 500ms
-        
-        // Also listen for physical numpad key presses to show numpad temporarily
-        document.addEventListener('keydown', (e) => {
-            const characterLessonPage = document.getElementById('character-lesson-page');
-            if (!characterLessonPage || !characterLessonPage.classList.contains('active')) {
-                return;
-            }
-            
-            if (numpadKeys.includes(e.code) || e.code.startsWith('Numpad')) {
-                // Show numpad immediately when numpad key is pressed (override WordLesson flag temporarily)
-                this.toggleKeyboardSection('hide-numpad', true);
-                
-                // Keep it visible for a while
-                if (this.numpadHideTimeout) {
-                    clearTimeout(this.numpadHideTimeout);
-                }
-                
-                // Auto-hide after 10 seconds and return to WordLesson control
-                this.numpadHideTimeout = setTimeout(() => {
-                    const wordLesson = window.wordLesson;
-                    if (wordLesson) {
-                        // Return to using WordLesson's numpad flag
-                        this.toggleKeyboardSection('hide-numpad', wordLesson.isNumpadSequence);
-                    }
-                }, 10000);
-            }
-        });
     }
     
     // Removed checkIfShouldHideNumpad - now using explicit numpad flag from WordLesson

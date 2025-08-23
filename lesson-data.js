@@ -45,19 +45,79 @@ class LessonData {
         this.saveProgress();
     }
 
+    // Get new keys introduced in current lesson
+    getNewKeysForLesson(lesson) {
+        if (lesson.id === 1) return lesson.keys.filter(k => k !== ' '); // First lesson, all keys except space are new
+        
+        const currentKeys = new Set(lesson.keys);
+        const previousLesson = this.lessonStructure[lesson.id - 2]; // -2 because array is 0-indexed
+        const previousKeys = new Set(previousLesson ? previousLesson.keys : []);
+        
+        return lesson.keys.filter(key => !previousKeys.has(key) && key !== ' ');
+    }
+
+    // Get previously learned keys (excluding space)
+    getLearnedKeysForLesson(lesson) {
+        if (lesson.id === 1) return []; // First lesson, no previously learned keys
+        
+        const previousLesson = this.lessonStructure[lesson.id - 2];
+        const previousKeys = new Set(previousLesson ? previousLesson.keys : []);
+        
+        return lesson.keys.filter(key => previousKeys.has(key) && key !== ' ');
+    }
+
+    // Generate random word length with bias toward average of 5
+    getRandomWordLength() {
+        const weights = [1, 2, 4, 5, 4, 2]; // Weights for lengths 3,4,5,6,7,8
+        const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+        let random = Math.random() * totalWeight;
+        
+        for (let i = 0; i < weights.length; i++) {
+            random -= weights[i];
+            if (random <= 0) {
+                return 3 + i; // Return length 3-8
+            }
+        }
+        
+        return 5; // Fallback to average
+    }
+
     // Generate practice text for a lesson
     generatePracticeText(lesson) {
-        const keys = lesson.keys;
         const textLength = lesson.textLength || 50;
-        let practiceText = '';
+        const newKeys = this.getNewKeysForLesson(lesson);
+        const learnedKeys = this.getLearnedKeysForLesson(lesson);
+        const hasSpace = lesson.keys.includes(' ');
         
-        // Create balanced character practice
-        for (let i = 0; i < textLength; i++) {
-            if (i > 0 && i % 10 === 0 && keys.includes(' ')) {
+        // Character distribution percentages
+        const NEW_KEY_PERCENTAGE = 0.4;
+        
+        let practiceText = '';
+        let currentWordLength = 0;
+        let targetWordLength = this.getRandomWordLength();
+        let charactersAdded = 0;
+        
+        while (charactersAdded < textLength) {
+            // Decide whether to add space or character
+            if (currentWordLength >= targetWordLength && hasSpace && practiceText.length > 0) {
                 practiceText += ' ';
+                charactersAdded++;
+                currentWordLength = 0;
+                targetWordLength = this.getRandomWordLength();
             } else {
-                const randomKey = keys[Math.floor(Math.random() * keys.length)];
-                practiceText += randomKey;
+                // Choose character based on 40/60 distribution
+                const useNewKey = Math.random() < NEW_KEY_PERCENTAGE && newKeys.length > 0;
+                const keyPool = useNewKey ? newKeys : learnedKeys;
+                
+                // Fallback to all non-space keys if no appropriate pool
+                const finalKeyPool = keyPool.length > 0 ? keyPool : lesson.keys.filter(k => k !== ' ');
+                
+                if (finalKeyPool.length > 0) {
+                    const randomKey = finalKeyPool[Math.floor(Math.random() * finalKeyPool.length)];
+                    practiceText += randomKey;
+                    charactersAdded++;
+                    currentWordLength++;
+                }
             }
         }
         
