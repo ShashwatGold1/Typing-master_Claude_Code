@@ -70,6 +70,7 @@
                         <a href="#" class="nav-item" data-page="games">
                             <span class="nav-icon">🎮</span>
                             Games
+                            <span class="upcoming-badge">Soon</span>
                         </a>
                     </nav>
                 </div>
@@ -80,10 +81,12 @@
                         <a href="#" class="nav-item" data-page="statistics">
                             <span class="nav-icon">📊</span>
                             Statistics
+                            <span class="upcoming-badge">Soon</span>
                         </a>
                         <a href="#" class="nav-item" data-page="progress">
                             <span class="nav-icon">📈</span>
                             Progress
+                            <span class="upcoming-badge">Soon</span>
                         </a>
                     </nav>
                 </div>
@@ -94,12 +97,18 @@
                         <a href="#" class="nav-item" data-page="settings">
                             <span class="nav-icon">⚙️</span>
                             Settings
+                            <span class="upcoming-badge">Soon</span>
                         </a>
                         <a href="#" class="nav-item" data-page="profile">
                             <span class="nav-icon">👤</span>
                             Profile
+                            <span class="upcoming-badge">Soon</span>
                         </a>
                     </nav>
+                </div>
+                
+                <div class="sidebar-version">
+                    Version 1.0.0
                 </div>
             </div>
 
@@ -437,6 +446,11 @@
 
                             <!-- Character Canvas between hands -->
                             <div class="character-canvas-center">
+                                <!-- Batch Progress Indicator -->
+                                <div class="batch-indicator">
+                                    <span class="batch-label">Batch:</span>
+                                    <span class="batch-value" id="batch-progress-display">1/5</span>
+                                </div>
                                 <div class="char-container" id="char-container"></div>
                             </div>
 

@@ -167,14 +167,13 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 999;
-    transition: all 0.15s ease;
     box-shadow: 0 2px 1px rgba(0, 0, 0, 1);
 }
 
 .app-logo:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    transform: translateY(-1px) scale(1.05);
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+    background: linear-gradient(135deg, #004fff 0%, #0089c9 100%);
+    transform: translateY(0px) scale(1.00);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 1);
 }
 
 .app-logo:active {
@@ -237,6 +236,27 @@ body {
     background: #eff6ff;
     color: #2563eb;
     border-left-color: #2563eb;
+}
+
+.upcoming-badge {
+    background: #f59e0b;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 8px;
+    margin-left: auto;
+}
+
+/* Sidebar Version */
+.sidebar-version {
+    position: absolute;
+    bottom: 16px;
+    left: 20px;
+    color: #000000;
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.7;
 }
 
 .nav-icon {
@@ -1049,18 +1069,50 @@ select {
 }
 
 
+/* Batch Progress Indicator */
+.batch-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px 12px 0px 0px;
+    padding: 4px 12px;
+    margin: 0 20px 0px 20px;
+    box-shadow: 0 0px 12px rgb(223 223 223 / 74%);
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.batch-label {
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+.batch-value {
+    font-size: 16px;
+    color: #3498db;
+    background: #ebf3fd;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 32px;
+    text-align: center;
+}
+
 /* Character Canvas Styles - Only for Character Lesson Page */
 #character-lesson-page .character-canvas-center {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 0px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0 20px;
     flex-shrink: 0;
     min-width: 280px;
     flex: 0 0 auto;
+    margin-top: -18px;
 }
 
 #character-lesson-page .char-container {

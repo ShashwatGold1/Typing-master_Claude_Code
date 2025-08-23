@@ -117,6 +117,16 @@ class NavigationManager {
 
         this.currentPage = page;
 
+        // Hide "New Text" button for character lessons only
+        const newTextBtn = document.getElementById('generate-new-text-btn');
+        if (newTextBtn) {
+            if (page === 'character-lesson') {
+                newTextBtn.style.display = 'none';
+            } else {
+                newTextBtn.style.display = 'block';
+            }
+        }
+
         // Focus on typing input when navigating to typing pages
         if (page === 'quick-test') {
             setTimeout(() => {
@@ -2243,6 +2253,7 @@ class ProgressiveLessonSystem {
             this.accuracyValue = document.getElementById('char-accuracy-value');
             this.timeValue = document.getElementById('char-time-value');
             this.targetAccuracyDisplay = document.getElementById('target-accuracy-display');
+            this.batchProgressDisplay = document.getElementById('batch-progress-display');
             
             // Load current lesson
             this.loadCurrentLesson();
@@ -2512,14 +2523,12 @@ class ProgressiveLessonSystem {
             canComplete: passedAccuracy && passedWPM && passedMinChars && passedMinBatches
         });
         
-        // If all requirements are met INCLUDING minimum batches, complete the lesson
-        if (passedAccuracy && passedWPM && passedMinChars && passedMinBatches) {
+        // If minimum batches completed, check lesson completion (show appropriate popup)
+        if (passedMinBatches) {
             this.checkLessonCompletion();
         } else {
             // Otherwise, generate new text and continue practicing
-            if (!passedMinBatches) {
-                console.log(`Must complete at least ${this.minRequiredBatches} batches. Current: ${this.completedBatches}`);
-            }
+            console.log(`Must complete at least ${this.minRequiredBatches} batches. Current: ${this.completedBatches}`);
             this.generateNewTextAndContinue();
         }
     }
@@ -2693,11 +2702,10 @@ class ProgressiveLessonSystem {
         if (this.wpmValue) this.wpmValue.textContent = wpm;
         if (this.accuracyValue) this.accuracyValue.textContent = `${accuracy}%`;
         
-        // Update batch progress indicator (optional UI element)
-        const batchProgressElement = document.getElementById('batch-progress');
-        if (batchProgressElement) {
-            const progress = `${this.completedBatches}/${this.minRequiredBatches} batches`;
-            batchProgressElement.textContent = progress;
+        // Update batch progress indicator
+        if (this.batchProgressDisplay) {
+            const currentBatch = this.completedBatches + 1;
+            this.batchProgressDisplay.textContent = `${currentBatch}/${this.minRequiredBatches}`;
         }
         
         // Update lesson title with batch progress
