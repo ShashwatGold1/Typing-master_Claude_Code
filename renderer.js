@@ -3893,9 +3893,9 @@ class LessonCarousel {
 
         // Add click handler for navigation (only for unlocked lessons)
         if (lessonNumber <= maxUnlocked) {
-            card.addEventListener('click', () => {
-                this.selectLesson(lessonNumber);
-            });
+            const handler = () => this.selectLesson(lessonNumber);
+            card.addEventListener('click', handler);
+            card._clickHandler = handler; // Store reference for cleanup
         }
 
         return card;
@@ -3931,6 +3931,7 @@ class LessonCarousel {
             const lessonNum = index + 1;
             card.className = 'character-lesson-card';
             
+            // Update visual state
             if (lessonNum < current && lessonNum <= maxUnlocked) {
                 card.classList.add('completed');
             } else if (lessonNum === current) {
@@ -3940,6 +3941,7 @@ class LessonCarousel {
             } else {
                 card.classList.add('locked');
             }
+            
         });
 
         // Scroll current lesson into view
@@ -4022,10 +4024,37 @@ class LessonCarousel {
         }
     }
 
+    // Method to refresh click handlers for all cards
+    refreshClickHandlers() {
+        const cards = this.cardsContainer.querySelectorAll('.character-lesson-card');
+        const maxUnlocked = window.lessonData?.maxUnlockedLesson || 1;
+        
+        cards.forEach((card, index) => {
+            const lessonNum = index + 1;
+            
+            // Remove existing handler
+            const existingHandler = card._clickHandler;
+            if (existingHandler) {
+                card.removeEventListener('click', existingHandler);
+                card._clickHandler = null;
+            }
+            
+            // Add handler if lesson is unlocked
+            if (lessonNum <= maxUnlocked) {
+                const handler = () => this.selectLesson(lessonNum);
+                card.addEventListener('click', handler);
+                card._clickHandler = handler;
+            }
+        });
+    }
+
     // Public method to refresh carousel when lesson advances
     refresh() {
         this.currentLesson = window.lessonData?.currentLesson || 1;
+        // Update visual states and click handlers
         this.updateCarousel();
+        // Ensure click handlers are properly set for newly unlocked lessons
+        this.refreshClickHandlers();
     }
 }
 
