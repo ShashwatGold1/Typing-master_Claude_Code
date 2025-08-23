@@ -683,47 +683,13 @@ class LessonData {
                 completion: {
                     message: "Excellent! Backtick key mastered.",
                     keysLearned: ['`'],
-                    nextPreview: "Next: Function keys F1-F2"
+                    nextPreview: "Next: Shifted symbols exclamation and at"
                 }
             },
             
-            // Function Keys Phase
+            // Modifier Keys continue
             {
                 id: 33,
-                title: "Function Keys - F1 & F2",
-                description: "Learn F1 and F2 function keys",
-                phase: "Function Keys",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'F1', 'F2'],
-                targetAccuracy: 88,
-                targetWPM: 35,
-                minChars: 120,
-                textLength: 140,
-                completion: {
-                    message: "Great! First function keys F1 and F2 mastered.",
-                    keysLearned: ['F1', 'F2'],
-                    nextPreview: "Next: Adding F3 and F4"
-                }
-            },
-            {
-                id: 34,
-                title: "Function Keys - F3 & F4",
-                description: "Add F3 and F4 function keys",
-                phase: "Function Keys",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'F1', 'F2', 'F3', 'F4'],
-                targetAccuracy: 88,
-                targetWPM: 35,
-                minChars: 120,
-                textLength: 140,
-                completion: {
-                    message: "Perfect! F3 and F4 keys integrated.",
-                    keysLearned: ['F3', 'F4'],
-                    nextPreview: "Next: Mid-range function keys F5-F8"
-                }
-            },
-            
-            // For brevity in this implementation, we'll add key milestone lessons
-            {
-                id: 35,
                 title: "Modifier Keys - Tab & Enter",
                 description: "Master Tab and Enter keys with precision",
                 phase: "Modifier Keys",
@@ -739,7 +705,7 @@ class LessonData {
                 }
             },
             {
-                id: 36,
+                id: 34,
                 title: "Modifier Keys - Shift Keys",
                 description: "Master both left and right Shift keys",
                 phase: "Modifier Keys",
@@ -755,7 +721,7 @@ class LessonData {
                 }
             },
             {
-                id: 37,
+                id: 35,
                 title: "Control Keys - Ctrl",
                 description: "Master Control key combinations",
                 phase: "Modifier Keys",
@@ -771,7 +737,7 @@ class LessonData {
                 }
             },
             {
-                id: 38,
+                id: 36,
                 title: "Modifier Keys - Alt",
                 description: "Add Alt key for advanced combinations",
                 phase: "Modifier Keys",
@@ -787,7 +753,7 @@ class LessonData {
                 }
             },
             {
-                id: 39,
+                id: 37,
                 title: "Special Keys - CapsLock",
                 description: "Master CapsLock toggle functionality",
                 phase: "Modifier Keys", 
@@ -799,42 +765,485 @@ class LessonData {
                 completion: {
                     message: "Excellent! CapsLock mastery achieved.",
                     keysLearned: ['CapsLock'],
-                    nextPreview: "Next: Arrow keys navigation"
+                    nextPreview: "Next: Home row capital letters"
+                }
+            },
+            
+            // Capitalization Lessons Phase
+            {
+                id: 38,
+                title: "Capitalization - Home Row Capitals",
+                description: "Master uppercase home row letters using Shift",
+                phase: "Capitalization",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L'],
+                targetAccuracy: 90,
+                targetWPM: 25,
+                minChars: 80,
+                textLength: 100,
+                completion: {
+                    message: "Excellent! Home row capital letters mastered with Shift.",
+                    keysLearned: ['A', 'S', 'D', 'F', 'J', 'K', 'L'],
+                    nextPreview: "Next: Upper row capital letters"
+                }
+            },
+            {
+                id: 39,
+                title: "Capitalization - Upper Row Capitals",
+                description: "Master uppercase upper row letters using Shift",
+                phase: "Capitalization",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P'],
+                targetAccuracy: 90,
+                targetWPM: 27,
+                minChars: 90,
+                textLength: 110,
+                completion: {
+                    message: "Perfect! Upper row capital letters integrated.",
+                    keysLearned: ['Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P'],
+                    nextPreview: "Next: Lower row capital letters"
                 }
             },
             {
                 id: 40,
-                title: "Navigation - Arrow Keys",
-                description: "Master all four arrow keys for navigation",
-                phase: "Navigation Keys",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'],
+                title: "Capitalization - Lower Row Capitals", 
+                description: "Master uppercase lower row letters using Shift",
+                phase: "Capitalization",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M'],
+                targetAccuracy: 90,
+                targetWPM: 30,
+                minChars: 100,
+                textLength: 120,
+                completion: {
+                    message: "Great! Lower row capital letters mastered.",
+                    keysLearned: ['Z', 'X', 'C', 'V', 'M'],
+                    nextPreview: "Next: Complete alphabet capitalization review"
+                }
+            },
+            {
+                id: 41,
+                title: "Capitalization - Complete Alphabet Review",
+                description: "Master all uppercase letters A-Z with fluid typing",
+                phase: "Capitalization",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M', 'N', 'B', 'G', 'H', 'T', 'Y'],
+                targetAccuracy: 92,
+                targetWPM: 33,
+                minChars: 120,
+                textLength: 140,
+                completion: {
+                    message: "Excellent! Complete uppercase alphabet mastery achieved!",
+                    keysLearned: ['All Uppercase Letters A-Z'],
+                    nextPreview: "Next: Proper capitalization in sentences"
+                }
+            },
+            {
+                id: 42,
+                title: "Capitalization - Sentence Capitalization",
+                description: "Practice proper capitalization in sentences and proper nouns",
+                phase: "Capitalization",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M', 'N', 'B', 'G', 'H', 'T', 'Y'],
+                targetAccuracy: 93,
+                targetWPM: 35,
+                minChars: 150,
+                textLength: 180,
+                completion: {
+                    message: "Perfect! Sentence capitalization and proper noun skills mastered.",
+                    keysLearned: ['Proper Capitalization Rules'],
+                    nextPreview: "Next: Shifted symbols exclamation and at"
+                }
+            },
+
+            // Shifted Number Row Symbols
+            {
+                id: 43,
+                title: "Symbols - Exclamation & At",
+                description: "Master ! (Shift+1) and @ (Shift+2) symbols",
+                phase: "Shifted Symbols",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@'],
+                targetAccuracy: 89,
+                targetWPM: 38,
+                minChars: 140,
+                textLength: 160,
+                completion: {
+                    message: "Great! Exclamation and At symbols mastered.",
+                    keysLearned: ['!', '@'],
+                    nextPreview: "Next: Adding hash and dollar symbols"
+                }
+            },
+            {
+                id: 44,
+                title: "Symbols - Hash & Dollar",
+                description: "Master # (Shift+3) and $ (Shift+4) symbols",
+                phase: "Shifted Symbols",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$'],
+                targetAccuracy: 89,
+                targetWPM: 39,
+                minChars: 150,
+                textLength: 170,
+                completion: {
+                    message: "Perfect! Hash and Dollar symbols integrated.",
+                    keysLearned: ['#', '$'],
+                    nextPreview: "Next: Adding percent and caret symbols"
+                }
+            },
+            {
+                id: 45,
+                title: "Symbols - Percent & Caret",
+                description: "Master % (Shift+5) and ^ (Shift+6) symbols",
+                phase: "Shifted Symbols",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^'],
+                targetAccuracy: 89,
+                targetWPM: 40,
+                minChars: 150,
+                textLength: 170,
+                completion: {
+                    message: "Excellent! Percent and Caret symbols mastered.",
+                    keysLearned: ['%', '^'],
+                    nextPreview: "Next: Adding ampersand and asterisk"
+                }
+            },
+            {
+                id: 46,
+                title: "Symbols - Ampersand & Asterisk",
+                description: "Master & (Shift+7) and * (Shift+8) symbols",
+                phase: "Shifted Symbols",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*'],
+                targetAccuracy: 88,
+                targetWPM: 40,
+                minChars: 160,
+                textLength: 180,
+                completion: {
+                    message: "Great! Ampersand and Asterisk symbols integrated.",
+                    keysLearned: ['&', '*'],
+                    nextPreview: "Next: Adding parentheses"
+                }
+            },
+            {
+                id: 47,
+                title: "Symbols - Parentheses",
+                description: "Master ( (Shift+9) and ) (Shift+0) parentheses",
+                phase: "Shifted Symbols",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')'],
+                targetAccuracy: 88,
+                targetWPM: 41,
+                minChars: 160,
+                textLength: 180,
+                completion: {
+                    message: "Perfect! Parentheses mastered for grouping.",
+                    keysLearned: ['(', ')'],
+                    nextPreview: "Next: Additional punctuation with quotes"
+                }
+            },
+
+            // Additional Punctuation
+            {
+                id: 48,
+                title: "Punctuation - Double Quote",
+                description: "Master \" (Shift+') double quote symbol",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"'],
+                targetAccuracy: 90,
+                targetWPM: 42,
+                minChars: 160,
+                textLength: 180,
+                completion: {
+                    message: "Great! Double quote symbol mastered.",
+                    keysLearned: ['"'],
+                    nextPreview: "Next: Adding colon symbol"
+                }
+            },
+            {
+                id: 49,
+                title: "Punctuation - Colon",
+                description: "Master : (Shift+;) colon symbol",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':'],
+                targetAccuracy: 90,
+                targetWPM: 42,
+                minChars: 170,
+                textLength: 190,
+                completion: {
+                    message: "Excellent! Colon symbol integrated.",
+                    keysLearned: [':'],
+                    nextPreview: "Next: Adding less than and greater than"
+                }
+            },
+            {
+                id: 50,
+                title: "Symbols - Less Than & Greater Than",
+                description: "Master < (Shift+,) and > (Shift+.) symbols",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>'],
+                targetAccuracy: 89,
+                targetWPM: 43,
+                minChars: 170,
+                textLength: 190,
+                completion: {
+                    message: "Perfect! Less than and Greater than symbols mastered.",
+                    keysLearned: ['<', '>'],
+                    nextPreview: "Next: Adding question mark"
+                }
+            },
+            {
+                id: 51,
+                title: "Punctuation - Question Mark",
+                description: "Master ? (Shift+/) question mark symbol",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?'],
+                targetAccuracy: 90,
+                targetWPM: 44,
+                minChars: 180,
+                textLength: 200,
+                completion: {
+                    message: "Great! Question mark symbol mastered.",
+                    keysLearned: ['?'],
+                    nextPreview: "Next: Adding curly braces"
+                }
+            },
+            {
+                id: 52,
+                title: "Brackets - Curly Braces",
+                description: "Master { (Shift+[) and } (Shift+]) curly braces",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}'],
+                targetAccuracy: 89,
+                targetWPM: 44,
+                minChars: 180,
+                textLength: 200,
+                completion: {
+                    message: "Excellent! Curly braces mastered for programming.",
+                    keysLearned: ['{', '}'],
+                    nextPreview: "Next: Adding pipe symbol"
+                }
+            },
+            {
+                id: 53,
+                title: "Symbols - Pipe",
+                description: "Master | (Shift+\\) pipe symbol",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|'],
+                targetAccuracy: 89,
+                targetWPM: 45,
+                minChars: 180,
+                textLength: 200,
+                completion: {
+                    message: "Perfect! Pipe symbol mastered.",
+                    keysLearned: ['|'],
+                    nextPreview: "Next: Adding tilde symbol"
+                }
+            },
+            {
+                id: 54,
+                title: "Symbols - Tilde",
+                description: "Master ~ (Shift+`) tilde symbol",
+                phase: "Additional Punctuation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~'],
+                targetAccuracy: 89,
+                targetWPM: 45,
+                minChars: 190,
+                textLength: 210,
+                completion: {
+                    message: "Outstanding! Tilde symbol mastered.",
+                    keysLearned: ['~'],
+                    nextPreview: "Next: Special keys Escape and Backspace"
+                }
+            },
+
+            // Special Keys
+            {
+                id: 55,
+                title: "Special Keys - Escape",
+                description: "Master Escape key functionality",
+                phase: "Special Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape'],
                 targetAccuracy: 85,
+                targetWPM: 40,
+                minChars: 140,
+                textLength: 160,
+                completion: {
+                    message: "Great! Escape key mastered for cancellation.",
+                    keysLearned: ['Escape'],
+                    nextPreview: "Next: Adding Backspace key"
+                }
+            },
+            {
+                id: 56,
+                title: "Special Keys - Backspace",
+                description: "Master Backspace key for deletion",
+                phase: "Special Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace'],
+                targetAccuracy: 88,
+                targetWPM: 42,
+                minChars: 150,
+                textLength: 170,
+                completion: {
+                    message: "Perfect! Backspace key mastered for editing.",
+                    keysLearned: ['Backspace'],
+                    nextPreview: "Next: Numpad numbers 0-4"
+                }
+            },
+
+            // Numpad Keys
+            {
+                id: 57,
+                title: "Numpad - Numbers 0-4",
+                description: "Master numpad numbers 0, 1, 2, 3, 4",
+                phase: "Numpad Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4'],
+                targetAccuracy: 85,
+                targetWPM: 38,
+                minChars: 130,
+                textLength: 150,
+                completion: {
+                    message: "Great! First numpad numbers 0-4 mastered.",
+                    keysLearned: ['Numpad 0-4'],
+                    nextPreview: "Next: Numpad numbers 5-9"
+                }
+            },
+            {
+                id: 58,
+                title: "Numpad - Numbers 5-9",
+                description: "Master numpad numbers 5, 6, 7, 8, 9",
+                phase: "Numpad Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9'],
+                targetAccuracy: 85,
+                targetWPM: 39,
+                minChars: 140,
+                textLength: 160,
+                completion: {
+                    message: "Excellent! All numpad numbers 5-9 mastered.",
+                    keysLearned: ['Numpad 5-9'],
+                    nextPreview: "Next: Numpad operators plus and minus"
+                }
+            },
+            {
+                id: 59,
+                title: "Numpad - Plus & Minus",
+                description: "Master numpad + (plus) and - (minus) operators",
+                phase: "Numpad Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract'],
+                targetAccuracy: 86,
+                targetWPM: 40,
+                minChars: 150,
+                textLength: 170,
+                completion: {
+                    message: "Perfect! Numpad plus and minus operators mastered.",
+                    keysLearned: ['Numpad +', 'Numpad -'],
+                    nextPreview: "Next: Numpad multiply and divide"
+                }
+            },
+            {
+                id: 60,
+                title: "Numpad - Multiply & Divide",
+                description: "Master numpad * (multiply) and / (divide) operators",
+                phase: "Numpad Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide'],
+                targetAccuracy: 86,
+                targetWPM: 41,
+                minChars: 160,
+                textLength: 180,
+                completion: {
+                    message: "Great! Numpad multiply and divide operators mastered.",
+                    keysLearned: ['Numpad *', 'Numpad /'],
+                    nextPreview: "Next: Numpad Enter and decimal"
+                }
+            },
+            {
+                id: 61,
+                title: "Numpad - Enter & Decimal",
+                description: "Master numpad Enter and . (decimal) keys",
+                phase: "Numpad Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal'],
+                targetAccuracy: 87,
+                targetWPM: 42,
+                minChars: 170,
+                textLength: 190,
+                completion: {
+                    message: "Excellent! Numpad Enter and decimal keys mastered.",
+                    keysLearned: ['Numpad Enter', 'Numpad .'],
+                    nextPreview: "Next: NumLock key"
+                }
+            },
+            {
+                id: 62,
+                title: "Numpad - NumLock",
+                description: "Master NumLock toggle key",
+                phase: "Numpad Keys",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock'],
+                targetAccuracy: 85,
+                targetWPM: 40,
+                minChars: 140,
+                textLength: 160,
+                completion: {
+                    message: "Perfect! NumLock key mastered for numpad control.",
+                    keysLearned: ['NumLock'],
+                    nextPreview: "Next: Additional modifier keys"
+                }
+            },
+
+            // Additional Modifier Keys
+            {
+                id: 63,
+                title: "Modifier Keys - Windows Key",
+                description: "Master Windows/Meta key functionality",
+                phase: "Additional Modifiers",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft'],
+                targetAccuracy: 83,
                 targetWPM: 35,
                 minChars: 120,
                 textLength: 140,
                 completion: {
-                    message: "Outstanding! All arrow keys mastered for navigation.",
-                    keysLearned: ['Arrow Keys'],
-                    nextPreview: "Continue to advanced key mastery"
+                    message: "Great! Windows/Meta key mastered for shortcuts.",
+                    keysLearned: ['Windows Key'],
+                    nextPreview: "Next: Context Menu key"
                 }
             },
-            
-            // Intermediate lessons would go here (lessons 41-103)
-            // For now, jumping to final mastery lesson
             {
-                id: 41,
-                title: "Ultimate Mastery Challenge",
-                description: "Demonstrate complete mastery of all learned keys",
-                phase: "Complete Mastery",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'],
-                targetAccuracy: 95,
-                targetWPM: 50,
-                minChars: 200,
-                textLength: 250,
+                id: 64,
+                title: "Modifier Keys - Context Menu",
+                description: "Master Context Menu (right-click menu) key",
+                phase: "Additional Modifiers",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu'],
+                targetAccuracy: 83,
+                targetWPM: 36,
+                minChars: 130,
+                textLength: 150,
                 completion: {
-                    message: "CONGRATULATIONS! You have achieved complete keyboard mastery! You are now a true Typing King!",
-                    keysLearned: ['All Essential Keys'],
-                    nextPreview: "You have completed the typing mastery journey!"
+                    message: "Perfect! Context Menu key mastered.",
+                    keysLearned: ['Context Menu'],
+                    nextPreview: "Next: Right-side modifier keys"
+                }
+            },
+            {
+                id: 65,
+                title: "Modifier Keys - Right Ctrl & Alt",
+                description: "Master right-side Control and Alt keys",
+                phase: "Additional Modifiers",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu', 'ControlRight', 'AltRight'],
+                targetAccuracy: 84,
+                targetWPM: 37,
+                minChars: 140,
+                textLength: 160,
+                completion: {
+                    message: "Excellent! Right-side Control and Alt keys mastered.",
+                    keysLearned: ['Right Ctrl', 'Right Alt'],
+                    nextPreview: "Next: Ultimate typing mastery challenge"
+                }
+            },
+
+            // Ultimate Final Mastery
+            {
+                id: 66,
+                title: "Ultimate Typing Mastery Challenge", 
+                description: "Demonstrate complete mastery of all essential keyboard keys",
+                phase: "Complete Mastery",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M', 'N', 'B', 'G', 'H', 'T', 'Y', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu', 'ControlRight', 'AltRight'],
+                targetAccuracy: 95,
+                targetWPM: 60,
+                minChars: 300,
+                textLength: 400,
+                completion: {
+                    message: "🎉 ULTIMATE ACHIEVEMENT UNLOCKED! 🎉 You have mastered all essential keyboard keys! You are now a TRUE TYPING KING with complete typing mastery! This is the pinnacle of typing excellence!",
+                    keysLearned: ['ALL ESSENTIAL KEYBOARD KEYS'],
+                    nextPreview: "CONGRATULATIONS! You have completed the ultimate typing mastery journey!"
                 }
             }
         ];
