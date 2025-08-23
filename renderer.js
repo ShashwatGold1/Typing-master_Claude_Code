@@ -2198,6 +2198,10 @@ class ProgressiveLessonSystem {
         this.timeElapsed = 0;
         this.timeLimit = 600; // 10 minutes maximum
         
+        // Auto-load text functionality
+        this.practiceCount = 0;
+        this.maxPracticeCount = 10;
+        
         // Element references
         this.wpmValue = null;
         this.accuracyValue = null;
@@ -2288,6 +2292,12 @@ class ProgressiveLessonSystem {
         // Update target accuracy display
         if (this.targetAccuracyDisplay) {
             this.targetAccuracyDisplay.textContent = `${this.currentLesson.targetAccuracy}%`;
+        }
+        
+        // Update practice counter display
+        const practiceCounterDisplay = document.getElementById('practice-counter-display');
+        if (practiceCounterDisplay) {
+            practiceCounterDisplay.textContent = `Practice: ${this.practiceCount + 1} / ${this.maxPracticeCount}`;
         }
     }
     
@@ -2457,6 +2467,28 @@ class ProgressiveLessonSystem {
             this.wpmUpdateTimer = null;
         }
         this.updateStats();
+        
+        // Auto-load new text if practice is completed and within limit
+        const maxChars = this.getMaxCharacterLimit();
+        const displayedLength = Math.min(this.practiceText.length, maxChars);
+        
+        if (this.currentIndex >= displayedLength && this.practiceCount < this.maxPracticeCount - 1) {
+            this.practiceCount++;
+            
+            // Auto-load new text after a short delay
+            setTimeout(() => {
+                this.practiceText = window.lessonData.generatePracticeText(this.currentLesson);
+                this.createCharacterBoxes();
+                this.resetTest();
+                this.updateLessonUI(); // Update the practice counter display
+            }, 1500); // 1.5 second delay for user to see completion
+        } else if (this.currentIndex >= displayedLength && this.practiceCount >= this.maxPracticeCount - 1) {
+            // Completed all 10 practices, proceed with lesson completion check
+            this.practiceCount = 0; // Reset for next lesson
+            setTimeout(() => {
+                this.checkLessonCompletion();
+            }, 500);
+        }
     }
     
     checkLessonCompletion() {
@@ -2662,9 +2694,14 @@ class ProgressiveLessonSystem {
         if (generateBtn) {
             generateBtn.addEventListener('click', () => {
                 if (this.currentLesson) {
+                    // Only increment if not on the last practice
+                    if (this.practiceCount < this.maxPracticeCount - 1) {
+                        this.practiceCount++;
+                    }
                     this.practiceText = window.lessonData.generatePracticeText(this.currentLesson);
                     this.createCharacterBoxes();
                     this.resetTest();
+                    this.updateLessonUI(); // Update the practice counter display
                 }
             });
         }
@@ -2680,6 +2717,9 @@ class ProgressiveLessonSystem {
         if (window.lessonData.advanceLesson()) {
             console.log('Successfully advanced to lesson:', window.lessonData.currentLesson);
             console.log('Loading new lesson...');
+            
+            // Reset practice counter for new lesson
+            this.practiceCount = 0;
             
             this.loadCurrentLesson();
             console.log('Lesson loaded, updating UI...');
@@ -3910,6 +3950,9 @@ class LessonCarousel {
 
         // Update progressive lesson system
         if (window.progressiveLesson) {
+            // Reset practice counter for newly selected lesson
+            window.progressiveLesson.practiceCount = 0;
+            
             window.progressiveLesson.loadCurrentLesson();
             window.progressiveLesson.updateLessonUI();
             window.progressiveLesson.createCharacterBoxes();
