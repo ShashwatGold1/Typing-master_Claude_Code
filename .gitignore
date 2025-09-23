@@ -120,3 +120,4 @@ logs
 .claude/settings.local.json
 
 nul
+dist_exe/

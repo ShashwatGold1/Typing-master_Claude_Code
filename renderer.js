@@ -1,10 +1,61 @@
 const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
 
-// Helper function to get display WPM for character lessons (capped at 25)
-function getDisplayWPM(lesson) {
-    // Cap character lesson WPM display at 25 for better UX
-    return Math.min(25, lesson.targetWPM);
+// Global typing configuration
+let typingConfig = null;
+
+// Load typing configuration
+function loadTypingConfig() {
+    try {
+        const configPath = path.join(__dirname, 'typing-config.json');
+        const configData = fs.readFileSync(configPath, 'utf8');
+        typingConfig = JSON.parse(configData);
+        return typingConfig;
+    } catch (error) {
+        console.error('Error loading typing configuration:', error);
+        // Fallback configuration
+        typingConfig = {
+            globalSettings: { maxDisplayWPM: null, enableWPMCapping: false },
+            characterLessons: { defaultTargetAccuracy: 100 },
+            wordLessons: { defaultTargetAccuracy: 95 },
+            quickTest: { defaultTargetAccuracy: 95, defaultTargetWPM: 40 }
+        };
+        return typingConfig;
+    }
 }
+
+// Helper function to get WPM target from configuration
+function getConfigWPM(lessonNumber) {
+    if (!typingConfig) loadTypingConfig();
+
+    const wpmProgression = typingConfig.characterLessons?.wpmProgression;
+    if (wpmProgression && wpmProgression[lessonNumber.toString()]) {
+        return wpmProgression[lessonNumber.toString()];
+    }
+    return 25; // fallback
+}
+
+// Helper function to get display WPM (no more capping)
+function getDisplayWPM(lesson) {
+    // Return actual target WPM without any capping
+    return lesson.targetWPM;
+}
+
+// Helper function to get target accuracy from configuration
+function getConfigAccuracy(lessonType = 'character') {
+    if (!typingConfig) loadTypingConfig();
+
+    if (lessonType === 'character') {
+        return typingConfig.characterLessons?.defaultTargetAccuracy || 100;
+    } else if (lessonType === 'word') {
+        return typingConfig.wordLessons?.defaultTargetAccuracy || 95;
+    }
+    return 95; // fallback
+}
+
+// Initialize configuration on load
+loadTypingConfig();
 
 // Title bar controls
 document.getElementById('minimize-btn').addEventListener('click', () => {
@@ -517,14 +568,10 @@ class TypingTest {
     }
 
     handleLessonCompletion(wpm, accuracy, popupType, title, message) {
-        console.log('=== GENERAL POPUP COMPLETION DEBUG ===');
-        console.log('handleLessonCompletion called with WPM:', wpm, 'Accuracy:', accuracy);
         
         const lesson = this.currentLesson;
-        console.log('Current lesson for popup:', lesson);
         
         const targetMet = wpm >= lesson.targetWPM && accuracy >= lesson.targetAccuracy;
-        console.log('Target met:', targetMet, '(Target WPM:', lesson.targetWPM, 'Target Accuracy:', lesson.targetAccuracy, ')');
         
         let completionTitle, completionMessage, completionType;
         
@@ -588,6 +635,8 @@ class TypingTest {
 // Lesson System
 class LessonManager {
     constructor() {
+        // Load typing configuration for word lessons
+        this.config = this.loadWordLessonConfig();
         this.lessons = [
             // Foundation - Home Row
             {
@@ -953,7 +1002,52 @@ class LessonManager {
                 text: 'Introduction paragraph should clearly state the main thesis. Supporting paragraphs provide evidence and examples. The conclusion summarizes key points and reinforces the argument.'
             }
         ];
+
+        // Apply configuration values to all lessons
+        this.applyConfigurationToLessons();
         this.init();
+    }
+
+    // Load word lesson configuration
+    loadWordLessonConfig() {
+        if (typeof typingConfig !== 'undefined' && typingConfig) {
+            return typingConfig;
+        }
+        // Fallback if config not loaded
+        return {
+            wordLessons: {
+                defaultTargetAccuracy: 95,
+                wpmTargets: {
+                    'home-row': 15,
+                    'home-row-words': 18,
+                    'top-row': 20,
+                    'numbers': 22,
+                    'punctuation': 20,
+                    'common-words': 25,
+                    'sentences': 25,
+                    'paragraphs': 28
+                }
+            }
+        };
+    }
+
+    // Apply configuration values to lessons
+    applyConfigurationToLessons() {
+        console.log('Applying word lesson configuration...');
+        console.log('Config:', this.config);
+        this.lessons.forEach(lesson => {
+            const originalWPM = lesson.targetWPM;
+            const originalAccuracy = lesson.targetAccuracy;
+
+            // Apply WPM from config
+            if (this.config.wordLessons?.wpmTargets?.[lesson.id]) {
+                lesson.targetWPM = this.config.wordLessons.wpmTargets[lesson.id];
+            } else {
+            }
+
+            // Apply accuracy from config
+            lesson.targetAccuracy = this.config.wordLessons?.defaultTargetAccuracy || 95;
+        });
     }
 
     init() {
@@ -2497,7 +2591,7 @@ class ProgressiveLessonSystem {
         
         // Check if we've met the minimum requirements to potentially complete the lesson
         const requiredMinChars = Math.max(5, Math.floor(this.currentLesson.minChars * 0.5));
-        const cappedTargetWPM = Math.min(25, this.currentLesson.targetWPM);
+        const cappedTargetWPM = this.currentLesson.targetWPM;
         
         const passedAccuracy = accuracy >= this.currentLesson.targetAccuracy;
         const passedWPM = wpm >= cappedTargetWPM;
@@ -2584,7 +2678,7 @@ class ProgressiveLessonSystem {
         const wpm = this.calculateWPM();
         
         const requiredMinChars = Math.max(5, Math.floor(this.currentLesson.minChars * 0.5)); // Require 50% of min chars, min 5
-        const cappedTargetWPM = Math.min(25, this.currentLesson.targetWPM); // Cap WPM at 25 for character lessons
+        const cappedTargetWPM = this.currentLesson.targetWPM; // Cap WPM at 25 for character lessons
         
         console.log('Lesson completion check:', {
             lesson: this.currentLesson.id,
@@ -2650,17 +2744,11 @@ class ProgressiveLessonSystem {
         } else {
             console.error('ERROR: LessonCompletionManager not found!');
         }
-        console.log('=== END LESSON COMPLETION DEBUG ===');
     }
     
     showLessonRetry(accuracy, wpm) {
-        console.log('=== LESSON RETRY DEBUG ===');
-        console.log('Current lesson object:', this.currentLesson);
-        console.log('Performance - Accuracy:', accuracy, '%, WPM:', wpm);
-        console.log('Time elapsed:', this.timeElapsed, 'seconds');
         
         if (window.lessonCompletionManager) {
-            console.log('LessonCompletionManager found, calling showLessonRetry');
             window.lessonCompletionManager.showLessonRetry(
                 this.currentLesson,
                 accuracy,
@@ -3170,7 +3258,7 @@ class LessonCompletionManager {
         }
         
         // Get target information
-        const targetWPM = nextLesson.targetWPM ? Math.min(25, nextLesson.targetWPM) : 'TBD';
+        const targetWPM = nextLesson.targetWPM ? nextLesson.targetWPM : 'TBD';
         const targetAccuracy = nextLesson.targetAccuracy || 'TBD';
         
         // Format the preview message with targets first, then keys

@@ -2,11 +2,15 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 // Enable live reload for development
-if (process.env.NODE_ENV !== 'production') {
-  require('electron-reload')(__dirname, {
-    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
-    hardResetMethod: 'exit'
-  });
+if (process.env.NODE_ENV === 'development') {
+  try {
+    require('electron-reload')(__dirname, {
+      electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+      hardResetMethod: 'exit'
+    });
+  } catch (error) {
+    console.log('electron-reload not available in production build');
+  }
 }
 
 let mainWindow;
