@@ -1962,7 +1962,7 @@ class WordLesson {
                 this.handleKeyPress(e.key);
                 e.preventDefault();
             } else if (e.key === 'Backspace') {
-                this.handleBackspace();
+                // Backspace disabled in character lessons for learning purposes
                 e.preventDefault();
             }
         });
@@ -2457,7 +2457,7 @@ class ProgressiveLessonSystem {
                 this.handleKeyPress(e.key);
                 e.preventDefault();
             } else if (e.key === 'Backspace') {
-                this.handleBackspace();
+                // Backspace disabled in character lessons for learning purposes
                 e.preventDefault();
             }
         });

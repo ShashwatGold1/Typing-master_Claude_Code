@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "cross-env NODE_ENV=development electron . --enable-logging",
-    "build": "electron-builder",
+    "build": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
     "pack": "electron-builder --dir"
   },
   "keywords": [
@@ -43,19 +43,35 @@
       "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
-      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+      "!dist_exe/"
     ],
     "win": {
       "target": "portable",
-      "sign": false
+      "icon": "assets/icon.ico",
+      "sign": false,
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "asInvoker"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.png",
+      "category": "Education"
     },
     "mac": {
       "target": "dmg",
-      "icon": "assets/icon.icns"
+      "icon": "assets/icon.png",
+      "category": "public.app-category.education"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
