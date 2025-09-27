@@ -2,6 +2,83 @@ const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+// Global function to ensure accuracy displays are always correct
+function ensureAccuracyDisplays() {
+    console.log('=== DEBUG: ensureAccuracyDisplays called ===');
+
+    // Debug: Check what objects are available
+    console.log('Available objects:', {
+        progressiveLessonSystem: !!window.progressiveLessonSystem,
+        lessonData: !!window.lessonData,
+        typingConfig: !!window.lessonData?.typingConfig
+    });
+
+    // Get current lesson ID from multiple sources for reliability
+    let currentLessonId = 1; // Default fallback
+
+    // Try to get from progressive lesson system first
+    if (window.progressiveLessonSystem && window.progressiveLessonSystem.currentLesson) {
+        currentLessonId = window.progressiveLessonSystem.currentLesson.id || window.progressiveLessonSystem.currentLesson;
+        console.log('Got lesson ID from progressiveLessonSystem:', currentLessonId);
+    }
+    // Fallback to lesson data
+    else if (window.lessonData && window.lessonData.currentLesson) {
+        currentLessonId = window.lessonData.currentLesson;
+        console.log('Got lesson ID from lessonData:', currentLessonId);
+    }
+    // Check if we can get it from the current lesson object
+    else if (window.progressiveLessonSystem && window.progressiveLessonSystem.getCurrentLesson) {
+        const currentLesson = window.progressiveLessonSystem.getCurrentLesson();
+        if (currentLesson && currentLesson.id) {
+            currentLessonId = currentLesson.id;
+            console.log('Got lesson ID from getCurrentLesson:', currentLessonId);
+        }
+    }
+
+    console.log('Final lesson ID:', currentLessonId);
+
+    // Get target accuracy from config with proper progression lookup
+    let targetAccuracy = 100; // Default fallback
+
+    if (window.lessonData && window.lessonData.typingConfig) {
+        const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
+        console.log('Accuracy progression:', progression);
+
+        if (progression && progression[currentLessonId.toString()]) {
+            targetAccuracy = progression[currentLessonId.toString()];
+            console.log(`Found progression value: ${targetAccuracy}% for lesson ${currentLessonId}`);
+        } else {
+            targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
+            console.log(`Using default accuracy: ${targetAccuracy}% for lesson ${currentLessonId}`);
+        }
+    } else {
+        console.log('No lessonData or typingConfig available');
+    }
+
+    console.log('Final target accuracy:', targetAccuracy);
+
+    // Update both elements - only update if they show wrong values
+    const mainDisplay = document.getElementById('target-accuracy-display');
+    const popupDisplay = document.getElementById('target-accuracy-display-popup');
+
+    if (mainDisplay) {
+        const currentText = mainDisplay.textContent;
+        const expectedText = `${targetAccuracy}%`;
+        if (currentText !== expectedText && (currentText.includes('--') || currentText === '100%' || currentText !== expectedText)) {
+            mainDisplay.textContent = expectedText;
+            console.log(`Updated main accuracy display: ${currentText} -> ${expectedText} for lesson ${currentLessonId}`);
+        }
+    }
+    if (popupDisplay) {
+        const currentText = popupDisplay.textContent;
+        const expectedText = `${targetAccuracy}%`;
+        if (currentText !== expectedText && (currentText.includes('--') || currentText === '100%' || currentText !== expectedText)) {
+            popupDisplay.textContent = expectedText;
+            console.log(`Updated popup accuracy display: ${currentText} -> ${expectedText} for lesson ${currentLessonId}`);
+        }
+    }
+}
+
 // Global typing configuration
 let typingConfig = null;
 
@@ -42,11 +119,15 @@ function getDisplayWPM(lesson) {
     return lesson.targetWPM;
 }
 
-// Helper function to get target accuracy from configuration
-function getConfigAccuracy(lessonType = 'character') {
+// Helper function to get accuracy target from configuration
+function getConfigAccuracy(lessonNumber, lessonType = 'character') {
     if (!typingConfig) loadTypingConfig();
 
     if (lessonType === 'character') {
+        const accuracyProgression = typingConfig.characterLessons?.accuracyProgression;
+        if (accuracyProgression && accuracyProgression[lessonNumber.toString()]) {
+            return accuracyProgression[lessonNumber.toString()];
+        }
         return typingConfig.characterLessons?.defaultTargetAccuracy || 100;
     } else if (lessonType === 'word') {
         return typingConfig.wordLessons?.defaultTargetAccuracy || 95;
@@ -1748,6 +1829,12 @@ class PopupManager {
 
 // Initialize all managers when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Start the accuracy display fixer - debug mode with more frequent checks
+    setInterval(() => {
+        // Run more frequently for debugging
+        ensureAccuracyDisplays();
+    }, 2000); // Check every 2 seconds for debug
+
     // Small delay to ensure all elements are ready
     setTimeout(() => {
         // Initialize all components
@@ -2368,8 +2455,41 @@ class ProgressiveLessonSystem {
         if (this.currentLesson) {
             this.practiceText = window.lessonData.generatePracticeText(this.currentLesson);
             console.log('Generated practice text:', this.practiceText);
+
+            // Update accuracy display immediately when lesson is loaded
+            this.updateAccuracyDisplay();
         } else {
             console.error('Failed to load current lesson from lessonData');
+        }
+    }
+
+    updateAccuracyDisplay() {
+        if (!this.currentLesson) return;
+
+        // Get target accuracy for current lesson
+        let targetAccuracy = this.currentLesson.targetAccuracy;
+
+        // If not set, get from config progression
+        if (!targetAccuracy && window.lessonData && window.lessonData.typingConfig) {
+            const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
+            if (progression && progression[this.currentLesson.id.toString()]) {
+                targetAccuracy = progression[this.currentLesson.id.toString()];
+            } else {
+                targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
+            }
+        }
+
+        // Update both main display and popup display
+        const mainDisplay = document.getElementById('target-accuracy-display');
+        const popupDisplay = document.getElementById('target-accuracy-display-popup');
+
+        if (mainDisplay) {
+            mainDisplay.textContent = `${targetAccuracy}%`;
+            console.log(`Set main accuracy display to ${targetAccuracy}% for lesson ${this.currentLesson.id}`);
+        }
+        if (popupDisplay) {
+            popupDisplay.textContent = `${targetAccuracy}%`;
+            console.log(`Set popup accuracy display to ${targetAccuracy}% for lesson ${this.currentLesson.id}`);
         }
     }
     
@@ -2401,7 +2521,36 @@ class ProgressiveLessonSystem {
         
         // Update target accuracy display
         if (this.targetAccuracyDisplay) {
-            this.targetAccuracyDisplay.textContent = `${this.currentLesson.targetAccuracy}%`;
+            // Get target accuracy from config directly for reliability
+            let targetAccuracy = this.currentLesson?.targetAccuracy;
+            if ((targetAccuracy === null || targetAccuracy === undefined) && this.currentLesson?.id && window.lessonData) {
+                targetAccuracy = window.lessonData.getConfigAccuracy(this.currentLesson.id);
+            }
+            // Double-check: if still no value, get from config progression directly
+            if (targetAccuracy === null || targetAccuracy === undefined || isNaN(targetAccuracy)) {
+                // Try multiple sources for lesson ID
+                let lessonId = this.currentLesson?.id;
+                if (!lessonId && window.progressiveLessonSystem && window.progressiveLessonSystem.currentLesson) {
+                    lessonId = window.progressiveLessonSystem.currentLesson.id || window.progressiveLessonSystem.currentLesson;
+                }
+                if (!lessonId) {
+                    lessonId = window.lessonData?.currentLesson || 1;
+                }
+
+                if (window.lessonData && window.lessonData.typingConfig) {
+                    const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
+                    if (progression && progression[lessonId.toString()]) {
+                        targetAccuracy = progression[lessonId.toString()];
+                        console.log(`Main display: Using progression accuracy ${targetAccuracy}% for lesson ${lessonId}`);
+                    } else {
+                        targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
+                        console.log(`Main display: Using default accuracy ${targetAccuracy}% for lesson ${lessonId}`);
+                    }
+                } else {
+                    targetAccuracy = 100; // Final fallback
+                }
+            }
+            this.targetAccuracyDisplay.textContent = `${targetAccuracy}%`;
         }
     }
     
@@ -2729,6 +2878,7 @@ class ProgressiveLessonSystem {
     showLessonCompletion(accuracy, wpm) {
         console.log('=== LESSON COMPLETION DEBUG ===');
         console.log('Current lesson object:', this.currentLesson);
+        console.log('Current lesson targetAccuracy:', this.currentLesson?.targetAccuracy);
         console.log('Lesson completion data:', this.currentLesson ? this.currentLesson.completion : 'No lesson');
         console.log('Performance - Accuracy:', accuracy, '%, WPM:', wpm);
         console.log('Time elapsed:', this.timeElapsed, 'seconds');
@@ -3065,7 +3215,38 @@ class LessonCompletionManager {
         if (finalAccuracyEl) finalAccuracyEl.textContent = `${accuracy}`;
         if (finalWpmEl) finalWpmEl.textContent = wpm;
         if (targetWpmEl) targetWpmEl.textContent = getDisplayWPM(lesson);
-        if (targetAccuracyEl) targetAccuracyEl.textContent = `${lesson.targetAccuracy}%`;
+        if (targetAccuracyEl) {
+            // Get target accuracy from config directly for reliability
+            let targetAccuracy = lesson?.targetAccuracy;
+            if ((targetAccuracy === null || targetAccuracy === undefined) && lesson?.id && window.lessonData) {
+                targetAccuracy = window.lessonData.getConfigAccuracy(lesson.id);
+            }
+            // Double-check: if still no value, get from config progression directly
+            if (targetAccuracy === null || targetAccuracy === undefined || isNaN(targetAccuracy)) {
+                // Try multiple sources for lesson ID
+                let lessonId = lesson?.id;
+                if (!lessonId && window.progressiveLessonSystem && window.progressiveLessonSystem.currentLesson) {
+                    lessonId = window.progressiveLessonSystem.currentLesson.id || window.progressiveLessonSystem.currentLesson;
+                }
+                if (!lessonId) {
+                    lessonId = window.lessonData?.currentLesson || 1;
+                }
+
+                if (window.lessonData && window.lessonData.typingConfig) {
+                    const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
+                    if (progression && progression[lessonId.toString()]) {
+                        targetAccuracy = progression[lessonId.toString()];
+                        console.log(`Popup display: Using progression accuracy ${targetAccuracy}% for lesson ${lessonId}`);
+                    } else {
+                        targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
+                        console.log(`Popup display: Using default accuracy ${targetAccuracy}% for lesson ${lessonId}`);
+                    }
+                } else {
+                    targetAccuracy = 100; // Final fallback
+                }
+            }
+            targetAccuracyEl.textContent = `${targetAccuracy}%`;
+        }
         if (finalTimeEl) {
             const minutes = Math.floor(timeElapsed / 60);
             const seconds = timeElapsed % 60;
