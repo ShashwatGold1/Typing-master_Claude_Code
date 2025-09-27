@@ -8,6 +8,7 @@ class LessonData {
         this.currentLesson = progress.currentLesson || 1;
         this.maxUnlockedLesson = progress.maxUnlockedLesson || 1;
         this.maxLesson = this.lessonStructure.length;
+        this.loadTypingConfig();
     }
 
     // Load progress from localStorage
@@ -35,6 +36,25 @@ class LessonData {
             maxUnlockedLesson: this.maxUnlockedLesson
         };
         localStorage.setItem('progressive-lesson-progress', JSON.stringify(progress));
+    }
+
+    // Load typing configuration
+    loadTypingConfig() {
+        try {
+            if (typeof require !== 'undefined') {
+                const fs = require('fs');
+                const path = require('path');
+                const configPath = path.join(__dirname, 'typing-config.json');
+                const configData = fs.readFileSync(configPath, 'utf8');
+                this.typingConfig = JSON.parse(configData);
+            } else {
+                console.warn('Cannot load typing config in browser environment');
+                this.typingConfig = null;
+            }
+        } catch (error) {
+            console.error('Error loading typing config:', error);
+            this.typingConfig = null;
+        }
     }
 
     // Get current lesson data
