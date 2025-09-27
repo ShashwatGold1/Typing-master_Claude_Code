@@ -4020,10 +4020,10 @@ class KeyboardAndHandEffects {
         // Find keyboard element by character (for visual highlighting)
         const wordLesson = window.wordLesson;
         const isNumpadSequence = wordLesson ? wordLesson.isNumpadSequence : false;
-        
+
         // Refresh keys collection to ensure we have all keys including numpad
         this.refreshKeys();
-        
+
         let foundKey = null;
         
         // Search through all keys
@@ -4079,7 +4079,7 @@ class KeyboardAndHandEffects {
                 }
             }
         }
-        
+
         return foundKey;
     }
     
@@ -4492,4 +4492,24 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 100); // Small delay to ensure typing tests are initialized
 });
+
+// Test function for key highlighting
+window.testKeyHighlight = function(char) {
+    console.log('Testing key highlight for:', char);
+    const keyElement = window.keyboardAndHandEffects.findKeyElementByChar(char);
+    if (keyElement) {
+        console.log('Found key element:', keyElement);
+        keyElement.classList.add('next-key-highlight');
+        console.log('Added next-key-highlight class');
+
+        // Remove highlight after 3 seconds for testing
+        setTimeout(() => {
+            keyElement.classList.remove('next-key-highlight');
+            console.log('Removed next-key-highlight class');
+        }, 3000);
+    } else {
+        console.log('Key element not found for character:', char);
+    }
+};
+
 // Enhanced LessonCompletionManager methods added via prototype

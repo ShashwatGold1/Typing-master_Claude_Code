@@ -1187,12 +1187,12 @@ select {
 
 /* Keyboard key highlighting for next character */
 .key.next-key-highlight {
-    background: linear-gradient(135deg, #a3c7ff 0%, #5280ff 100%);
-    border-color: #0800ff;
-    color: white;
-    /* animation: pulse 1.5s infinite; */
-    /* transform: scale(1.1); */
-    /* box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); */
+    background: linear-gradient(135deg, #a3c7ff 0%, #5280ff 100%) !important;
+    border-color: #0800ff !important;
+    color: white !important;
+    animation: pulse 1.5s infinite;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6) !important;
 }
 
 /* Highlight specific main keyboard keys */

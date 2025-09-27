@@ -263,15 +263,31 @@ class LessonData {
                 completion: {
                     message: "Outstanding! Complete home row mastery achieved.",
                     keysLearned: ['A', 'S', 'D', 'F', 'J', 'K', 'L', ';', 'Spacebar'],
-                    nextPreview: "Next: Home row review session"
+                    nextPreview: "Next: Adding index finger extensions G and H"
                 }
             },
             {
                 id: 6,
-                title: "Home Row Review",
-                description: "Master all home row keys with fluid typing",
+                title: "Home Row Extension - G & H",
+                description: "Add index finger extensions to G and H keys",
                 phase: "Foundation",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' '],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h'],
+                targetAccuracy: 95,
+                targetWPM: 16,
+                minChars: 70,
+                textLength: 85,
+                completion: {
+                    message: "Excellent! Index finger extensions G and H mastered.",
+                    keysLearned: ['G', 'H'],
+                    nextPreview: "Next: Home row review session"
+                }
+            },
+            {
+                id: 7,
+                title: "Home Row Review",
+                description: "Master all home row keys with index extensions",
+                phase: "Foundation",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h'],
                 targetAccuracy: 96,
                 targetWPM: 18,
                 minChars: 80,
@@ -285,11 +301,11 @@ class LessonData {
 
             // Phase 2: Upper Row Extension
             {
-                id: 7,
+                id: 8,
                 title: "Upper Row - R & U",
                 description: "Extend index fingers up to R and U keys",
                 phase: "Upper Extension",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'r', 'u'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u'],
                 targetAccuracy: 94,
                 targetWPM: 20,
                 minChars: 80,
@@ -297,15 +313,31 @@ class LessonData {
                 completion: {
                     message: "Great reach! R and U keys are now in your control.",
                     keysLearned: ['R', 'U'],
+                    nextPreview: "Next: Adding index finger extensions T and Y"
+                }
+            },
+            {
+                id: 9,
+                title: "Upper Row - T & Y",
+                description: "Add index finger extensions to T and Y keys",
+                phase: "Upper Extension",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y'],
+                targetAccuracy: 94,
+                targetWPM: 21,
+                minChars: 85,
+                textLength: 95,
+                completion: {
+                    message: "Excellent! Index finger extensions T and Y mastered.",
+                    keysLearned: ['T', 'Y'],
                     nextPreview: "Next: Adding E and I with middle fingers"
                 }
             },
             {
-                id: 8,
+                id: 10,
                 title: "Upper Row - E & I",
                 description: "Add middle finger reach to E and I keys",
                 phase: "Upper Extension",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'r', 'u', 'e', 'i'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y', 'e', 'i'],
                 targetAccuracy: 94,
                 targetWPM: 22,
                 minChars: 90,
@@ -317,11 +349,11 @@ class LessonData {
                 }
             },
             {
-                id: 9,
+                id: 11,
                 title: "Upper Row - W & O",
                 description: "Extend ring fingers to W and O keys",
                 phase: "Upper Extension", 
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'r', 'u', 'e', 'i', 'w', 'o'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y', 'e', 'i', 'w', 'o'],
                 targetAccuracy: 94,
                 targetWPM: 24,
                 minChars: 90,
@@ -333,11 +365,11 @@ class LessonData {
                 }
             },
             {
-                id: 10,
+                id: 12,
                 title: "Upper Row - Q & P",
                 description: "Complete upper row with pinky reach to Q and P",
                 phase: "Upper Extension",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'r', 'u', 'e', 'i', 'w', 'o', 'q', 'p'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y', 'e', 'i', 'w', 'o', 'q', 'p'],
                 targetAccuracy: 94,
                 targetWPM: 26,
                 minChars: 100,
@@ -349,11 +381,11 @@ class LessonData {
                 }
             },
             {
-                id: 11,
+                id: 13,
                 title: "Upper Row Review",
                 description: "Master home and upper rows combined",
                 phase: "Upper Extension",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
                 targetAccuracy: 95,
                 targetWPM: 28,
                 minChars: 110,
@@ -367,11 +399,11 @@ class LessonData {
 
             // Phase 3: Lower Row Integration
             {
-                id: 12,
+                id: 14,
                 title: "Lower Row - V & M",
                 description: "Drop index fingers down to V and M keys",
                 phase: "Lower Integration",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'v', 'm'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm'],
                 targetAccuracy: 93,
                 targetWPM: 30,
                 minChars: 110,
@@ -379,15 +411,31 @@ class LessonData {
                 completion: {
                     message: "Perfect reach! V and M keys integrated successfully.",
                     keysLearned: ['V', 'M'],
+                    nextPreview: "Next: Adding index finger extensions B and N"
+                }
+            },
+            {
+                id: 15,
+                title: "Lower Row - B & N",
+                description: "Add index finger extensions to B and N keys",
+                phase: "Lower Integration",
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n'],
+                targetAccuracy: 93,
+                targetWPM: 31,
+                minChars: 115,
+                textLength: 135,
+                completion: {
+                    message: "Excellent! Index finger extensions B and N mastered.",
+                    keysLearned: ['B', 'N'],
                     nextPreview: "Next: Adding C and comma with middle fingers"
                 }
             },
             {
-                id: 13,
+                id: 16,
                 title: "Lower Row - C & Comma",
                 description: "Extend middle fingers to C and comma keys",
                 phase: "Lower Integration",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'v', 'm', 'c', ','],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n', 'c', ','],
                 targetAccuracy: 93,
                 targetWPM: 32,
                 minChars: 120,
@@ -399,11 +447,11 @@ class LessonData {
                 }
             },
             {
-                id: 14,
+                id: 17,
                 title: "Lower Row - X & Period",
                 description: "Drop ring fingers to X and period keys",
                 phase: "Lower Integration",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'v', 'm', 'c', ',', 'x', '.'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n', 'c', ',', 'x', '.'],
                 targetAccuracy: 93,
                 targetWPM: 34,
                 minChars: 120,
@@ -415,11 +463,11 @@ class LessonData {
                 }
             },
             {
-                id: 15,
+                id: 18,
                 title: "Lower Row - Z & Slash",
                 description: "Complete lower row with pinky reach to Z and slash",
                 phase: "Lower Integration",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'v', 'm', 'c', ',', 'x', '.', 'z', '/'],
+                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n', 'c', ',', 'x', '.', 'z', '/'],
                 targetAccuracy: 93,
                 targetWPM: 36,
                 minChars: 130,
@@ -431,11 +479,11 @@ class LessonData {
                 }
             },
             {
-                id: 16,
+                id: 19,
                 title: "Three-Row Mastery Review",
                 description: "Master all three letter rows with fluid typing",
                 phase: "Lower Integration",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/'],
+                keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
                 targetAccuracy: 94,
                 targetWPM: 38,
                 minChars: 140,
@@ -449,7 +497,7 @@ class LessonData {
 
             // Phase 4: Numbers & Symbols (Progressive Addition)
             {
-                id: 17,
+                id: 20,
                 title: "Numbers - 1",
                 description: "Add number 1 key with left pinky",
                 phase: "Numbers & Symbols",
@@ -465,7 +513,7 @@ class LessonData {
                 }
             },
             {
-                id: 18,
+                id: 21,
                 title: "Numbers - 2",
                 description: "Add number 2 key with left ring finger",
                 phase: "Numbers & Symbols",
@@ -481,7 +529,7 @@ class LessonData {
                 }
             },
             {
-                id: 19,
+                id: 22,
                 title: "Numbers - 3",
                 description: "Add number 3 key with left middle finger",
                 phase: "Numbers & Symbols",
@@ -497,7 +545,7 @@ class LessonData {
                 }
             },
             {
-                id: 20,
+                id: 23,
                 title: "Numbers - 4",
                 description: "Add number 4 key with left index finger",
                 phase: "Numbers & Symbols",
@@ -513,7 +561,7 @@ class LessonData {
                 }
             },
             {
-                id: 21,
+                id: 24,
                 title: "Numbers - 5",
                 description: "Add number 5 key with left index finger",
                 phase: "Numbers & Symbols",
@@ -529,7 +577,7 @@ class LessonData {
                 }
             },
             {
-                id: 22,
+                id: 25,
                 title: "Numbers - 6",
                 description: "Add number 6 key with right index finger",
                 phase: "Numbers & Symbols",
@@ -545,7 +593,7 @@ class LessonData {
                 }
             },
             {
-                id: 23,
+                id: 26,
                 title: "Numbers - 7",
                 description: "Add number 7 key with right index finger",
                 phase: "Numbers & Symbols",
@@ -561,7 +609,7 @@ class LessonData {
                 }
             },
             {
-                id: 24,
+                id: 27,
                 title: "Numbers - 8",
                 description: "Add number 8 key with right middle finger",
                 phase: "Numbers & Symbols",
@@ -577,7 +625,7 @@ class LessonData {
                 }
             },
             {
-                id: 25,
+                id: 28,
                 title: "Numbers - 9",
                 description: "Add number 9 key with right ring finger",
                 phase: "Numbers & Symbols",
@@ -593,7 +641,7 @@ class LessonData {
                 }
             },
             {
-                id: 26,
+                id: 29,
                 title: "Numbers - 0",
                 description: "Complete numbers with 0 key using right pinky",
                 phase: "Numbers & Symbols",
@@ -611,7 +659,7 @@ class LessonData {
 
             // Continue with punctuation and special characters...
             {
-                id: 27,
+                id: 30,
                 title: "Punctuation - Apostrophe",
                 description: "Add apostrophe key for contractions",
                 phase: "Numbers & Symbols",
@@ -627,7 +675,7 @@ class LessonData {
                 }
             },
             {
-                id: 28,
+                id: 31,
                 title: "Punctuation - Hyphen",
                 description: "Add hyphen key for compound words",
                 phase: "Numbers & Symbols", 
@@ -643,7 +691,7 @@ class LessonData {
                 }
             },
             {
-                id: 29,
+                id: 32,
                 title: "Punctuation - Equals",
                 description: "Add equals sign for mathematical expressions",
                 phase: "Numbers & Symbols",
@@ -659,7 +707,7 @@ class LessonData {
                 }
             },
             {
-                id: 30,
+                id: 33,
                 title: "Brackets - Square Brackets",
                 description: "Add left and right square brackets",
                 phase: "Numbers & Symbols",
@@ -675,7 +723,7 @@ class LessonData {
                 }
             },
             {
-                id: 31,
+                id: 34,
                 title: "Special - Backslash",
                 description: "Add backslash key for paths and escapes",
                 phase: "Numbers & Symbols",
@@ -691,7 +739,7 @@ class LessonData {
                 }
             },
             {
-                id: 32,
+                id: 35,
                 title: "Special - Backtick",
                 description: "Add backtick/grave accent key",
                 phase: "Numbers & Symbols",
@@ -709,7 +757,7 @@ class LessonData {
             
             // Modifier Keys continue
             {
-                id: 33,
+                id: 36,
                 title: "Modifier Keys - Tab & Enter",
                 description: "Master Tab and Enter keys with precision",
                 phase: "Modifier Keys",
@@ -725,7 +773,7 @@ class LessonData {
                 }
             },
             {
-                id: 34,
+                id: 37,
                 title: "Modifier Keys - Shift Keys",
                 description: "Master both left and right Shift keys",
                 phase: "Modifier Keys",
@@ -741,7 +789,7 @@ class LessonData {
                 }
             },
             {
-                id: 35,
+                id: 38,
                 title: "Control Keys - Ctrl",
                 description: "Master Control key combinations",
                 phase: "Modifier Keys",
@@ -757,7 +805,7 @@ class LessonData {
                 }
             },
             {
-                id: 36,
+                id: 39,
                 title: "Modifier Keys - Alt",
                 description: "Add Alt key for advanced combinations",
                 phase: "Modifier Keys",
@@ -773,7 +821,7 @@ class LessonData {
                 }
             },
             {
-                id: 37,
+                id: 40,
                 title: "Special Keys - CapsLock",
                 description: "Master CapsLock toggle functionality",
                 phase: "Modifier Keys", 
@@ -791,7 +839,7 @@ class LessonData {
             
             // Capitalization Lessons Phase
             {
-                id: 38,
+                id: 41,
                 title: "Capitalization - Home Row Capitals",
                 description: "Master uppercase home row letters using Shift",
                 phase: "Capitalization",
@@ -807,7 +855,7 @@ class LessonData {
                 }
             },
             {
-                id: 39,
+                id: 42,
                 title: "Capitalization - Upper Row Capitals",
                 description: "Master uppercase upper row letters using Shift",
                 phase: "Capitalization",
@@ -823,7 +871,7 @@ class LessonData {
                 }
             },
             {
-                id: 40,
+                id: 43,
                 title: "Capitalization - Lower Row Capitals", 
                 description: "Master uppercase lower row letters using Shift",
                 phase: "Capitalization",
@@ -839,7 +887,7 @@ class LessonData {
                 }
             },
             {
-                id: 41,
+                id: 44,
                 title: "Capitalization - Complete Alphabet Review",
                 description: "Master all uppercase letters A-Z with fluid typing",
                 phase: "Capitalization",
@@ -855,7 +903,7 @@ class LessonData {
                 }
             },
             {
-                id: 42,
+                id: 45,
                 title: "Capitalization - Sentence Capitalization",
                 description: "Practice proper capitalization in sentences and proper nouns",
                 phase: "Capitalization",
@@ -873,7 +921,7 @@ class LessonData {
 
             // Shifted Number Row Symbols
             {
-                id: 43,
+                id: 46,
                 title: "Symbols - Exclamation & At",
                 description: "Master ! (Shift+1) and @ (Shift+2) symbols",
                 phase: "Shifted Symbols",
@@ -889,7 +937,7 @@ class LessonData {
                 }
             },
             {
-                id: 44,
+                id: 47,
                 title: "Symbols - Hash & Dollar",
                 description: "Master # (Shift+3) and $ (Shift+4) symbols",
                 phase: "Shifted Symbols",
@@ -905,7 +953,7 @@ class LessonData {
                 }
             },
             {
-                id: 45,
+                id: 48,
                 title: "Symbols - Percent & Caret",
                 description: "Master % (Shift+5) and ^ (Shift+6) symbols",
                 phase: "Shifted Symbols",
@@ -921,7 +969,7 @@ class LessonData {
                 }
             },
             {
-                id: 46,
+                id: 49,
                 title: "Symbols - Ampersand & Asterisk",
                 description: "Master & (Shift+7) and * (Shift+8) symbols",
                 phase: "Shifted Symbols",
@@ -937,7 +985,7 @@ class LessonData {
                 }
             },
             {
-                id: 47,
+                id: 50,
                 title: "Symbols - Parentheses",
                 description: "Master ( (Shift+9) and ) (Shift+0) parentheses",
                 phase: "Shifted Symbols",
@@ -955,7 +1003,7 @@ class LessonData {
 
             // Additional Punctuation
             {
-                id: 48,
+                id: 51,
                 title: "Punctuation - Double Quote",
                 description: "Master \" (Shift+') double quote symbol",
                 phase: "Additional Punctuation",
@@ -971,7 +1019,7 @@ class LessonData {
                 }
             },
             {
-                id: 49,
+                id: 52,
                 title: "Punctuation - Colon",
                 description: "Master : (Shift+;) colon symbol",
                 phase: "Additional Punctuation",
@@ -987,7 +1035,7 @@ class LessonData {
                 }
             },
             {
-                id: 50,
+                id: 53,
                 title: "Symbols - Less Than & Greater Than",
                 description: "Master < (Shift+,) and > (Shift+.) symbols",
                 phase: "Additional Punctuation",
@@ -1003,7 +1051,7 @@ class LessonData {
                 }
             },
             {
-                id: 51,
+                id: 54,
                 title: "Punctuation - Question Mark",
                 description: "Master ? (Shift+/) question mark symbol",
                 phase: "Additional Punctuation",
@@ -1019,7 +1067,7 @@ class LessonData {
                 }
             },
             {
-                id: 52,
+                id: 55,
                 title: "Brackets - Curly Braces",
                 description: "Master { (Shift+[) and } (Shift+]) curly braces",
                 phase: "Additional Punctuation",
@@ -1035,7 +1083,7 @@ class LessonData {
                 }
             },
             {
-                id: 53,
+                id: 56,
                 title: "Symbols - Pipe",
                 description: "Master | (Shift+\\) pipe symbol",
                 phase: "Additional Punctuation",
@@ -1051,7 +1099,7 @@ class LessonData {
                 }
             },
             {
-                id: 54,
+                id: 57,
                 title: "Symbols - Tilde",
                 description: "Master ~ (Shift+`) tilde symbol",
                 phase: "Additional Punctuation",
@@ -1069,7 +1117,7 @@ class LessonData {
 
             // Special Keys
             {
-                id: 55,
+                id: 58,
                 title: "Special Keys - Escape",
                 description: "Master Escape key functionality",
                 phase: "Special Keys",
@@ -1085,7 +1133,7 @@ class LessonData {
                 }
             },
             {
-                id: 56,
+                id: 59,
                 title: "Special Keys - Backspace",
                 description: "Master Backspace key for deletion",
                 phase: "Special Keys",
@@ -1103,7 +1151,7 @@ class LessonData {
 
             // Numpad Keys
             {
-                id: 57,
+                id: 60,
                 title: "Numpad - Numbers 0-4",
                 description: "Master numpad numbers 0, 1, 2, 3, 4",
                 phase: "Numpad Keys",
@@ -1119,7 +1167,7 @@ class LessonData {
                 }
             },
             {
-                id: 58,
+                id: 61,
                 title: "Numpad - Numbers 5-9",
                 description: "Master numpad numbers 5, 6, 7, 8, 9",
                 phase: "Numpad Keys",
@@ -1135,7 +1183,7 @@ class LessonData {
                 }
             },
             {
-                id: 59,
+                id: 62,
                 title: "Numpad - Plus & Minus",
                 description: "Master numpad + (plus) and - (minus) operators",
                 phase: "Numpad Keys",
@@ -1151,7 +1199,7 @@ class LessonData {
                 }
             },
             {
-                id: 60,
+                id: 63,
                 title: "Numpad - Multiply & Divide",
                 description: "Master numpad * (multiply) and / (divide) operators",
                 phase: "Numpad Keys",
@@ -1167,7 +1215,7 @@ class LessonData {
                 }
             },
             {
-                id: 61,
+                id: 64,
                 title: "Numpad - Enter & Decimal",
                 description: "Master numpad Enter and . (decimal) keys",
                 phase: "Numpad Keys",
@@ -1183,7 +1231,7 @@ class LessonData {
                 }
             },
             {
-                id: 62,
+                id: 65,
                 title: "Numpad - NumLock",
                 description: "Master NumLock toggle key",
                 phase: "Numpad Keys",
@@ -1201,7 +1249,7 @@ class LessonData {
 
             // Additional Modifier Keys
             {
-                id: 63,
+                id: 66,
                 title: "Modifier Keys - Windows Key",
                 description: "Master Windows/Meta key functionality",
                 phase: "Additional Modifiers",
@@ -1217,7 +1265,7 @@ class LessonData {
                 }
             },
             {
-                id: 64,
+                id: 67,
                 title: "Modifier Keys - Context Menu",
                 description: "Master Context Menu (right-click menu) key",
                 phase: "Additional Modifiers",
@@ -1233,7 +1281,7 @@ class LessonData {
                 }
             },
             {
-                id: 65,
+                id: 68,
                 title: "Modifier Keys - Right Ctrl & Alt",
                 description: "Master right-side Control and Alt keys",
                 phase: "Additional Modifiers",
@@ -1251,11 +1299,11 @@ class LessonData {
 
             // Ultimate Final Mastery
             {
-                id: 66,
+                id: 69,
                 title: "Ultimate Typing Mastery Challenge", 
                 description: "Demonstrate complete mastery of all essential keyboard keys",
                 phase: "Complete Mastery",
-                keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M', 'N', 'B', 'G', 'H', 'T', 'Y', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu', 'ControlRight', 'AltRight'],
+                keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu', 'ControlRight', 'AltRight'],
                 targetAccuracy: 95,
                 targetWPM: 60,
                 minChars: 300,
