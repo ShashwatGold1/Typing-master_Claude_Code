@@ -57,9 +57,73 @@ class LessonData {
         }
     }
 
-    // Get current lesson data
+    // Get current lesson data with dynamic WPM and accuracy from config
     getCurrentLesson() {
-        return this.lessonStructure[this.currentLesson - 1] || null;
+        const lesson = this.lessonStructure[this.currentLesson - 1];
+        if (!lesson) return null;
+
+        // Create a copy to avoid modifying the original
+        const lessonCopy = { ...lesson };
+
+        // Get accuracy from config progression first, then fallback to default
+        if (this.typingConfig && this.typingConfig.characterLessons && this.typingConfig.characterLessons.accuracyProgression) {
+            const accuracyProgression = this.typingConfig.characterLessons.accuracyProgression;
+            const accuracyTarget = accuracyProgression[this.currentLesson.toString()];
+            if (accuracyTarget !== undefined && accuracyTarget !== null) {
+                lessonCopy.targetAccuracy = accuracyTarget;
+            } else {
+                // Fallback to default accuracy for character lessons
+                lessonCopy.targetAccuracy = this.typingConfig.characterLessons.defaultTargetAccuracy || 100;
+            }
+        } else {
+            // Fallback if no config available
+            lessonCopy.targetAccuracy = 100;
+        }
+
+        // Get WPM from config progression first, then fallback to default
+        if (this.typingConfig && this.typingConfig.characterLessons && this.typingConfig.characterLessons.wpmProgression) {
+            const wpmProgression = this.typingConfig.characterLessons.wpmProgression;
+            const wpmTarget = wpmProgression[this.currentLesson.toString()];
+            if (wpmTarget !== undefined && wpmTarget !== null) {
+                lessonCopy.targetWPM = wpmTarget;
+            } else {
+                // Fallback to a reasonable default WPM
+                lessonCopy.targetWPM = 20;
+            }
+        } else {
+            // Fallback if no config available
+            lessonCopy.targetWPM = 20;
+        }
+
+        return lessonCopy;
+    }
+
+    // Get accuracy target from config for a specific lesson
+    getConfigAccuracy(lessonId) {
+        if (this.typingConfig && this.typingConfig.characterLessons && this.typingConfig.characterLessons.accuracyProgression) {
+            const accuracyProgression = this.typingConfig.characterLessons.accuracyProgression;
+            const accuracyTarget = accuracyProgression[lessonId.toString()];
+            if (accuracyTarget !== undefined && accuracyTarget !== null) {
+                return accuracyTarget;
+            }
+            // Fallback to default accuracy for character lessons
+            return this.typingConfig.characterLessons.defaultTargetAccuracy || 100;
+        }
+        // Fallback if no config available
+        return 100;
+    }
+
+    // Get WPM target from config for a specific lesson
+    getConfigWPM(lessonId) {
+        if (this.typingConfig && this.typingConfig.characterLessons && this.typingConfig.characterLessons.wpmProgression) {
+            const wpmProgression = this.typingConfig.characterLessons.wpmProgression;
+            const wpmTarget = wpmProgression[lessonId.toString()];
+            if (wpmTarget !== undefined && wpmTarget !== null) {
+                return wpmTarget;
+            }
+        }
+        // Fallback if no config available
+        return 20;
     }
 
     // Check if can advance to next lesson
@@ -192,8 +256,6 @@ class LessonData {
                 description: "Master the home position with index fingers on F and J",
                 phase: "Foundation",
                 keys: ['f', 'j'],
-                targetAccuracy: 95,
-                targetWPM: 5,
                 minChars: 30,
                 textLength: 40,
                 completion: {
@@ -208,8 +270,6 @@ class LessonData {
                 description: "Add spacebar with your thumbs while maintaining F and J",
                 phase: "Foundation",
                 keys: ['f', 'j', ' '],
-                targetAccuracy: 95,
-                targetWPM: 8,
                 minChars: 40,
                 textLength: 50,
                 completion: {
@@ -224,8 +284,6 @@ class LessonData {
                 description: "Add middle fingers to D and K keys",
                 phase: "Foundation", 
                 keys: ['f', 'j', ' ', 'd', 'k'],
-                targetAccuracy: 95,
-                targetWPM: 10,
                 minChars: 50,
                 textLength: 60,
                 completion: {
@@ -240,8 +298,6 @@ class LessonData {
                 description: "Add ring fingers to S and L keys",
                 phase: "Foundation",
                 keys: ['f', 'j', ' ', 'd', 'k', 's', 'l'],
-                targetAccuracy: 95,
-                targetWPM: 12,
                 minChars: 60,
                 textLength: 70,
                 completion: {
@@ -256,8 +312,6 @@ class LessonData {
                 description: "Complete home row with pinky fingers on A and semicolon",
                 phase: "Foundation",
                 keys: ['f', 'j', ' ', 'd', 'k', 's', 'l', 'a', ';'],
-                targetAccuracy: 95,
-                targetWPM: 15,
                 minChars: 70,
                 textLength: 80,
                 completion: {
@@ -272,8 +326,6 @@ class LessonData {
                 description: "Add index finger extensions to G and H keys",
                 phase: "Foundation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h'],
-                targetAccuracy: 95,
-                targetWPM: 16,
                 minChars: 70,
                 textLength: 85,
                 completion: {
@@ -288,8 +340,6 @@ class LessonData {
                 description: "Master all home row keys with index extensions",
                 phase: "Foundation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h'],
-                targetAccuracy: 96,
-                targetWPM: 18,
                 minChars: 80,
                 textLength: 100,
                 completion: {
@@ -306,8 +356,6 @@ class LessonData {
                 description: "Extend index fingers up to R and U keys",
                 phase: "Upper Extension",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u'],
-                targetAccuracy: 94,
-                targetWPM: 20,
                 minChars: 80,
                 textLength: 90,
                 completion: {
@@ -322,8 +370,6 @@ class LessonData {
                 description: "Add index finger extensions to T and Y keys",
                 phase: "Upper Extension",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y'],
-                targetAccuracy: 94,
-                targetWPM: 21,
                 minChars: 85,
                 textLength: 95,
                 completion: {
@@ -338,8 +384,6 @@ class LessonData {
                 description: "Add middle finger reach to E and I keys",
                 phase: "Upper Extension",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y', 'e', 'i'],
-                targetAccuracy: 94,
-                targetWPM: 22,
                 minChars: 90,
                 textLength: 100,
                 completion: {
@@ -354,8 +398,6 @@ class LessonData {
                 description: "Extend ring fingers to W and O keys",
                 phase: "Upper Extension", 
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y', 'e', 'i', 'w', 'o'],
-                targetAccuracy: 94,
-                targetWPM: 24,
                 minChars: 90,
                 textLength: 110,
                 completion: {
@@ -370,8 +412,6 @@ class LessonData {
                 description: "Complete upper row with pinky reach to Q and P",
                 phase: "Upper Extension",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'r', 'u', 't', 'y', 'e', 'i', 'w', 'o', 'q', 'p'],
-                targetAccuracy: 94,
-                targetWPM: 26,
                 minChars: 100,
                 textLength: 120,
                 completion: {
@@ -386,8 +426,6 @@ class LessonData {
                 description: "Master home and upper rows combined",
                 phase: "Upper Extension",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-                targetAccuracy: 95,
-                targetWPM: 28,
                 minChars: 110,
                 textLength: 130,
                 completion: {
@@ -404,8 +442,6 @@ class LessonData {
                 description: "Drop index fingers down to V and M keys",
                 phase: "Lower Integration",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm'],
-                targetAccuracy: 93,
-                targetWPM: 30,
                 minChars: 110,
                 textLength: 130,
                 completion: {
@@ -420,8 +456,6 @@ class LessonData {
                 description: "Add index finger extensions to B and N keys",
                 phase: "Lower Integration",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n'],
-                targetAccuracy: 93,
-                targetWPM: 31,
                 minChars: 115,
                 textLength: 135,
                 completion: {
@@ -436,8 +470,6 @@ class LessonData {
                 description: "Extend middle fingers to C and comma keys",
                 phase: "Lower Integration",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n', 'c', ','],
-                targetAccuracy: 93,
-                targetWPM: 32,
                 minChars: 120,
                 textLength: 140,
                 completion: {
@@ -452,8 +484,6 @@ class LessonData {
                 description: "Drop ring fingers to X and period keys",
                 phase: "Lower Integration",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n', 'c', ',', 'x', '.'],
-                targetAccuracy: 93,
-                targetWPM: 34,
                 minChars: 120,
                 textLength: 150,
                 completion: {
@@ -468,8 +498,6 @@ class LessonData {
                 description: "Complete lower row with pinky reach to Z and slash",
                 phase: "Lower Integration",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'v', 'm', 'b', 'n', 'c', ',', 'x', '.', 'z', '/'],
-                targetAccuracy: 93,
-                targetWPM: 36,
                 minChars: 130,
                 textLength: 160,
                 completion: {
@@ -484,8 +512,6 @@ class LessonData {
                 description: "Master all three letter rows with fluid typing",
                 phase: "Lower Integration",
                 keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
-                targetAccuracy: 94,
-                targetWPM: 38,
                 minChars: 140,
                 textLength: 170,
                 completion: {
@@ -502,8 +528,6 @@ class LessonData {
                 description: "Add number 1 key with left pinky",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1'],
-                targetAccuracy: 92,
-                targetWPM: 35,
                 minChars: 100,
                 textLength: 120,
                 completion: {
@@ -518,8 +542,6 @@ class LessonData {
                 description: "Add number 2 key with left ring finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2'],
-                targetAccuracy: 92,
-                targetWPM: 35,
                 minChars: 100,
                 textLength: 120,
                 completion: {
@@ -534,8 +556,6 @@ class LessonData {
                 description: "Add number 3 key with left middle finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3'],
-                targetAccuracy: 92,
-                targetWPM: 36,
                 minChars: 110,
                 textLength: 130,
                 completion: {
@@ -550,8 +570,6 @@ class LessonData {
                 description: "Add number 4 key with left index finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4'],
-                targetAccuracy: 92,
-                targetWPM: 36,
                 minChars: 110,
                 textLength: 130,
                 completion: {
@@ -566,8 +584,6 @@ class LessonData {
                 description: "Add number 5 key with left index finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5'],
-                targetAccuracy: 92,
-                targetWPM: 37,
                 minChars: 110,
                 textLength: 130,
                 completion: {
@@ -582,8 +598,6 @@ class LessonData {
                 description: "Add number 6 key with right index finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6'],
-                targetAccuracy: 92,
-                targetWPM: 37,
                 minChars: 120,
                 textLength: 140,
                 completion: {
@@ -598,8 +612,6 @@ class LessonData {
                 description: "Add number 7 key with right index finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7'],
-                targetAccuracy: 92,
-                targetWPM: 38,
                 minChars: 120,
                 textLength: 140,
                 completion: {
@@ -614,8 +626,6 @@ class LessonData {
                 description: "Add number 8 key with right middle finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8'],
-                targetAccuracy: 92,
-                targetWPM: 38,
                 minChars: 120,
                 textLength: 140,
                 completion: {
@@ -630,8 +640,6 @@ class LessonData {
                 description: "Add number 9 key with right ring finger",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-                targetAccuracy: 92,
-                targetWPM: 39,
                 minChars: 130,
                 textLength: 150,
                 completion: {
@@ -646,8 +654,6 @@ class LessonData {
                 description: "Complete numbers with 0 key using right pinky",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-                targetAccuracy: 92,
-                targetWPM: 40,
                 minChars: 130,
                 textLength: 150,
                 completion: {
@@ -664,8 +670,6 @@ class LessonData {
                 description: "Add apostrophe key for contractions",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'"],
-                targetAccuracy: 91,
-                targetWPM: 40,
                 minChars: 130,
                 textLength: 150,
                 completion: {
@@ -680,8 +684,6 @@ class LessonData {
                 description: "Add hyphen key for compound words",
                 phase: "Numbers & Symbols", 
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-'],
-                targetAccuracy: 91,
-                targetWPM: 41,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -696,8 +698,6 @@ class LessonData {
                 description: "Add equals sign for mathematical expressions",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '='],
-                targetAccuracy: 91,
-                targetWPM: 42,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -712,8 +712,6 @@ class LessonData {
                 description: "Add left and right square brackets",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']'],
-                targetAccuracy: 90,
-                targetWPM: 42,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -728,8 +726,6 @@ class LessonData {
                 description: "Add backslash key for paths and escapes",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\'],
-                targetAccuracy: 90,
-                targetWPM: 43,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -744,8 +740,6 @@ class LessonData {
                 description: "Add backtick/grave accent key",
                 phase: "Numbers & Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`'],
-                targetAccuracy: 90,
-                targetWPM: 44,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -762,8 +756,6 @@ class LessonData {
                 description: "Master Tab and Enter keys with precision",
                 phase: "Modifier Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter'],
-                targetAccuracy: 92,
-                targetWPM: 45,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -778,8 +770,6 @@ class LessonData {
                 description: "Master both left and right Shift keys",
                 phase: "Modifier Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift'],
-                targetAccuracy: 90,
-                targetWPM: 46,
                 minChars: 170,
                 textLength: 190,
                 completion: {
@@ -794,8 +784,6 @@ class LessonData {
                 description: "Master Control key combinations",
                 phase: "Modifier Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl'],
-                targetAccuracy: 88,
-                targetWPM: 40,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -810,8 +798,6 @@ class LessonData {
                 description: "Add Alt key for advanced combinations",
                 phase: "Modifier Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt'],
-                targetAccuracy: 88,
-                targetWPM: 41,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -826,8 +812,6 @@ class LessonData {
                 description: "Master CapsLock toggle functionality",
                 phase: "Modifier Keys", 
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock'],
-                targetAccuracy: 90,
-                targetWPM: 42,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -844,8 +828,6 @@ class LessonData {
                 description: "Master uppercase home row letters using Shift",
                 phase: "Capitalization",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L'],
-                targetAccuracy: 90,
-                targetWPM: 25,
                 minChars: 80,
                 textLength: 100,
                 completion: {
@@ -860,8 +842,6 @@ class LessonData {
                 description: "Master uppercase upper row letters using Shift",
                 phase: "Capitalization",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P'],
-                targetAccuracy: 90,
-                targetWPM: 27,
                 minChars: 90,
                 textLength: 110,
                 completion: {
@@ -876,8 +856,6 @@ class LessonData {
                 description: "Master uppercase lower row letters using Shift",
                 phase: "Capitalization",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M'],
-                targetAccuracy: 90,
-                targetWPM: 30,
                 minChars: 100,
                 textLength: 120,
                 completion: {
@@ -892,8 +870,6 @@ class LessonData {
                 description: "Master all uppercase letters A-Z with fluid typing",
                 phase: "Capitalization",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M', 'N', 'B', 'G', 'H', 'T', 'Y'],
-                targetAccuracy: 92,
-                targetWPM: 33,
                 minChars: 120,
                 textLength: 140,
                 completion: {
@@ -908,8 +884,6 @@ class LessonData {
                 description: "Practice proper capitalization in sentences and proper nouns",
                 phase: "Capitalization",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'M', 'N', 'B', 'G', 'H', 'T', 'Y'],
-                targetAccuracy: 93,
-                targetWPM: 35,
                 minChars: 150,
                 textLength: 180,
                 completion: {
@@ -926,8 +900,6 @@ class LessonData {
                 description: "Master ! (Shift+1) and @ (Shift+2) symbols",
                 phase: "Shifted Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@'],
-                targetAccuracy: 89,
-                targetWPM: 38,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -942,8 +914,6 @@ class LessonData {
                 description: "Master # (Shift+3) and $ (Shift+4) symbols",
                 phase: "Shifted Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$'],
-                targetAccuracy: 89,
-                targetWPM: 39,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -958,8 +928,6 @@ class LessonData {
                 description: "Master % (Shift+5) and ^ (Shift+6) symbols",
                 phase: "Shifted Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^'],
-                targetAccuracy: 89,
-                targetWPM: 40,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -974,8 +942,6 @@ class LessonData {
                 description: "Master & (Shift+7) and * (Shift+8) symbols",
                 phase: "Shifted Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*'],
-                targetAccuracy: 88,
-                targetWPM: 40,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -990,8 +956,6 @@ class LessonData {
                 description: "Master ( (Shift+9) and ) (Shift+0) parentheses",
                 phase: "Shifted Symbols",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')'],
-                targetAccuracy: 88,
-                targetWPM: 41,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -1008,8 +972,6 @@ class LessonData {
                 description: "Master \" (Shift+') double quote symbol",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"'],
-                targetAccuracy: 90,
-                targetWPM: 42,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -1024,8 +986,6 @@ class LessonData {
                 description: "Master : (Shift+;) colon symbol",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':'],
-                targetAccuracy: 90,
-                targetWPM: 42,
                 minChars: 170,
                 textLength: 190,
                 completion: {
@@ -1040,8 +1000,6 @@ class LessonData {
                 description: "Master < (Shift+,) and > (Shift+.) symbols",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>'],
-                targetAccuracy: 89,
-                targetWPM: 43,
                 minChars: 170,
                 textLength: 190,
                 completion: {
@@ -1056,8 +1014,6 @@ class LessonData {
                 description: "Master ? (Shift+/) question mark symbol",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?'],
-                targetAccuracy: 90,
-                targetWPM: 44,
                 minChars: 180,
                 textLength: 200,
                 completion: {
@@ -1072,8 +1028,6 @@ class LessonData {
                 description: "Master { (Shift+[) and } (Shift+]) curly braces",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}'],
-                targetAccuracy: 89,
-                targetWPM: 44,
                 minChars: 180,
                 textLength: 200,
                 completion: {
@@ -1088,8 +1042,6 @@ class LessonData {
                 description: "Master | (Shift+\\) pipe symbol",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|'],
-                targetAccuracy: 89,
-                targetWPM: 45,
                 minChars: 180,
                 textLength: 200,
                 completion: {
@@ -1104,8 +1056,6 @@ class LessonData {
                 description: "Master ~ (Shift+`) tilde symbol",
                 phase: "Additional Punctuation",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~'],
-                targetAccuracy: 89,
-                targetWPM: 45,
                 minChars: 190,
                 textLength: 210,
                 completion: {
@@ -1122,8 +1072,6 @@ class LessonData {
                 description: "Master Escape key functionality",
                 phase: "Special Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape'],
-                targetAccuracy: 85,
-                targetWPM: 40,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -1138,8 +1086,6 @@ class LessonData {
                 description: "Master Backspace key for deletion",
                 phase: "Special Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace'],
-                targetAccuracy: 88,
-                targetWPM: 42,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -1156,8 +1102,6 @@ class LessonData {
                 description: "Master numpad numbers 0, 1, 2, 3, 4",
                 phase: "Numpad Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4'],
-                targetAccuracy: 85,
-                targetWPM: 38,
                 minChars: 130,
                 textLength: 150,
                 completion: {
@@ -1172,8 +1116,6 @@ class LessonData {
                 description: "Master numpad numbers 5, 6, 7, 8, 9",
                 phase: "Numpad Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9'],
-                targetAccuracy: 85,
-                targetWPM: 39,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -1188,8 +1130,6 @@ class LessonData {
                 description: "Master numpad + (plus) and - (minus) operators",
                 phase: "Numpad Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract'],
-                targetAccuracy: 86,
-                targetWPM: 40,
                 minChars: 150,
                 textLength: 170,
                 completion: {
@@ -1204,8 +1144,6 @@ class LessonData {
                 description: "Master numpad * (multiply) and / (divide) operators",
                 phase: "Numpad Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide'],
-                targetAccuracy: 86,
-                targetWPM: 41,
                 minChars: 160,
                 textLength: 180,
                 completion: {
@@ -1220,8 +1158,6 @@ class LessonData {
                 description: "Master numpad Enter and . (decimal) keys",
                 phase: "Numpad Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal'],
-                targetAccuracy: 87,
-                targetWPM: 42,
                 minChars: 170,
                 textLength: 190,
                 completion: {
@@ -1236,8 +1172,6 @@ class LessonData {
                 description: "Master NumLock toggle key",
                 phase: "Numpad Keys",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock'],
-                targetAccuracy: 85,
-                targetWPM: 40,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -1254,8 +1188,6 @@ class LessonData {
                 description: "Master Windows/Meta key functionality",
                 phase: "Additional Modifiers",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft'],
-                targetAccuracy: 83,
-                targetWPM: 35,
                 minChars: 120,
                 textLength: 140,
                 completion: {
@@ -1270,8 +1202,6 @@ class LessonData {
                 description: "Master Context Menu (right-click menu) key",
                 phase: "Additional Modifiers",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu'],
-                targetAccuracy: 83,
-                targetWPM: 36,
                 minChars: 130,
                 textLength: 150,
                 completion: {
@@ -1286,8 +1216,6 @@ class LessonData {
                 description: "Master right-side Control and Alt keys",
                 phase: "Additional Modifiers",
                 keys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'F1', 'F2', 'F3', 'F4', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu', 'ControlRight', 'AltRight'],
-                targetAccuracy: 84,
-                targetWPM: 37,
                 minChars: 140,
                 textLength: 160,
                 completion: {
@@ -1304,8 +1232,6 @@ class LessonData {
                 description: "Demonstrate complete mastery of all essential keyboard keys",
                 phase: "Complete Mastery",
                 keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', ' ', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', "'", '-', '=', '[', ']', '\\', '`', 'Tab', 'Enter', 'Shift', 'Ctrl', 'Alt', 'CapsLock', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '"', ':', '<', '>', '?', '{', '}', '|', '~', 'Escape', 'Backspace', 'Numpad0', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6', 'Numpad7', 'Numpad8', 'Numpad9', 'NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'NumpadEnter', 'NumpadDecimal', 'NumLock', 'MetaLeft', 'ContextMenu', 'ControlRight', 'AltRight'],
-                targetAccuracy: 95,
-                targetWPM: 60,
                 minChars: 300,
                 textLength: 400,
                 completion: {

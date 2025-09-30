@@ -9,7 +9,7 @@
   "characterLessons": {
     "defaultTargetAccuracy": 100,
     "accuracyProgression": {
-      "1": 90,
+      "1": 5,
       "2": 91,
       "3": 92,
       "4": 93,

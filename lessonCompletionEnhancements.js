@@ -34,10 +34,10 @@ if (typeof LessonCompletionManager !== 'undefined') {
     LessonCompletionManager.prototype.generateFallbackMessage = function(lesson, accuracy, wpm) {
         const lessonTitle = lesson && lesson.title ? lesson.title : 'lesson';
         
-        // Character lesson friendly WPM thresholds (capped at 25 WPM max)
-        if (accuracy >= 95 && wpm >= 20) {
+        // Performance-based messaging using dynamic WPM thresholds
+        if (accuracy >= 98 && wpm >= 18) {
             return `Outstanding performance! You've mastered the ${lessonTitle} with excellent speed and accuracy.`;
-        } else if (accuracy >= 90) {
+        } else if (accuracy >= 95) {
             return `Great job! You've completed the ${lessonTitle} with strong accuracy. Keep building speed!`;
         } else if (wpm >= 15) {
             return `Good progress! You've completed the ${lessonTitle} with solid speed. Focus on accuracy next!`;
