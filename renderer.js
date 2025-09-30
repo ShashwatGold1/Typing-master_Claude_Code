@@ -4460,7 +4460,7 @@ class TypingGamesManager {
 
     initializeGames() {
         // Add event listeners to game cards
-        document.querySelectorAll('.game-play-btn').forEach(btn => {
+        document.querySelectorAll('.game-start-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const gameType = btn.dataset.game;

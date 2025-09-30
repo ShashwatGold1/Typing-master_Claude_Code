@@ -490,205 +490,156 @@
 
                 <!-- Games Page -->
                 <div class="page" id="games-page">
-                    <div class="games-header">
-                        <div class="games-title-section">
-                            <h1 class="games-main-title">
-                                <span class="title-icon">🎮</span>
-                                TYPING ARCADE
-                                <span class="title-glow"></span>
-                            </h1>
-                            <p class="games-subtitle">Level up your typing skills through exciting challenges</p>
-                        </div>
+                    <div class="page-header">
+                        <h1>Typing Games</h1>
+                        <p>Improve your typing skills through interactive games and challenges</p>
                     </div>
 
-                    <div class="games-container">
+                    <div class="games-grid">
                         <!-- Word Blaster Game -->
-                        <div class="game-card-arcade" data-game="word-blaster">
-                            <div class="game-card-background"></div>
-                            <div class="game-card-content">
-                                <div class="game-badge">ACTION</div>
-                                <div class="game-icon">💥</div>
-                                <h3 class="game-title">Word Blaster</h3>
-                                <p class="game-description">Type words to blast them before they reach the bottom!</p>
-                                <div class="game-stats">
-                                    <div class="game-stat">
-                                        <span class="stat-icon">⚡</span>
-                                        <span class="stat-label">Fast Paced</span>
-                                    </div>
-                                    <div class="game-stat">
-                                        <span class="stat-icon">🎯</span>
-                                        <span class="stat-label">Accuracy</span>
-                                    </div>
-                                </div>
-                                <button class="game-play-btn" data-game="word-blaster">
-                                    <span class="btn-text">PLAY NOW</span>
-                                    <span class="btn-arrow">→</span>
-                                </button>
+                        <div class="game-card" data-game="word-blaster">
+                            <div class="game-header">
+                                <div class="game-icon-badge">💥</div>
+                                <span class="game-badge">Action</span>
                             </div>
+                            <h3>Word Blaster</h3>
+                            <p>Type words to blast them before they reach the bottom. Test your speed and reflexes!</p>
+                            <div class="game-meta">
+                                <span class="game-tag">⚡ Fast Paced</span>
+                                <span class="game-tag">🎯 Accuracy</span>
+                            </div>
+                            <button class="btn btn-primary game-start-btn" data-game="word-blaster">
+                                Start Game
+                            </button>
                         </div>
 
                         <!-- Speed Racer Game -->
-                        <div class="game-card-arcade" data-game="speed-racer">
-                            <div class="game-card-background"></div>
-                            <div class="game-card-content">
-                                <div class="game-badge">SPEED</div>
-                                <div class="game-icon">🏎️</div>
-                                <h3 class="game-title">Speed Racer</h3>
-                                <p class="game-description">Race against time! Type as many words as you can in 60 seconds.</p>
-                                <div class="game-stats">
-                                    <div class="game-stat">
-                                        <span class="stat-icon">⏱️</span>
-                                        <span class="stat-label">Timed</span>
-                                    </div>
-                                    <div class="game-stat">
-                                        <span class="stat-icon">🚀</span>
-                                        <span class="stat-label">WPM Boost</span>
-                                    </div>
-                                </div>
-                                <button class="game-play-btn" data-game="speed-racer">
-                                    <span class="btn-text">PLAY NOW</span>
-                                    <span class="btn-arrow">→</span>
-                                </button>
+                        <div class="game-card" data-game="speed-racer">
+                            <div class="game-header">
+                                <div class="game-icon-badge">🏎️</div>
+                                <span class="game-badge speed-badge">Speed</span>
                             </div>
+                            <h3>Speed Racer</h3>
+                            <p>Race against the clock! Type as many words as you can in 60 seconds.</p>
+                            <div class="game-meta">
+                                <span class="game-tag">⏱️ Timed</span>
+                                <span class="game-tag">🚀 WPM Boost</span>
+                            </div>
+                            <button class="btn btn-primary game-start-btn" data-game="speed-racer">
+                                Start Game
+                            </button>
                         </div>
 
                         <!-- Zombie Typer Game -->
-                        <div class="game-card-arcade" data-game="zombie-typer">
-                            <div class="game-card-background"></div>
-                            <div class="game-card-content">
-                                <div class="game-badge">SURVIVAL</div>
-                                <div class="game-icon">🧟</div>
-                                <h3 class="game-title">Zombie Typer</h3>
-                                <p class="game-description">Survive waves of zombies by typing their words correctly!</p>
-                                <div class="game-stats">
-                                    <div class="game-stat">
-                                        <span class="stat-icon">🛡️</span>
-                                        <span class="stat-label">Defense</span>
-                                    </div>
-                                    <div class="game-stat">
-                                        <span class="stat-icon">📊</span>
-                                        <span class="stat-label">Levels</span>
-                                    </div>
-                                </div>
-                                <button class="game-play-btn" data-game="zombie-typer">
-                                    <span class="btn-text">PLAY NOW</span>
-                                    <span class="btn-arrow">→</span>
-                                </button>
+                        <div class="game-card" data-game="zombie-typer">
+                            <div class="game-header">
+                                <div class="game-icon-badge">🧟</div>
+                                <span class="game-badge survival-badge">Survival</span>
                             </div>
+                            <h3>Zombie Typer</h3>
+                            <p>Survive waves of zombies by typing their words correctly. How long can you last?</p>
+                            <div class="game-meta">
+                                <span class="game-tag">🛡️ Defense</span>
+                                <span class="game-tag">📊 Levels</span>
+                            </div>
+                            <button class="btn btn-primary game-start-btn" data-game="zombie-typer">
+                                Start Game
+                            </button>
                         </div>
 
                         <!-- Letter Storm Game -->
-                        <div class="game-card-arcade" data-game="letter-storm">
-                            <div class="game-card-background"></div>
-                            <div class="game-card-content">
-                                <div class="game-badge">CHAOS</div>
-                                <div class="game-icon">⚡</div>
-                                <h3 class="game-title">Letter Storm</h3>
-                                <p class="game-description">Catch falling letters and create words before they disappear!</p>
-                                <div class="game-stats">
-                                    <div class="game-stat">
-                                        <span class="stat-icon">🎪</span>
-                                        <span class="stat-label">Reflex</span>
-                                    </div>
-                                    <div class="game-stat">
-                                        <span class="stat-icon">🌟</span>
-                                        <span class="stat-label">Combo</span>
-                                    </div>
-                                </div>
-                                <button class="game-play-btn" data-game="letter-storm">
-                                    <span class="btn-text">PLAY NOW</span>
-                                    <span class="btn-arrow">→</span>
-                                </button>
+                        <div class="game-card" data-game="letter-storm">
+                            <div class="game-header">
+                                <div class="game-icon-badge">⚡</div>
+                                <span class="game-badge chaos-badge">Chaos</span>
                             </div>
+                            <h3>Letter Storm</h3>
+                            <p>Catch falling letters and create words before they disappear. Build combos for higher scores!</p>
+                            <div class="game-meta">
+                                <span class="game-tag">🎪 Reflex</span>
+                                <span class="game-tag">🌟 Combo</span>
+                            </div>
+                            <button class="btn btn-primary game-start-btn" data-game="letter-storm">
+                                Start Game
+                            </button>
                         </div>
 
                         <!-- Code Warrior Game -->
-                        <div class="game-card-arcade" data-game="code-warrior">
-                            <div class="game-card-background"></div>
-                            <div class="game-card-content">
-                                <div class="game-badge">EXPERT</div>
-                                <div class="game-icon">💻</div>
-                                <h3 class="game-title">Code Warrior</h3>
-                                <p class="game-description">Master special characters and symbols used in programming!</p>
-                                <div class="game-stats">
-                                    <div class="game-stat">
-                                        <span class="stat-icon">⚔️</span>
-                                        <span class="stat-label">Advanced</span>
-                                    </div>
-                                    <div class="game-stat">
-                                        <span class="stat-icon">🎓</span>
-                                        <span class="stat-label">Skill Build</span>
-                                    </div>
-                                </div>
-                                <button class="game-play-btn" data-game="code-warrior">
-                                    <span class="btn-text">PLAY NOW</span>
-                                    <span class="btn-arrow">→</span>
-                                </button>
+                        <div class="game-card" data-game="code-warrior">
+                            <div class="game-header">
+                                <div class="game-icon-badge">💻</div>
+                                <span class="game-badge expert-badge">Expert</span>
                             </div>
+                            <h3>Code Warrior</h3>
+                            <p>Master special characters and symbols used in programming. Perfect for developers!</p>
+                            <div class="game-meta">
+                                <span class="game-tag">⚔️ Advanced</span>
+                                <span class="game-tag">🎓 Skill Build</span>
+                            </div>
+                            <button class="btn btn-primary game-start-btn" data-game="code-warrior">
+                                Start Game
+                            </button>
                         </div>
 
                         <!-- Sentence Sprint Game -->
-                        <div class="game-card-arcade" data-game="sentence-sprint">
-                            <div class="game-card-background"></div>
-                            <div class="game-card-content">
-                                <div class="game-badge">ENDURANCE</div>
-                                <div class="game-icon">📝</div>
-                                <h3 class="game-title">Sentence Sprint</h3>
-                                <p class="game-description">Type complete sentences accurately to build your stamina!</p>
-                                <div class="game-stats">
-                                    <div class="game-stat">
-                                        <span class="stat-icon">💪</span>
-                                        <span class="stat-label">Endurance</span>
-                                    </div>
-                                    <div class="game-stat">
-                                        <span class="stat-icon">✨</span>
-                                        <span class="stat-label">Precision</span>
-                                    </div>
-                                </div>
-                                <button class="game-play-btn" data-game="sentence-sprint">
-                                    <span class="btn-text">PLAY NOW</span>
-                                    <span class="btn-arrow">→</span>
-                                </button>
+                        <div class="game-card" data-game="sentence-sprint">
+                            <div class="game-header">
+                                <div class="game-icon-badge">📝</div>
+                                <span class="game-badge endurance-badge">Endurance</span>
                             </div>
+                            <h3>Sentence Sprint</h3>
+                            <p>Type complete sentences accurately to build your stamina and consistency.</p>
+                            <div class="game-meta">
+                                <span class="game-tag">💪 Endurance</span>
+                                <span class="game-tag">✨ Precision</span>
+                            </div>
+                            <button class="btn btn-primary game-start-btn" data-game="sentence-sprint">
+                                Start Game
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Game Play Interface -->
                 <div class="page" id="game-play-page" style="display: none;">
-                    <div class="game-play-header">
-                        <button class="game-back-btn" id="game-back-btn">
-                            <span>←</span> Back to Games
-                        </button>
-                        <div class="game-play-title" id="game-play-title">Game</div>
-                        <div class="game-play-stats">
-                            <div class="game-stat-item">
-                                <span class="stat-label">Score</span>
-                                <span class="stat-value" id="game-score">0</span>
-                            </div>
-                            <div class="game-stat-item">
-                                <span class="stat-label">Lives</span>
-                                <span class="stat-value" id="game-lives">❤️❤️❤️</span>
-                            </div>
-                            <div class="game-stat-item">
-                                <span class="stat-label">Time</span>
-                                <span class="stat-value" id="game-time">0s</span>
-                            </div>
+                    <div class="page-header">
+                        <div class="game-header-top">
+                            <button class="btn btn-secondary game-back-btn" id="game-back-btn">
+                                ← Back to Games
+                            </button>
+                            <h1 id="game-play-title">Game</h1>
+                        </div>
+                        <p id="game-play-description">Play and improve your typing skills</p>
+                    </div>
+
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="game-score">0</div>
+                            <div class="stat-label">SCORE</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="game-lives">❤️❤️❤️</div>
+                            <div class="stat-label">LIVES</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="game-time">0s</div>
+                            <div class="stat-label">TIME</div>
                         </div>
                     </div>
 
-                    <div class="game-play-area" id="game-play-area">
+                    <div class="game-canvas-wrapper">
                         <div class="game-canvas" id="game-canvas">
                             <!-- Game content will be dynamically loaded here -->
                         </div>
-                        <div class="game-input-area">
-                            <input type="text" class="game-input" id="game-input" placeholder="Start typing..." autocomplete="off" spellcheck="false">
-                        </div>
                     </div>
 
-                    <div class="game-controls">
+                    <div class="typing-area">
+                        <input type="text" class="typing-input game-input" id="game-input" placeholder="Start typing..." autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <div class="controls">
                         <button class="btn btn-secondary" id="game-pause-btn">Pause</button>
-                        <button class="btn btn-danger" id="game-restart-btn">Restart</button>
+                        <button class="btn btn-primary" id="game-restart-btn">Restart</button>
                     </div>
                 </div>
 
