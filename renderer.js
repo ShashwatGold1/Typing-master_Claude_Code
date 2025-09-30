@@ -37,22 +37,25 @@ function ensureAccuracyDisplays() {
 
     console.log('Final lesson ID:', currentLessonId);
 
-    // Get target accuracy from config with proper progression lookup
+    // Get target accuracy from config progression
     let targetAccuracy = 100; // Default fallback
 
-    if (window.lessonData && window.lessonData.typingConfig) {
-        const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
-        console.log('Accuracy progression:', progression);
-
-        if (progression && progression[currentLessonId.toString()]) {
-            targetAccuracy = progression[currentLessonId.toString()];
-            console.log(`Found progression value: ${targetAccuracy}% for lesson ${currentLessonId}`);
+    // Try to get accuracy from lessonData config
+    if (window.lessonData && window.lessonData.getConfigAccuracy) {
+        targetAccuracy = window.lessonData.getConfigAccuracy(currentLessonId);
+        console.log(`Using config accuracy: ${targetAccuracy}% for character lesson ${currentLessonId}`);
+    }
+    // Fallback: try to get from lesson object itself
+    else if (window.progressiveLessonSystem && window.progressiveLessonSystem.getCurrentLesson) {
+        const currentLesson = window.progressiveLessonSystem.getCurrentLesson();
+        if (currentLesson && currentLesson.targetAccuracy !== undefined) {
+            targetAccuracy = currentLesson.targetAccuracy;
+            console.log(`Using lesson accuracy: ${targetAccuracy}% for character lesson ${currentLessonId}`);
         } else {
-            targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
-            console.log(`Using default accuracy: ${targetAccuracy}% for lesson ${currentLessonId}`);
+            console.log(`Using fallback accuracy: ${targetAccuracy}% for character lesson ${currentLessonId}`);
         }
     } else {
-        console.log('No lessonData or typingConfig available');
+        console.log(`Using default accuracy: ${targetAccuracy}% for character lesson ${currentLessonId}`);
     }
 
     console.log('Final target accuracy:', targetAccuracy);
@@ -94,7 +97,6 @@ function loadTypingConfig() {
         // Fallback configuration
         typingConfig = {
             globalSettings: { maxDisplayWPM: null, enableWPMCapping: false },
-            characterLessons: { defaultTargetAccuracy: 100 },
             wordLessons: { defaultTargetAccuracy: 95 },
             quickTest: { defaultTargetAccuracy: 95, defaultTargetWPM: 40 }
         };
@@ -124,11 +126,7 @@ function getConfigAccuracy(lessonNumber, lessonType = 'character') {
     if (!typingConfig) loadTypingConfig();
 
     if (lessonType === 'character') {
-        const accuracyProgression = typingConfig.characterLessons?.accuracyProgression;
-        if (accuracyProgression && accuracyProgression[lessonNumber.toString()]) {
-            return accuracyProgression[lessonNumber.toString()];
-        }
-        return typingConfig.characterLessons?.defaultTargetAccuracy || 100;
+        return 100; // Character lessons always use 100% accuracy
     } else if (lessonType === 'word') {
         return typingConfig.wordLessons?.defaultTargetAccuracy || 95;
     }
@@ -2469,14 +2467,9 @@ class ProgressiveLessonSystem {
         // Get target accuracy for current lesson
         let targetAccuracy = this.currentLesson.targetAccuracy;
 
-        // If not set, get from config progression
-        if (!targetAccuracy && window.lessonData && window.lessonData.typingConfig) {
-            const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
-            if (progression && progression[this.currentLesson.id.toString()]) {
-                targetAccuracy = progression[this.currentLesson.id.toString()];
-            } else {
-                targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
-            }
+        // Character lessons always use 100% accuracy
+        if (!targetAccuracy) {
+            targetAccuracy = 100;
         }
 
         // Update both main display and popup display
@@ -2537,18 +2530,9 @@ class ProgressiveLessonSystem {
                     lessonId = window.lessonData?.currentLesson || 1;
                 }
 
-                if (window.lessonData && window.lessonData.typingConfig) {
-                    const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
-                    if (progression && progression[lessonId.toString()]) {
-                        targetAccuracy = progression[lessonId.toString()];
-                        console.log(`Main display: Using progression accuracy ${targetAccuracy}% for lesson ${lessonId}`);
-                    } else {
-                        targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
-                        console.log(`Main display: Using default accuracy ${targetAccuracy}% for lesson ${lessonId}`);
-                    }
-                } else {
-                    targetAccuracy = 100; // Final fallback
-                }
+                // Character lessons always use 100% accuracy
+                targetAccuracy = 100;
+                console.log(`Main display: Using fixed accuracy ${targetAccuracy}% for character lesson ${lessonId}`);
             }
             this.targetAccuracyDisplay.textContent = `${targetAccuracy}%`;
         }
@@ -3232,18 +3216,9 @@ class LessonCompletionManager {
                     lessonId = window.lessonData?.currentLesson || 1;
                 }
 
-                if (window.lessonData && window.lessonData.typingConfig) {
-                    const progression = window.lessonData.typingConfig.characterLessons?.accuracyProgression;
-                    if (progression && progression[lessonId.toString()]) {
-                        targetAccuracy = progression[lessonId.toString()];
-                        console.log(`Popup display: Using progression accuracy ${targetAccuracy}% for lesson ${lessonId}`);
-                    } else {
-                        targetAccuracy = window.lessonData.typingConfig.characterLessons?.defaultTargetAccuracy || 100;
-                        console.log(`Popup display: Using default accuracy ${targetAccuracy}% for lesson ${lessonId}`);
-                    }
-                } else {
-                    targetAccuracy = 100; // Final fallback
-                }
+                // Character lessons always use 100% accuracy
+                targetAccuracy = 100;
+                console.log(`Popup display: Using fixed accuracy ${targetAccuracy}% for character lesson ${lessonId}`);
             }
             targetAccuracyEl.textContent = `${targetAccuracy}%`;
         }
@@ -4291,13 +4266,19 @@ class LessonCarousel {
         const lessonKeys = lesson.keys ? lesson.keys.slice(0, 6).join(' ') : '';
         const moreKeys = lesson.keys && lesson.keys.length > 6 ? ` +${lesson.keys.length - 6}` : '';
 
+        // Get WPM from config for this specific lesson
+        let wpmTarget = 20; // fallback
+        if (window.lessonData && window.lessonData.getConfigWPM) {
+            wpmTarget = window.lessonData.getConfigWPM(lessonNumber);
+        }
+
         card.innerHTML = `
             <div class="lesson-status"></div>
             <div class="lesson-number">${lessonNumber}</div>
             <div class="lesson-title">${lesson.title}</div>
             <div class="lesson-meta">
                 <div class="lesson-phase">${lesson.phase}</div>
-                <div class="lesson-target">${getDisplayWPM(lesson)} WPM</div>
+                <div class="lesson-target">${wpmTarget} WPM</div>
             </div>
             <div class="lesson-keys">${lessonKeys}${moreKeys}</div>
         `;
@@ -4469,27 +4450,690 @@ class LessonCarousel {
     }
 }
 
+// ==================== TYPING GAMES SYSTEM ====================
+class TypingGamesManager {
+    constructor() {
+        this.currentGame = null;
+        this.gameInstances = {};
+        this.initializeGames();
+    }
+
+    initializeGames() {
+        // Add event listeners to game cards
+        document.querySelectorAll('.game-play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const gameType = btn.dataset.game;
+                this.startGame(gameType);
+            });
+        });
+
+        // Back button
+        const backBtn = document.getElementById('game-back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => this.exitGame());
+        }
+
+        // Game controls
+        const pauseBtn = document.getElementById('game-pause-btn');
+        const restartBtn = document.getElementById('game-restart-btn');
+
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => this.pauseGame());
+        }
+
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => this.restartGame());
+        }
+    }
+
+    startGame(gameType) {
+        this.currentGame = gameType;
+
+        // Hide games page, show game play page
+        document.getElementById('games-page').style.display = 'none';
+        document.getElementById('game-play-page').style.display = 'block';
+
+        // Update game title
+        const titles = {
+            'word-blaster': 'Word Blaster',
+            'speed-racer': 'Speed Racer',
+            'zombie-typer': 'Zombie Typer',
+            'letter-storm': 'Letter Storm',
+            'code-warrior': 'Code Warrior',
+            'sentence-sprint': 'Sentence Sprint'
+        };
+
+        document.getElementById('game-play-title').textContent = titles[gameType] || 'Game';
+
+        // Initialize specific game
+        if (!this.gameInstances[gameType]) {
+            switch(gameType) {
+                case 'word-blaster':
+                    this.gameInstances[gameType] = new WordBlasterGame();
+                    break;
+                case 'speed-racer':
+                    this.gameInstances[gameType] = new SpeedRacerGame();
+                    break;
+                case 'zombie-typer':
+                    this.gameInstances[gameType] = new ZombieTyperGame();
+                    break;
+                case 'letter-storm':
+                    this.gameInstances[gameType] = new LetterStormGame();
+                    break;
+                case 'code-warrior':
+                    this.gameInstances[gameType] = new CodeWarriorGame();
+                    break;
+                case 'sentence-sprint':
+                    this.gameInstances[gameType] = new SentenceSprintGame();
+                    break;
+            }
+        }
+
+        this.gameInstances[gameType].start();
+    }
+
+    pauseGame() {
+        if (this.currentGame && this.gameInstances[this.currentGame]) {
+            this.gameInstances[this.currentGame].pause();
+        }
+    }
+
+    restartGame() {
+        if (this.currentGame && this.gameInstances[this.currentGame]) {
+            this.gameInstances[this.currentGame].restart();
+        }
+    }
+
+    exitGame() {
+        if (this.currentGame && this.gameInstances[this.currentGame]) {
+            this.gameInstances[this.currentGame].stop();
+        }
+
+        document.getElementById('game-play-page').style.display = 'none';
+        document.getElementById('games-page').style.display = 'block';
+        this.currentGame = null;
+    }
+}
+
+// Base Game Class
+class BaseGame {
+    constructor() {
+        this.score = 0;
+        this.lives = 3;
+        this.time = 0;
+        this.isRunning = false;
+        this.isPaused = false;
+        this.canvas = document.getElementById('game-canvas');
+        this.input = document.getElementById('game-input');
+        this.scoreElement = document.getElementById('game-score');
+        this.livesElement = document.getElementById('game-lives');
+        this.timeElement = document.getElementById('game-time');
+        this.words = this.getGameWords();
+    }
+
+    getGameWords() {
+        return ['type', 'fast', 'quick', 'speed', 'word', 'game', 'blast', 'power', 'skill', 'focus',
+                'react', 'think', 'learn', 'master', 'level', 'score', 'combo', 'bonus', 'super', 'mega'];
+    }
+
+    updateUI() {
+        this.scoreElement.textContent = this.score;
+        this.livesElement.textContent = '❤️'.repeat(this.lives);
+        this.timeElement.textContent = this.time + 's';
+    }
+
+    start() {
+        this.score = 0;
+        this.lives = 3;
+        this.time = 0;
+        this.isRunning = true;
+        this.isPaused = false;
+        this.canvas.innerHTML = '';
+        this.input.value = '';
+        this.input.focus();
+        this.updateUI();
+        this.gameLoop();
+    }
+
+    pause() {
+        this.isPaused = !this.isPaused;
+    }
+
+    restart() {
+        this.stop();
+        this.start();
+    }
+
+    stop() {
+        this.isRunning = false;
+        this.isPaused = false;
+        this.canvas.innerHTML = '';
+    }
+
+    gameLoop() {
+        // Override in child classes
+    }
+}
+
+// Word Blaster Game
+class WordBlasterGame extends BaseGame {
+    constructor() {
+        super();
+        this.fallingWords = [];
+        this.spawnInterval = 2000;
+        this.wordSpeed = 5000;
+    }
+
+    start() {
+        super.start();
+        this.setupInputListener();
+        this.startSpawning();
+        this.startTimer();
+    }
+
+    setupInputListener() {
+        this.input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.checkWord();
+            }
+        });
+    }
+
+    startSpawning() {
+        this.spawnWord();
+        this.spawnTimer = setInterval(() => {
+            if (!this.isPaused && this.isRunning) {
+                this.spawnWord();
+            }
+        }, this.spawnInterval);
+    }
+
+    startTimer() {
+        this.timeTimer = setInterval(() => {
+            if (!this.isPaused && this.isRunning) {
+                this.time++;
+                this.updateUI();
+            }
+        }, 1000);
+    }
+
+    spawnWord() {
+        const word = this.words[Math.floor(Math.random() * this.words.length)];
+        const wordElement = document.createElement('div');
+        wordElement.className = 'falling-word';
+        wordElement.textContent = word;
+        wordElement.style.left = Math.random() * (this.canvas.offsetWidth - 100) + 'px';
+        wordElement.style.animationDuration = this.wordSpeed + 'ms';
+
+        this.canvas.appendChild(wordElement);
+        this.fallingWords.push({ element: wordElement, word: word });
+
+        setTimeout(() => {
+            if (wordElement.parentElement && !wordElement.classList.contains('explode')) {
+                this.lives--;
+                this.updateUI();
+                wordElement.remove();
+                this.fallingWords = this.fallingWords.filter(w => w.element !== wordElement);
+
+                if (this.lives <= 0) {
+                    this.gameOver();
+                }
+            }
+        }, this.wordSpeed);
+    }
+
+    checkWord() {
+        const typedWord = this.input.value.trim().toLowerCase();
+        this.input.value = '';
+
+        const matchIndex = this.fallingWords.findIndex(w => w.word === typedWord);
+        if (matchIndex !== -1) {
+            const matched = this.fallingWords[matchIndex];
+            matched.element.classList.add('explode');
+            this.score += 10;
+            this.updateUI();
+
+            setTimeout(() => {
+                matched.element.remove();
+            }, 500);
+
+            this.fallingWords.splice(matchIndex, 1);
+        }
+    }
+
+    gameOver() {
+        this.stop();
+        clearInterval(this.spawnTimer);
+        clearInterval(this.timeTimer);
+        this.canvas.innerHTML = `
+            <div style="text-align: center; padding: 60px;">
+                <h2 style="font-size: 48px; color: #667eea; margin-bottom: 20px;">Game Over!</h2>
+                <p style="font-size: 24px; color: #6b7280; margin-bottom: 10px;">Final Score: ${this.score}</p>
+                <p style="font-size: 18px; color: #9ca3af;">Time: ${this.time}s</p>
+            </div>
+        `;
+    }
+
+    stop() {
+        super.stop();
+        if (this.spawnTimer) clearInterval(this.spawnTimer);
+        if (this.timeTimer) clearInterval(this.timeTimer);
+        this.fallingWords = [];
+    }
+}
+
+// Speed Racer Game
+class SpeedRacerGame extends BaseGame {
+    constructor() {
+        super();
+        this.timeLimit = 60;
+        this.wordsTyped = 0;
+        this.currentWord = '';
+    }
+
+    start() {
+        super.start();
+        this.time = this.timeLimit;
+        this.updateUI();
+        this.showNextWord();
+        this.setupInputListener();
+        this.startCountdown();
+    }
+
+    showNextWord() {
+        this.currentWord = this.words[Math.floor(Math.random() * this.words.length)];
+        this.canvas.innerHTML = `
+            <div style="text-align: center; padding: 80px;">
+                <div style="font-size: 56px; font-weight: 800; color: #667eea; margin-bottom: 40px;">${this.currentWord}</div>
+                <div style="font-size: 24px; color: #6b7280;">Words typed: ${this.wordsTyped}</div>
+            </div>
+        `;
+    }
+
+    setupInputListener() {
+        this.inputHandler = (e) => {
+            if (e.key === 'Enter') {
+                this.checkWord();
+            }
+        };
+        this.input.addEventListener('keydown', this.inputHandler);
+    }
+
+    checkWord() {
+        const typedWord = this.input.value.trim().toLowerCase();
+
+        if (typedWord === this.currentWord) {
+            this.wordsTyped++;
+            this.score += 15;
+            this.updateUI();
+            this.input.value = '';
+            this.showNextWord();
+        }
+    }
+
+    startCountdown() {
+        this.countdown = setInterval(() => {
+            if (!this.isPaused && this.isRunning) {
+                this.time--;
+                this.updateUI();
+
+                if (this.time <= 0) {
+                    this.gameOver();
+                }
+            }
+        }, 1000);
+    }
+
+    gameOver() {
+        this.stop();
+        clearInterval(this.countdown);
+        const wpm = Math.round((this.wordsTyped / 60) * 60);
+        this.canvas.innerHTML = `
+            <div style="text-align: center; padding: 60px;">
+                <h2 style="font-size: 48px; color: #4facfe; margin-bottom: 20px;">Time's Up!</h2>
+                <p style="font-size: 28px; color: #667eea; margin-bottom: 10px;">Words Typed: ${this.wordsTyped}</p>
+                <p style="font-size: 24px; color: #764ba2; margin-bottom: 10px;">WPM: ${wpm}</p>
+                <p style="font-size: 24px; color: #6b7280;">Score: ${this.score}</p>
+            </div>
+        `;
+    }
+
+    stop() {
+        super.stop();
+        if (this.countdown) clearInterval(this.countdown);
+        this.input.removeEventListener('keydown', this.inputHandler);
+    }
+}
+
+// Zombie Typer Game
+class ZombieTyperGame extends BaseGame {
+    constructor() {
+        super();
+        this.level = 1;
+        this.zombies = [];
+        this.spawnRate = 3000;
+    }
+
+    start() {
+        super.start();
+        this.setupInputListener();
+        this.startSpawning();
+        this.renderGame();
+    }
+
+    setupInputListener() {
+        this.inputHandler = (e) => {
+            if (e.key === 'Enter') {
+                this.checkWord();
+            }
+        };
+        this.input.addEventListener('keydown', this.inputHandler);
+    }
+
+    startSpawning() {
+        this.spawnZombie();
+        this.spawnTimer = setInterval(() => {
+            if (!this.isPaused && this.isRunning) {
+                this.spawnZombie();
+            }
+        }, this.spawnRate);
+    }
+
+    spawnZombie() {
+        const word = this.words[Math.floor(Math.random() * this.words.length)];
+        this.zombies.push({ word, health: 1 });
+        this.renderGame();
+    }
+
+    renderGame() {
+        this.canvas.innerHTML = `
+            <div style="padding: 40px;">
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h3 style="font-size: 24px; color: #43e97b;">Level ${this.level}</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px;">
+                    ${this.zombies.map(zombie => `
+                        <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">🧟</div>
+                            <div style="font-size: 18px; font-weight: 700; color: white;">${zombie.word}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    checkWord() {
+        const typedWord = this.input.value.trim().toLowerCase();
+        this.input.value = '';
+
+        const zombieIndex = this.zombies.findIndex(z => z.word === typedWord);
+        if (zombieIndex !== -1) {
+            this.zombies.splice(zombieIndex, 1);
+            this.score += 20;
+            this.updateUI();
+            this.renderGame();
+
+            if (this.zombies.length === 0) {
+                this.levelUp();
+            }
+        }
+    }
+
+    levelUp() {
+        this.level++;
+        this.spawnRate = Math.max(1000, this.spawnRate - 200);
+        clearInterval(this.spawnTimer);
+        this.startSpawning();
+    }
+
+    stop() {
+        super.stop();
+        if (this.spawnTimer) clearInterval(this.spawnTimer);
+        this.input.removeEventListener('keydown', this.inputHandler);
+        this.zombies = [];
+    }
+}
+
+// Letter Storm Game
+class LetterStormGame extends BaseGame {
+    constructor() {
+        super();
+        this.currentWord = '';
+        this.targetWord = '';
+        this.combo = 0;
+    }
+
+    start() {
+        super.start();
+        this.showNewTarget();
+        this.setupInputListener();
+    }
+
+    showNewTarget() {
+        this.targetWord = this.words[Math.floor(Math.random() * this.words.length)];
+        this.currentWord = '';
+        this.renderGame();
+    }
+
+    setupInputListener() {
+        this.inputHandler = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.checkWord();
+            } else if (e.key.length === 1) {
+                this.currentWord += e.key.toLowerCase();
+                this.renderGame();
+            } else if (e.key === 'Backspace') {
+                this.currentWord = this.currentWord.slice(0, -1);
+                this.renderGame();
+            }
+        };
+        this.input.addEventListener('keydown', this.inputHandler);
+    }
+
+    renderGame() {
+        this.canvas.innerHTML = `
+            <div style="text-align: center; padding: 60px;">
+                <h3 style="font-size: 20px; color: #fa709a; margin-bottom: 40px;">Type: ${this.targetWord}</h3>
+                <div style="font-size: 48px; font-weight: 800; color: #667eea; margin-bottom: 20px; min-height: 60px;">
+                    ${this.currentWord || '_'}
+                </div>
+                <div style="font-size: 18px; color: #fee140;">Combo: ${this.combo}x</div>
+            </div>
+        `;
+    }
+
+    checkWord() {
+        if (this.currentWord === this.targetWord) {
+            this.combo++;
+            this.score += 10 * this.combo;
+            this.updateUI();
+            this.showNewTarget();
+        } else {
+            this.combo = 0;
+            this.currentWord = '';
+            this.renderGame();
+        }
+    }
+
+    stop() {
+        super.stop();
+        this.input.removeEventListener('keydown', this.inputHandler);
+    }
+}
+
+// Code Warrior Game
+class CodeWarriorGame extends BaseGame {
+    constructor() {
+        super();
+        this.codeSnippets = [
+            'function()', 'const x = 10;', 'if (true) {}', 'return false;',
+            'let data = [];', 'console.log();', 'for (i = 0)', 'while (x > 0)',
+            'class App {}', 'import React', 'export default', 'async await'
+        ];
+        this.currentSnippet = '';
+    }
+
+    start() {
+        super.start();
+        this.showNextSnippet();
+        this.setupInputListener();
+    }
+
+    showNextSnippet() {
+        this.currentSnippet = this.codeSnippets[Math.floor(Math.random() * this.codeSnippets.length)];
+        this.canvas.innerHTML = `
+            <div style="text-align: center; padding: 80px;">
+                <div style="background: #1e293b; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+                    <code style="font-size: 32px; color: #22d3ee; font-family: monospace;">${this.currentSnippet}</code>
+                </div>
+                <div style="font-size: 20px; color: #6b7280;">Type the code exactly!</div>
+            </div>
+        `;
+    }
+
+    setupInputListener() {
+        this.inputHandler = (e) => {
+            if (e.key === 'Enter') {
+                this.checkCode();
+            }
+        };
+        this.input.addEventListener('keydown', this.inputHandler);
+    }
+
+    checkCode() {
+        const typedCode = this.input.value.trim();
+
+        if (typedCode === this.currentSnippet) {
+            this.score += 25;
+            this.updateUI();
+            this.input.value = '';
+            this.showNextSnippet();
+        } else {
+            this.input.style.borderColor = '#ef4444';
+            setTimeout(() => {
+                this.input.style.borderColor = '#667eea';
+            }, 300);
+        }
+    }
+
+    stop() {
+        super.stop();
+        this.input.removeEventListener('keydown', this.inputHandler);
+    }
+}
+
+// Sentence Sprint Game
+class SentenceSprintGame extends BaseGame {
+    constructor() {
+        super();
+        this.sentences = [
+            'The quick brown fox jumps over the lazy dog.',
+            'Practice makes perfect when learning to type.',
+            'Typing speed improves with consistent practice.',
+            'Focus on accuracy before trying to type faster.',
+            'Good posture is important for comfortable typing.'
+        ];
+        this.currentSentence = '';
+        this.startTime = 0;
+    }
+
+    start() {
+        super.start();
+        this.showNextSentence();
+        this.setupInputListener();
+    }
+
+    showNextSentence() {
+        this.currentSentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
+        this.startTime = Date.now();
+        this.canvas.innerHTML = `
+            <div style="padding: 60px;">
+                <div style="font-size: 24px; line-height: 1.8; color: #111827; margin-bottom: 40px; text-align: center;">
+                    ${this.currentSentence}
+                </div>
+                <div style="text-align: center; font-size: 16px; color: #6b7280;">
+                    Type the sentence as accurately as possible
+                </div>
+            </div>
+        `;
+    }
+
+    setupInputListener() {
+        this.inputHandler = (e) => {
+            if (e.key === 'Enter') {
+                this.checkSentence();
+            }
+        };
+        this.input.addEventListener('keydown', this.inputHandler);
+    }
+
+    checkSentence() {
+        const typedSentence = this.input.value.trim();
+        const timeTaken = (Date.now() - this.startTime) / 1000;
+
+        if (typedSentence === this.currentSentence) {
+            const wpm = Math.round((this.currentSentence.split(' ').length / timeTaken) * 60);
+            const bonus = wpm > 40 ? 50 : 30;
+            this.score += bonus;
+            this.updateUI();
+            this.input.value = '';
+            this.showNextSentence();
+        } else {
+            // Calculate accuracy
+            let correct = 0;
+            for (let i = 0; i < Math.min(typedSentence.length, this.currentSentence.length); i++) {
+                if (typedSentence[i] === this.currentSentence[i]) correct++;
+            }
+            const accuracy = Math.round((correct / this.currentSentence.length) * 100);
+
+            this.input.style.borderColor = '#ef4444';
+            this.canvas.innerHTML = `
+                <div style="padding: 60px; text-align: center;">
+                    <h3 style="font-size: 28px; color: #ef4444; margin-bottom: 20px;">Not quite right!</h3>
+                    <p style="font-size: 18px; color: #6b7280; margin-bottom: 30px;">Accuracy: ${accuracy}%</p>
+                    <button onclick="window.typingGames.restartGame()" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">Try Again</button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                this.input.style.borderColor = '#667eea';
+            }, 1000);
+        }
+    }
+
+    stop() {
+        super.stop();
+        this.input.removeEventListener('keydown', this.inputHandler);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Initialize lesson data system
         window.lessonData = new LessonData();
-        
+
         // Initialize lesson completion manager
         window.lessonCompletionManager = new LessonCompletionManager();
-        
+
         // Create progressive lesson system (replaces wordLesson)
         window.progressiveLesson = new ProgressiveLessonSystem();
-        
+
         // Character lesson now uses its own canvas system
         // TypingTest is disabled for character lesson to use character canvas instead
         window.charTypingTest = null;
-        
+
         // Initialize keyboard and hand effects (only for character lesson page)
         window.keyboardAndHandEffects = new KeyboardAndHandEffects();
 
         // Initialize lesson carousel
         window.lessonCarousel = new LessonCarousel();
-        
+
+        // Initialize typing games
+        window.typingGames = new TypingGamesManager();
+
     }, 100); // Small delay to ensure typing tests are initialized
 });
 
