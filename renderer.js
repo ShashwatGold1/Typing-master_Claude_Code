@@ -4707,10 +4707,10 @@ class WordBlasterGame extends BaseGame {
         clearInterval(this.spawnTimer);
         clearInterval(this.timeTimer);
         this.canvas.innerHTML = `
-            <div style="text-align: center; padding: 60px;">
-                <h2 style="font-size: 48px; color: #667eea; margin-bottom: 20px;">Game Over!</h2>
-                <p style="font-size: 24px; color: #6b7280; margin-bottom: 10px;">Final Score: ${this.score}</p>
-                <p style="font-size: 18px; color: #9ca3af;">Time: ${this.time}s</p>
+            <div style="text-align: center; width: 100%;">
+                <h2 style="font-size: 42px; font-weight: 700; color: #2563eb; margin-bottom: 24px;">Game Over!</h2>
+                <p style="font-size: 28px; font-weight: 600; color: #111827; margin-bottom: 12px;">Final Score: ${this.score}</p>
+                <p style="font-size: 20px; color: #6b7280;">Time Survived: ${this.time}s</p>
             </div>
         `;
     }
@@ -4744,9 +4744,9 @@ class SpeedRacerGame extends BaseGame {
     showNextWord() {
         this.currentWord = this.words[Math.floor(Math.random() * this.words.length)];
         this.canvas.innerHTML = `
-            <div style="text-align: center; padding: 80px;">
-                <div style="font-size: 56px; font-weight: 800; color: #667eea; margin-bottom: 40px;">${this.currentWord}</div>
-                <div style="font-size: 24px; color: #6b7280;">Words typed: ${this.wordsTyped}</div>
+            <div style="text-align: center; width: 100%;">
+                <div style="font-size: 52px; font-weight: 700; color: #2563eb; margin-bottom: 32px; letter-spacing: 2px;">${this.currentWord}</div>
+                <div style="font-size: 20px; color: #6b7280; font-weight: 500;">Words typed: <span style="color: #111827; font-weight: 600;">${this.wordsTyped}</span></div>
             </div>
         `;
     }
@@ -4790,11 +4790,11 @@ class SpeedRacerGame extends BaseGame {
         clearInterval(this.countdown);
         const wpm = Math.round((this.wordsTyped / 60) * 60);
         this.canvas.innerHTML = `
-            <div style="text-align: center; padding: 60px;">
-                <h2 style="font-size: 48px; color: #4facfe; margin-bottom: 20px;">Time's Up!</h2>
-                <p style="font-size: 28px; color: #667eea; margin-bottom: 10px;">Words Typed: ${this.wordsTyped}</p>
-                <p style="font-size: 24px; color: #764ba2; margin-bottom: 10px;">WPM: ${wpm}</p>
-                <p style="font-size: 24px; color: #6b7280;">Score: ${this.score}</p>
+            <div style="text-align: center; width: 100%;">
+                <h2 style="font-size: 42px; font-weight: 700; color: #0ea5e9; margin-bottom: 24px;">Time's Up!</h2>
+                <p style="font-size: 24px; font-weight: 600; color: #111827; margin-bottom: 12px;">Words Typed: <span style="color: #0ea5e9;">${this.wordsTyped}</span></p>
+                <p style="font-size: 22px; font-weight: 600; color: #111827; margin-bottom: 12px;">WPM: <span style="color: #0ea5e9;">${wpm}</span></p>
+                <p style="font-size: 20px; color: #6b7280;">Final Score: ${this.score}</p>
             </div>
         `;
     }
@@ -4848,15 +4848,15 @@ class ZombieTyperGame extends BaseGame {
 
     renderGame() {
         this.canvas.innerHTML = `
-            <div style="padding: 40px;">
-                <div style="text-align: center; margin-bottom: 40px;">
-                    <h3 style="font-size: 24px; color: #43e97b;">Level ${this.level}</h3>
+            <div style="width: 100%;">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <h3 style="font-size: 28px; font-weight: 700; color: #10b981;">Level ${this.level}</h3>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding: 0 20px;">
                     ${this.zombies.map(zombie => `
-                        <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 20px; border-radius: 12px; text-align: center;">
-                            <div style="font-size: 32px; margin-bottom: 8px;">🧟</div>
-                            <div style="font-size: 18px; font-weight: 700; color: white;">${zombie.word}</div>
+                        <div style="background: #10b981; padding: 16px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 28px; margin-bottom: 8px;">🧟</div>
+                            <div style="font-size: 16px; font-weight: 600; color: white;">${zombie.word}</div>
                         </div>
                     `).join('')}
                 </div>
@@ -4935,12 +4935,12 @@ class LetterStormGame extends BaseGame {
 
     renderGame() {
         this.canvas.innerHTML = `
-            <div style="text-align: center; padding: 60px;">
-                <h3 style="font-size: 20px; color: #fa709a; margin-bottom: 40px;">Type: ${this.targetWord}</h3>
-                <div style="font-size: 48px; font-weight: 800; color: #667eea; margin-bottom: 20px; min-height: 60px;">
-                    ${this.currentWord || '_'}
+            <div style="text-align: center; width: 100%;">
+                <h3 style="font-size: 24px; font-weight: 600; color: #6b7280; margin-bottom: 40px;">Type: <span style="color: #f59e0b; font-weight: 700;">${this.targetWord}</span></h3>
+                <div style="font-size: 48px; font-weight: 700; color: #2563eb; margin-bottom: 24px; min-height: 60px; letter-spacing: 2px;">
+                    ${this.currentWord || '—'}
                 </div>
-                <div style="font-size: 18px; color: #fee140;">Combo: ${this.combo}x</div>
+                <div style="font-size: 20px; color: #111827; font-weight: 600;">Combo: <span style="color: #f59e0b;">${this.combo}x</span></div>
             </div>
         `;
     }
@@ -4985,11 +4985,11 @@ class CodeWarriorGame extends BaseGame {
     showNextSnippet() {
         this.currentSnippet = this.codeSnippets[Math.floor(Math.random() * this.codeSnippets.length)];
         this.canvas.innerHTML = `
-            <div style="text-align: center; padding: 80px;">
-                <div style="background: #1e293b; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-                    <code style="font-size: 32px; color: #22d3ee; font-family: monospace;">${this.currentSnippet}</code>
+            <div style="text-align: center; width: 100%;">
+                <div style="background: #1e293b; padding: 32px 40px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <code style="font-size: 28px; color: #22d3ee; font-family: 'Courier New', monospace; font-weight: 600;">${this.currentSnippet}</code>
                 </div>
-                <div style="font-size: 20px; color: #6b7280;">Type the code exactly!</div>
+                <div style="font-size: 18px; color: #6b7280; font-weight: 500;">Type the code exactly!</div>
             </div>
         `;
     }
@@ -5050,11 +5050,11 @@ class SentenceSprintGame extends BaseGame {
         this.currentSentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
         this.startTime = Date.now();
         this.canvas.innerHTML = `
-            <div style="padding: 60px;">
-                <div style="font-size: 24px; line-height: 1.8; color: #111827; margin-bottom: 40px; text-align: center;">
+            <div style="text-align: center; width: 100%;">
+                <div style="font-size: 22px; line-height: 1.8; color: #111827; margin-bottom: 32px; font-weight: 500; padding: 0 40px;">
                     ${this.currentSentence}
                 </div>
-                <div style="text-align: center; font-size: 16px; color: #6b7280;">
+                <div style="font-size: 16px; color: #6b7280; font-weight: 500;">
                     Type the sentence as accurately as possible
                 </div>
             </div>
@@ -5091,15 +5091,15 @@ class SentenceSprintGame extends BaseGame {
 
             this.input.style.borderColor = '#ef4444';
             this.canvas.innerHTML = `
-                <div style="padding: 60px; text-align: center;">
-                    <h3 style="font-size: 28px; color: #ef4444; margin-bottom: 20px;">Not quite right!</h3>
-                    <p style="font-size: 18px; color: #6b7280; margin-bottom: 30px;">Accuracy: ${accuracy}%</p>
-                    <button onclick="window.typingGames.restartGame()" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">Try Again</button>
+                <div style="text-align: center; width: 100%;">
+                    <h3 style="font-size: 32px; font-weight: 700; color: #ef4444; margin-bottom: 20px;">Not quite right!</h3>
+                    <p style="font-size: 20px; color: #6b7280; margin-bottom: 30px; font-weight: 500;">Accuracy: <span style="color: #111827; font-weight: 600;">${accuracy}%</span></p>
+                    <button onclick="window.typingGames.restartGame()" style="padding: 12px 28px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Try Again</button>
                 </div>
             `;
 
             setTimeout(() => {
-                this.input.style.borderColor = '#667eea';
+                this.input.style.borderColor = '#e5e7eb';
             }, 1000);
         }
     }
