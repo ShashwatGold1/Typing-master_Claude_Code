@@ -230,6 +230,11 @@ class NavigationManager {
     }
 
     navigateTo(page) {
+        // If navigating to games page and a game is running, stop it
+        if (page === 'games' && window.typingGames && window.typingGames.currentGame) {
+            window.typingGames.exitGame();
+        }
+
         // Update active nav item (only for pages with nav items)
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
@@ -242,6 +247,10 @@ class NavigationManager {
         // Update active page
         document.querySelectorAll('.page').forEach(pageEl => {
             pageEl.classList.remove('active');
+            // Reset any inline display styles set by games
+            if (pageEl.id === 'game-play-page') {
+                pageEl.style.display = '';
+            }
         });
         document.getElementById(`${page}-page`).classList.add('active');
 
@@ -4477,6 +4486,7 @@ class TypingGamesManager {
         // Game controls
         const pauseBtn = document.getElementById('game-pause-btn');
         const restartBtn = document.getElementById('game-restart-btn');
+        const backToGamesBtn = document.getElementById('back-to-games-btn');
 
         if (pauseBtn) {
             pauseBtn.addEventListener('click', () => this.pauseGame());
@@ -4484,6 +4494,12 @@ class TypingGamesManager {
 
         if (restartBtn) {
             restartBtn.addEventListener('click', () => this.restartGame());
+        }
+
+        if (backToGamesBtn) {
+            backToGamesBtn.addEventListener('click', () => {
+                this.exitGame();
+            });
         }
     }
 
@@ -4499,9 +4515,7 @@ class TypingGamesManager {
             'word-blaster': 'Word Blaster',
             'speed-racer': 'Speed Racer',
             'zombie-typer': 'Zombie Typer',
-            'letter-storm': 'Letter Storm',
-            'code-warrior': 'Code Warrior',
-            'sentence-sprint': 'Sentence Sprint'
+            'letter-storm': 'Letter Storm'
         };
 
         document.getElementById('game-play-title').textContent = titles[gameType] || 'Game';
@@ -4520,12 +4534,6 @@ class TypingGamesManager {
                     break;
                 case 'letter-storm':
                     this.gameInstances[gameType] = new LetterStormGame();
-                    break;
-                case 'code-warrior':
-                    this.gameInstances[gameType] = new CodeWarriorGame();
-                    break;
-                case 'sentence-sprint':
-                    this.gameInstances[gameType] = new SentenceSprintGame();
                     break;
             }
         }
@@ -4579,7 +4587,7 @@ class BaseGame {
 
     updateUI() {
         this.scoreElement.textContent = this.score;
-        this.livesElement.textContent = '❤️'.repeat(this.lives);
+        this.livesElement.textContent = this.lives > 0 ? '❤️'.repeat(this.lives) : '💀';
         this.timeElement.textContent = this.time + 's';
     }
 
@@ -4598,6 +4606,70 @@ class BaseGame {
 
     pause() {
         this.isPaused = !this.isPaused;
+        const pauseBtn = document.getElementById('game-pause-btn');
+        if (pauseBtn) {
+            pauseBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
+        }
+
+        // Pause/resume word animations
+        if (this.isPaused) {
+            this.pauseStartTime = Date.now();
+            const fallingWords = this.canvas.querySelectorAll('.falling-word');
+            fallingWords.forEach(word => {
+                word.style.animationPlayState = 'paused';
+            });
+
+            // Clear all word removal timeouts
+            if (this.fallingWords) {
+                this.fallingWords.forEach(wordData => {
+                    if (wordData.timeout) {
+                        clearTimeout(wordData.timeout);
+                    }
+                });
+            }
+
+            // Show pause overlay
+            this.showPauseOverlay();
+        } else {
+            // Track total paused time
+            if (this.pauseStartTime) {
+                this.totalPausedTime += Date.now() - this.pauseStartTime;
+            }
+
+            const fallingWords = this.canvas.querySelectorAll('.falling-word');
+            fallingWords.forEach(word => {
+                word.style.animationPlayState = 'running';
+            });
+
+            // Reschedule all word removals
+            if (this.fallingWords) {
+                this.fallingWords.forEach(wordData => {
+                    this.scheduleWordRemoval(wordData);
+                });
+            }
+
+            // Hide pause overlay
+            this.hidePauseOverlay();
+        }
+    }
+
+    showPauseOverlay() {
+        const overlay = document.createElement('div');
+        overlay.className = 'game-paused-overlay';
+        overlay.innerHTML = `
+            <div class="game-paused-message">
+                <h2>PAUSED</h2>
+                <p>Press Resume to continue</p>
+            </div>
+        `;
+        this.canvas.appendChild(overlay);
+    }
+
+    hidePauseOverlay() {
+        const overlay = this.canvas.querySelector('.game-paused-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
     }
 
     restart() {
@@ -4621,32 +4693,53 @@ class WordBlasterGame extends BaseGame {
     constructor() {
         super();
         this.fallingWords = [];
-        this.spawnInterval = 2000;
-        this.wordSpeed = 5000;
+        this.wordSpeed = 10000;
+        this.baseWordSpeed = 10000;
+        this.speedIncreaseMultiplier = 0.08; // Start with 8% speed increase
+        this.pauseStartTime = 0;
+        this.totalPausedTime = 0;
+    }
+
+    get spawnInterval() {
+        // Spawn interval adjusted to reduce words by 35% (0.20 / 0.65 ≈ 0.31)
+        return this.wordSpeed * 0.31;
     }
 
     start() {
         super.start();
+        this.pauseStartTime = 0;
+        this.totalPausedTime = 0;
         this.setupInputListener();
         this.startSpawning();
         this.startTimer();
     }
 
     setupInputListener() {
-        this.input.addEventListener('keydown', (e) => {
+        this.inputHandler = (e) => {
             if (e.key === 'Enter') {
-                this.checkWord();
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                if (!this.isPaused) {
+                    this.checkWord();
+                }
+                return false;
             }
-        });
+        };
+        this.input.addEventListener('keydown', this.inputHandler);
     }
 
     startSpawning() {
         this.spawnWord();
-        this.spawnTimer = setInterval(() => {
+        const spawnNextWord = () => {
             if (!this.isPaused && this.isRunning) {
                 this.spawnWord();
             }
-        }, this.spawnInterval);
+            if (this.isRunning) {
+                this.spawnTimer = setTimeout(spawnNextWord, this.spawnInterval);
+            }
+        };
+        this.spawnTimer = setTimeout(spawnNextWord, this.spawnInterval);
     }
 
     startTimer() {
@@ -4654,6 +4747,13 @@ class WordBlasterGame extends BaseGame {
             if (!this.isPaused && this.isRunning) {
                 this.time++;
                 this.updateUI();
+                // Increase speed every 10 seconds with progressive decay
+                if (this.time % 10 === 0) {
+                    // Reduce duration by current multiplier (speeds up the game)
+                    this.wordSpeed = Math.max(2000, this.wordSpeed * (1 - this.speedIncreaseMultiplier));
+                    // Decay the multiplier for next time (10% -> 9% -> 8.1% etc.)
+                    this.speedIncreaseMultiplier = this.speedIncreaseMultiplier * 0.9;
+                }
             }
         }, 1000);
     }
@@ -4663,40 +4763,72 @@ class WordBlasterGame extends BaseGame {
         const wordElement = document.createElement('div');
         wordElement.className = 'falling-word';
         wordElement.textContent = word;
-        wordElement.style.left = Math.random() * (this.canvas.offsetWidth - 100) + 'px';
+
+        // Calculate spawn position avoiding 10% margins on both sides
+        const canvasWidth = this.canvas.offsetWidth;
+        const margin = canvasWidth * 0.1;
+        const spawnWidth = canvasWidth - (2 * margin) - 100; // 100px for word width
+        const leftPosition = margin + (Math.random() * spawnWidth);
+
+        wordElement.style.left = leftPosition + 'px';
         wordElement.style.animationDuration = this.wordSpeed + 'ms';
 
         this.canvas.appendChild(wordElement);
-        this.fallingWords.push({ element: wordElement, word: word });
 
-        setTimeout(() => {
-            if (wordElement.parentElement && !wordElement.classList.contains('explode')) {
+        const spawnTime = Date.now();
+        const wordData = {
+            element: wordElement,
+            word: word,
+            spawnTime: spawnTime,
+            timeout: null
+        };
+
+        this.fallingWords.push(wordData);
+
+        this.scheduleWordRemoval(wordData);
+    }
+
+    scheduleWordRemoval(wordData) {
+        const elapsedTime = Date.now() - wordData.spawnTime;
+        const remainingTime = Math.max(0, this.wordSpeed - elapsedTime);
+
+        wordData.timeout = setTimeout(() => {
+            // Check if word still exists in the array and hasn't been typed
+            const stillExists = this.fallingWords.includes(wordData);
+            if (!this.isPaused && stillExists && wordData.element.parentElement) {
                 this.lives--;
                 this.updateUI();
-                wordElement.remove();
-                this.fallingWords = this.fallingWords.filter(w => w.element !== wordElement);
+                wordData.element.remove();
+                this.fallingWords = this.fallingWords.filter(w => w !== wordData);
 
                 if (this.lives <= 0) {
                     this.gameOver();
                 }
+            } else if (this.isPaused && stillExists) {
+                // If paused when timeout fires, reschedule
+                this.scheduleWordRemoval(wordData);
             }
-        }, this.wordSpeed);
+        }, remainingTime);
     }
 
     checkWord() {
         const typedWord = this.input.value.trim().toLowerCase();
+
+        // Clear input immediately
         this.input.value = '';
 
         const matchIndex = this.fallingWords.findIndex(w => w.word === typedWord);
         if (matchIndex !== -1) {
             const matched = this.fallingWords[matchIndex];
-            matched.element.classList.add('explode');
+
+            // Clear the timeout to prevent duplicate spawning
+            if (matched.timeout) {
+                clearTimeout(matched.timeout);
+            }
+
+            matched.element.remove();
             this.score += 10;
             this.updateUI();
-
-            setTimeout(() => {
-                matched.element.remove();
-            }, 500);
 
             this.fallingWords.splice(matchIndex, 1);
         }
@@ -4704,8 +4836,8 @@ class WordBlasterGame extends BaseGame {
 
     gameOver() {
         this.stop();
-        clearInterval(this.spawnTimer);
-        clearInterval(this.timeTimer);
+        if (this.spawnTimer) clearTimeout(this.spawnTimer);
+        if (this.timeTimer) clearInterval(this.timeTimer);
         this.canvas.innerHTML = `
             <div style="text-align: center; width: 100%;">
                 <h2 style="font-size: 42px; font-weight: 700; color: #2563eb; margin-bottom: 24px;">Game Over!</h2>
@@ -4717,8 +4849,18 @@ class WordBlasterGame extends BaseGame {
 
     stop() {
         super.stop();
-        if (this.spawnTimer) clearInterval(this.spawnTimer);
+        if (this.spawnTimer) clearTimeout(this.spawnTimer);
         if (this.timeTimer) clearInterval(this.timeTimer);
+
+        // Clear all word removal timeouts
+        if (this.fallingWords) {
+            this.fallingWords.forEach(wordData => {
+                if (wordData.timeout) {
+                    clearTimeout(wordData.timeout);
+                }
+            });
+        }
+
         this.fallingWords = [];
     }
 }
@@ -4734,6 +4876,7 @@ class SpeedRacerGame extends BaseGame {
 
     start() {
         super.start();
+        this.wordsTyped = 0;
         this.time = this.timeLimit;
         this.updateUI();
         this.showNextWord();
@@ -4749,11 +4892,15 @@ class SpeedRacerGame extends BaseGame {
                 <div style="font-size: 20px; color: #6b7280; font-weight: 500;">Words typed: <span style="color: #111827; font-weight: 600;">${this.wordsTyped}</span></div>
             </div>
         `;
+        // Re-add pause overlay if game is paused
+        if (this.isPaused) {
+            this.showPauseOverlay();
+        }
     }
 
     setupInputListener() {
         this.inputHandler = (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !this.isPaused) {
                 this.checkWord();
             }
         };
@@ -4767,9 +4914,9 @@ class SpeedRacerGame extends BaseGame {
             this.wordsTyped++;
             this.score += 15;
             this.updateUI();
-            this.input.value = '';
             this.showNextWord();
         }
+        this.input.value = '';
     }
 
     startCountdown() {
@@ -4824,7 +4971,7 @@ class ZombieTyperGame extends BaseGame {
 
     setupInputListener() {
         this.inputHandler = (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !this.isPaused) {
                 this.checkWord();
             }
         };
@@ -4862,6 +5009,10 @@ class ZombieTyperGame extends BaseGame {
                 </div>
             </div>
         `;
+        // Re-add pause overlay if game is paused
+        if (this.isPaused) {
+            this.showPauseOverlay();
+        }
     }
 
     checkWord() {
@@ -4907,6 +5058,7 @@ class LetterStormGame extends BaseGame {
 
     start() {
         super.start();
+        this.input.parentElement.style.display = 'none';
         this.showNewTarget();
         this.setupInputListener();
     }
@@ -4919,14 +5071,19 @@ class LetterStormGame extends BaseGame {
 
     setupInputListener() {
         this.inputHandler = (e) => {
+            if (this.isPaused) return;
+
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 this.checkWord();
             } else if (e.key.length === 1) {
                 this.currentWord += e.key.toLowerCase();
+                this.input.value = '';
                 this.renderGame();
             } else if (e.key === 'Backspace') {
+                e.preventDefault();
                 this.currentWord = this.currentWord.slice(0, -1);
+                this.input.value = '';
                 this.renderGame();
             }
         };
@@ -4943,6 +5100,10 @@ class LetterStormGame extends BaseGame {
                 <div style="font-size: 20px; color: #111827; font-weight: 600;">Combo: <span style="color: #f59e0b;">${this.combo}x</span></div>
             </div>
         `;
+        // Re-add pause overlay if game is paused
+        if (this.isPaused) {
+            this.showPauseOverlay();
+        }
     }
 
     checkWord() {
@@ -4960,155 +5121,12 @@ class LetterStormGame extends BaseGame {
 
     stop() {
         super.stop();
+        this.input.parentElement.style.display = 'block';
         this.input.removeEventListener('keydown', this.inputHandler);
     }
 }
 
 // Code Warrior Game
-class CodeWarriorGame extends BaseGame {
-    constructor() {
-        super();
-        this.codeSnippets = [
-            'function()', 'const x = 10;', 'if (true) {}', 'return false;',
-            'let data = [];', 'console.log();', 'for (i = 0)', 'while (x > 0)',
-            'class App {}', 'import React', 'export default', 'async await'
-        ];
-        this.currentSnippet = '';
-    }
-
-    start() {
-        super.start();
-        this.showNextSnippet();
-        this.setupInputListener();
-    }
-
-    showNextSnippet() {
-        this.currentSnippet = this.codeSnippets[Math.floor(Math.random() * this.codeSnippets.length)];
-        this.canvas.innerHTML = `
-            <div style="text-align: center; width: 100%;">
-                <div style="background: #1e293b; padding: 32px 40px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <code style="font-size: 28px; color: #22d3ee; font-family: 'Courier New', monospace; font-weight: 600;">${this.currentSnippet}</code>
-                </div>
-                <div style="font-size: 18px; color: #6b7280; font-weight: 500;">Type the code exactly!</div>
-            </div>
-        `;
-    }
-
-    setupInputListener() {
-        this.inputHandler = (e) => {
-            if (e.key === 'Enter') {
-                this.checkCode();
-            }
-        };
-        this.input.addEventListener('keydown', this.inputHandler);
-    }
-
-    checkCode() {
-        const typedCode = this.input.value.trim();
-
-        if (typedCode === this.currentSnippet) {
-            this.score += 25;
-            this.updateUI();
-            this.input.value = '';
-            this.showNextSnippet();
-        } else {
-            this.input.style.borderColor = '#ef4444';
-            setTimeout(() => {
-                this.input.style.borderColor = '#667eea';
-            }, 300);
-        }
-    }
-
-    stop() {
-        super.stop();
-        this.input.removeEventListener('keydown', this.inputHandler);
-    }
-}
-
-// Sentence Sprint Game
-class SentenceSprintGame extends BaseGame {
-    constructor() {
-        super();
-        this.sentences = [
-            'The quick brown fox jumps over the lazy dog.',
-            'Practice makes perfect when learning to type.',
-            'Typing speed improves with consistent practice.',
-            'Focus on accuracy before trying to type faster.',
-            'Good posture is important for comfortable typing.'
-        ];
-        this.currentSentence = '';
-        this.startTime = 0;
-    }
-
-    start() {
-        super.start();
-        this.showNextSentence();
-        this.setupInputListener();
-    }
-
-    showNextSentence() {
-        this.currentSentence = this.sentences[Math.floor(Math.random() * this.sentences.length)];
-        this.startTime = Date.now();
-        this.canvas.innerHTML = `
-            <div style="text-align: center; width: 100%;">
-                <div style="font-size: 22px; line-height: 1.8; color: #111827; margin-bottom: 32px; font-weight: 500; padding: 0 40px;">
-                    ${this.currentSentence}
-                </div>
-                <div style="font-size: 16px; color: #6b7280; font-weight: 500;">
-                    Type the sentence as accurately as possible
-                </div>
-            </div>
-        `;
-    }
-
-    setupInputListener() {
-        this.inputHandler = (e) => {
-            if (e.key === 'Enter') {
-                this.checkSentence();
-            }
-        };
-        this.input.addEventListener('keydown', this.inputHandler);
-    }
-
-    checkSentence() {
-        const typedSentence = this.input.value.trim();
-        const timeTaken = (Date.now() - this.startTime) / 1000;
-
-        if (typedSentence === this.currentSentence) {
-            const wpm = Math.round((this.currentSentence.split(' ').length / timeTaken) * 60);
-            const bonus = wpm > 40 ? 50 : 30;
-            this.score += bonus;
-            this.updateUI();
-            this.input.value = '';
-            this.showNextSentence();
-        } else {
-            // Calculate accuracy
-            let correct = 0;
-            for (let i = 0; i < Math.min(typedSentence.length, this.currentSentence.length); i++) {
-                if (typedSentence[i] === this.currentSentence[i]) correct++;
-            }
-            const accuracy = Math.round((correct / this.currentSentence.length) * 100);
-
-            this.input.style.borderColor = '#ef4444';
-            this.canvas.innerHTML = `
-                <div style="text-align: center; width: 100%;">
-                    <h3 style="font-size: 32px; font-weight: 700; color: #ef4444; margin-bottom: 20px;">Not quite right!</h3>
-                    <p style="font-size: 20px; color: #6b7280; margin-bottom: 30px; font-weight: 500;">Accuracy: <span style="color: #111827; font-weight: 600;">${accuracy}%</span></p>
-                    <button onclick="window.typingGames.restartGame()" style="padding: 12px 28px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Try Again</button>
-                </div>
-            `;
-
-            setTimeout(() => {
-                this.input.style.borderColor = '#e5e7eb';
-            }, 1000);
-        }
-    }
-
-    stop() {
-        super.stop();
-        this.input.removeEventListener('keydown', this.inputHandler);
-    }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
