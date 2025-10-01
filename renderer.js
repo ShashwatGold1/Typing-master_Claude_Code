@@ -1705,7 +1705,7 @@ class StatisticsManager {
         ctx.clearRect(0, 0, width, height);
 
         if (this.stats.testHistory.length === 0) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillStyle = '#9ca3af';
             ctx.font = '14px Inter';
             ctx.textAlign = 'center';
             ctx.fillText('No data yet', width / 4, height / 4);
@@ -1720,7 +1720,7 @@ class StatisticsManager {
         const chartHeight = height / 2 - padding * 2;
 
         // Draw grid lines
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.strokeStyle = '#e5e7eb';
         ctx.lineWidth = 1;
         for (let i = 0; i <= 5; i++) {
             const y = padding + (chartHeight / 5) * i;
@@ -1730,14 +1730,14 @@ class StatisticsManager {
             ctx.stroke();
 
             // Y-axis labels
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillStyle = '#6b7280';
             ctx.font = '10px Inter';
             ctx.textAlign = 'right';
             ctx.fillText(Math.round(maxWPM * (5 - i) / 5), padding - 5, y + 4);
         }
 
         // Draw line
-        ctx.strokeStyle = '#00D9FF';
+        ctx.strokeStyle = '#3b82f6';
         ctx.lineWidth = 2;
         ctx.beginPath();
         data.forEach((wpm, index) => {
@@ -1752,7 +1752,7 @@ class StatisticsManager {
         ctx.stroke();
 
         // Draw points
-        ctx.fillStyle = '#00D9FF';
+        ctx.fillStyle = '#3b82f6';
         data.forEach((wpm, index) => {
             const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
             const y = padding + chartHeight - (wpm / maxWPM) * chartHeight;
@@ -1774,7 +1774,7 @@ class StatisticsManager {
         ctx.clearRect(0, 0, width, height);
 
         if (this.stats.testHistory.length === 0) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillStyle = '#9ca3af';
             ctx.font = '14px Inter';
             ctx.textAlign = 'center';
             ctx.fillText('No data yet', width / 4, height / 4);
@@ -1787,7 +1787,7 @@ class StatisticsManager {
         const chartHeight = height / 2 - padding * 2;
 
         // Draw grid lines
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.strokeStyle = '#e5e7eb';
         ctx.lineWidth = 1;
         for (let i = 0; i <= 5; i++) {
             const y = padding + (chartHeight / 5) * i;
@@ -1797,14 +1797,14 @@ class StatisticsManager {
             ctx.stroke();
 
             // Y-axis labels
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillStyle = '#6b7280';
             ctx.font = '10px Inter';
             ctx.textAlign = 'right';
             ctx.fillText(`${100 - (i * 20)}%`, padding - 5, y + 4);
         }
 
         // Draw area chart
-        ctx.fillStyle = 'rgba(102, 126, 234, 0.2)';
+        ctx.fillStyle = 'rgba(139, 92, 246, 0.15)';
         ctx.beginPath();
         data.forEach((accuracy, index) => {
             const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
@@ -1821,7 +1821,7 @@ class StatisticsManager {
         ctx.fill();
 
         // Draw line
-        ctx.strokeStyle = '#667EEA';
+        ctx.strokeStyle = '#8b5cf6';
         ctx.lineWidth = 2;
         ctx.beginPath();
         data.forEach((accuracy, index) => {
