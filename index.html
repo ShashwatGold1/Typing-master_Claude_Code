@@ -80,12 +80,10 @@
                         <a href="#" class="nav-item" data-page="statistics">
                             <span class="nav-icon">📊</span>
                             Statistics
-                            <span class="upcoming-badge">Soon</span>
                         </a>
                         <a href="#" class="nav-item" data-page="progress">
                             <span class="nav-icon">📈</span>
                             Progress
-                            <span class="upcoming-badge">Soon</span>
                         </a>
                     </nav>
                 </div>
@@ -652,20 +650,76 @@
                 <div class="page" id="statistics-page">
                     <div class="page-header">
                         <h1>Statistics</h1>
-                        <p>View your typing performance and statistics</p>
+                        <p>View your typing performance and detailed statistics</p>
                     </div>
-                    <div class="stats-overview">
-                        <div class="stat-card large">
-                            <div class="stat-value">45</div>
+
+                    <!-- Overview Stats -->
+                    <div class="stats-overview-grid">
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-value" id="stat-avg-wpm">0</div>
                             <div class="stat-label">Average WPM</div>
                         </div>
-                        <div class="stat-card large">
-                            <div class="stat-value">96%</div>
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-value" id="stat-avg-accuracy">0%</div>
                             <div class="stat-label">Average Accuracy</div>
                         </div>
-                        <div class="stat-card large">
-                            <div class="stat-value">127</div>
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-value" id="stat-tests-completed">0</div>
                             <div class="stat-label">Tests Completed</div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">🏆</div>
+                            <div class="stat-value" id="stat-best-wpm">0</div>
+                            <div class="stat-label">Best WPM</div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Stats -->
+                    <div class="stats-secondary-grid">
+                        <div class="stat-card-small">
+                            <div class="stat-label">Total Time</div>
+                            <div class="stat-value-small" id="stat-total-time">0h 0m</div>
+                        </div>
+                        <div class="stat-card-small">
+                            <div class="stat-label">Total Keystrokes</div>
+                            <div class="stat-value-small" id="stat-total-keystrokes">0</div>
+                        </div>
+                        <div class="stat-card-small">
+                            <div class="stat-label">Character Lessons</div>
+                            <div class="stat-value-small" id="stat-char-lesson-progress">0%</div>
+                        </div>
+                        <div class="stat-card-small">
+                            <div class="stat-label">Word Lessons</div>
+                            <div class="stat-value-small" id="stat-word-lesson-progress">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="stats-charts-section">
+                        <div class="chart-container">
+                            <h3>WPM History</h3>
+                            <canvas id="wpm-history-chart" width="600" height="250"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Accuracy History</h3>
+                            <canvas id="accuracy-history-chart" width="600" height="250"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Activity Heatmap -->
+                    <div class="activity-section">
+                        <h3>Activity Heatmap (Last 12 Weeks)</h3>
+                        <p class="activity-subtitle">Track your daily practice consistency</p>
+                        <div id="activity-heatmap"></div>
+                        <div class="heatmap-legend">
+                            <span class="legend-item"><span class="legend-box empty"></span> No activity</span>
+                            <span class="legend-item"><span class="legend-box low"></span> 1-2 tests</span>
+                            <span class="legend-item"><span class="legend-box medium"></span> 3-4 tests</span>
+                            <span class="legend-item"><span class="legend-box high"></span> 5-9 tests</span>
+                            <span class="legend-item"><span class="legend-box very-high"></span> 10+ tests</span>
                         </div>
                     </div>
                 </div>
@@ -676,10 +730,55 @@
                         <h1>Progress</h1>
                         <p>Track your typing improvement over time</p>
                     </div>
-                    <div class="progress-content">
-                        <div class="progress-chart">
-                            <h3>WPM Progress</h3>
-                            <p>Chart showing typing speed improvement would go here</p>
+
+                    <!-- Progress Overview -->
+                    <div class="progress-overview">
+                        <div class="progress-card">
+                            <h3>Character Lesson Progress</h3>
+                            <div class="progress-bar-large">
+                                <div class="progress-fill" id="progress-char-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progress-char-current">0</span> / <span id="progress-char-total">104</span> lessons completed
+                            </div>
+                        </div>
+                        <div class="progress-card">
+                            <h3>Word Lesson Progress</h3>
+                            <div class="progress-bar-large">
+                                <div class="progress-fill" id="progress-word-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progress-word-current">0</span> / <span id="progress-word-total">12</span> lessons completed
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Improvement Charts -->
+                    <div class="progress-charts-section">
+                        <div class="progress-chart-card">
+                            <h3>WPM Progress Over Time</h3>
+                            <canvas id="progress-wpm-chart" width="800" height="300"></canvas>
+                            <p class="chart-info">Your typing speed improvement journey</p>
+                        </div>
+                        <div class="progress-chart-card">
+                            <h3>Accuracy Progress Over Time</h3>
+                            <canvas id="progress-accuracy-chart" width="800" height="300"></canvas>
+                            <p class="chart-info">Your accuracy improvement journey</p>
+                        </div>
+                    </div>
+
+                    <!-- Milestones Section -->
+                    <div class="milestones-section">
+                        <h3>Achievements & Milestones</h3>
+                        <p class="milestones-subtitle">Unlock achievements as you improve your typing skills</p>
+                        <div id="milestones-container"></div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="recent-activity-section">
+                        <h3>Recent Activity</h3>
+                        <div id="recent-activity-list">
+                            <p class="no-activity">Complete some tests to see your recent activity here!</p>
                         </div>
                     </div>
                 </div>

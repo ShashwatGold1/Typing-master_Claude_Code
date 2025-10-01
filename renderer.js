@@ -1430,8 +1430,18 @@ class StatisticsManager {
             averageWPM: 0,
             averageAccuracy: 0,
             bestWPM: 0,
-            totalTime: 0
+            worstWPM: Infinity,
+            totalTime: 0,
+            totalKeystrokes: 0,
+            testHistory: [], // Store last 30 tests
+            dailyStats: {}, // Stats by date
+            lessonStats: {}, // Stats by lesson type
+            gameStats: {}, // Stats by game type
+            characterLessonProgress: 0,
+            wordLessonProgress: 0,
+            achievedMilestones: []
         };
+        this.maxHistoryLength = 30;
         this.init();
     }
 
@@ -1445,6 +1455,12 @@ class StatisticsManager {
             const savedStats = localStorage.getItem('typing-master-stats');
             if (savedStats) {
                 this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+                // Ensure arrays exist
+                if (!this.stats.testHistory) this.stats.testHistory = [];
+                if (!this.stats.dailyStats) this.stats.dailyStats = {};
+                if (!this.stats.lessonStats) this.stats.lessonStats = {};
+                if (!this.stats.gameStats) this.stats.gameStats = {};
+                if (!this.stats.achievedMilestones) this.stats.achievedMilestones = [];
             }
         } catch (error) {
             console.error('Error loading statistics:', error);
@@ -1474,19 +1490,109 @@ class StatisticsManager {
     }
 
     updateDisplay() {
-        // Update statistics display
-        const statCards = document.querySelectorAll('#statistics-page .stat-card');
-        if (statCards.length >= 3) {
-            statCards[0].querySelector('.stat-value').textContent = this.stats.averageWPM;
-            statCards[1].querySelector('.stat-value').textContent = `${this.stats.averageAccuracy}%`;
-            statCards[2].querySelector('.stat-value').textContent = this.stats.totalTests;
-        }
+        // Update main statistics overview
+        this.updateStatisticsPage();
+        this.updateProgressPage();
     }
 
-    recordTest(wpm, accuracy, timeSpent) {
+    updateStatisticsPage() {
+        const avgWpmEl = document.getElementById('stat-avg-wpm');
+        const avgAccuracyEl = document.getElementById('stat-avg-accuracy');
+        const testsCompletedEl = document.getElementById('stat-tests-completed');
+        const bestWpmEl = document.getElementById('stat-best-wpm');
+        const totalTimeEl = document.getElementById('stat-total-time');
+        const totalKeystrokesEl = document.getElementById('stat-total-keystrokes');
+        const charLessonProgressEl = document.getElementById('stat-char-lesson-progress');
+        const wordLessonProgressEl = document.getElementById('stat-word-lesson-progress');
+
+        if (avgWpmEl) avgWpmEl.textContent = this.stats.averageWPM || 0;
+        if (avgAccuracyEl) avgAccuracyEl.textContent = `${this.stats.averageAccuracy || 0}%`;
+        if (testsCompletedEl) testsCompletedEl.textContent = this.stats.totalTests || 0;
+        if (bestWpmEl) bestWpmEl.textContent = this.stats.bestWPM || 0;
+
+        // Format total time (seconds to hours:minutes)
+        if (totalTimeEl) {
+            const hours = Math.floor(this.stats.totalTime / 3600);
+            const minutes = Math.floor((this.stats.totalTime % 3600) / 60);
+            totalTimeEl.textContent = `${hours}h ${minutes}m`;
+        }
+
+        if (totalKeystrokesEl) {
+            totalKeystrokesEl.textContent = this.formatNumber(this.stats.totalKeystrokes || 0);
+        }
+
+        // Update lesson progress
+        if (charLessonProgressEl) {
+            const charProgress = window.lessonData ?
+                Math.round((window.lessonData.currentLesson / 104) * 100) : 0;
+            charLessonProgressEl.textContent = `${charProgress}%`;
+        }
+
+        if (wordLessonProgressEl) {
+            const totalWordLessons = window.lessonManager ? window.lessonManager.lessons.length : 12;
+            const completedWordLessons = Object.values(this.stats.lessonStats).filter(l => l.completed).length;
+            const wordProgress = Math.round((completedWordLessons / totalWordLessons) * 100);
+            wordLessonProgressEl.textContent = `${wordProgress}%`;
+        }
+
+        // Update charts
+        this.updateWPMChart();
+        this.updateAccuracyChart();
+        this.updateActivityHeatmap();
+    }
+
+    updateProgressPage() {
+        // Update lesson progress bars
+        const charFillEl = document.getElementById('progress-char-fill');
+        const charCurrentEl = document.getElementById('progress-char-current');
+        const charTotalEl = document.getElementById('progress-char-total');
+        const wordFillEl = document.getElementById('progress-word-fill');
+        const wordCurrentEl = document.getElementById('progress-word-current');
+        const wordTotalEl = document.getElementById('progress-word-total');
+
+        // Character lessons progress
+        if (window.lessonData) {
+            const currentLesson = window.lessonData.currentLesson || 1;
+            const totalLessons = 104;
+            const percentage = Math.round((currentLesson / totalLessons) * 100);
+
+            if (charFillEl) charFillEl.style.width = `${percentage}%`;
+            if (charCurrentEl) charCurrentEl.textContent = currentLesson;
+            if (charTotalEl) charTotalEl.textContent = totalLessons;
+        }
+
+        // Word lessons progress
+        if (window.lessonManager) {
+            const totalWordLessons = window.lessonManager.lessons.length;
+            const completedLessons = window.lessonManager.lessons.filter(l => l.unlocked).length;
+            const percentage = Math.round((completedLessons / totalWordLessons) * 100);
+
+            if (wordFillEl) wordFillEl.style.width = `${percentage}%`;
+            if (wordCurrentEl) wordCurrentEl.textContent = completedLessons;
+            if (wordTotalEl) wordTotalEl.textContent = totalWordLessons;
+        }
+
+        // Update WPM progress chart
+        this.updateProgressWPMChart();
+        this.updateProgressAccuracyChart();
+        this.updateMilestones();
+        this.updateRecentActivity();
+    }
+
+    formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    recordTest(wpm, accuracy, timeSpent, testType = 'quick-test', lessonId = null) {
+        const now = new Date();
+        const dateKey = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
         this.stats.totalTests++;
         this.stats.totalTime += timeSpent;
-        
+        this.stats.totalKeystrokes += Math.round((wpm / 60) * timeSpent * 5); // Estimate keystrokes
+
         // Update averages
         this.stats.averageWPM = Math.round(
             (this.stats.averageWPM * (this.stats.totalTests - 1) + wpm) / this.stats.totalTests
@@ -1494,14 +1600,386 @@ class StatisticsManager {
         this.stats.averageAccuracy = Math.round(
             (this.stats.averageAccuracy * (this.stats.totalTests - 1) + accuracy) / this.stats.totalTests
         );
-        
-        // Update best WPM
+
+        // Update best/worst WPM
         if (wpm > this.stats.bestWPM) {
             this.stats.bestWPM = wpm;
         }
-        
+        if (wpm < this.stats.worstWPM) {
+            this.stats.worstWPM = wpm;
+        }
+
+        // Add to test history
+        this.stats.testHistory.push({
+            timestamp: now.getTime(),
+            wpm,
+            accuracy,
+            timeSpent,
+            testType,
+            lessonId
+        });
+
+        // Keep only last 30 tests
+        if (this.stats.testHistory.length > this.maxHistoryLength) {
+            this.stats.testHistory.shift();
+        }
+
+        // Update daily stats
+        if (!this.stats.dailyStats[dateKey]) {
+            this.stats.dailyStats[dateKey] = {
+                tests: 0,
+                totalWPM: 0,
+                totalAccuracy: 0,
+                totalTime: 0
+            };
+        }
+        this.stats.dailyStats[dateKey].tests++;
+        this.stats.dailyStats[dateKey].totalWPM += wpm;
+        this.stats.dailyStats[dateKey].totalAccuracy += accuracy;
+        this.stats.dailyStats[dateKey].totalTime += timeSpent;
+
+        // Update lesson/game stats
+        if (testType && testType !== 'quick-test') {
+            if (!this.stats.lessonStats[testType]) {
+                this.stats.lessonStats[testType] = {
+                    attempts: 0,
+                    bestWPM: 0,
+                    bestAccuracy: 0,
+                    completed: false
+                };
+            }
+            this.stats.lessonStats[testType].attempts++;
+            if (wpm > this.stats.lessonStats[testType].bestWPM) {
+                this.stats.lessonStats[testType].bestWPM = wpm;
+            }
+            if (accuracy > this.stats.lessonStats[testType].bestAccuracy) {
+                this.stats.lessonStats[testType].bestAccuracy = accuracy;
+            }
+        }
+
+        // Check for milestones
+        this.checkMilestones(wpm, accuracy);
+
         this.saveStats();
         this.updateDisplay();
+    }
+
+    checkMilestones(wpm, accuracy) {
+        const milestones = [
+            { id: 'first-test', name: 'First Steps', desc: 'Complete your first test', check: () => this.stats.totalTests >= 1 },
+            { id: 'wpm-20', name: 'Speed Walker', desc: 'Reach 20 WPM', check: () => wpm >= 20 },
+            { id: 'wpm-40', name: 'Speed Runner', desc: 'Reach 40 WPM', check: () => wpm >= 40 },
+            { id: 'wpm-60', name: 'Speed Demon', desc: 'Reach 60 WPM', check: () => wpm >= 60 },
+            { id: 'wpm-80', name: 'Speed Master', desc: 'Reach 80 WPM', check: () => wpm >= 80 },
+            { id: 'wpm-100', name: 'Speed Legend', desc: 'Reach 100 WPM', check: () => wpm >= 100 },
+            { id: 'accuracy-95', name: 'Precision Pro', desc: 'Achieve 95% accuracy', check: () => accuracy >= 95 },
+            { id: 'accuracy-98', name: 'Accuracy Master', desc: 'Achieve 98% accuracy', check: () => accuracy >= 98 },
+            { id: 'tests-10', name: 'Dedicated', desc: 'Complete 10 tests', check: () => this.stats.totalTests >= 10 },
+            { id: 'tests-50', name: 'Committed', desc: 'Complete 50 tests', check: () => this.stats.totalTests >= 50 },
+            { id: 'tests-100', name: 'Century Club', desc: 'Complete 100 tests', check: () => this.stats.totalTests >= 100 },
+        ];
+
+        milestones.forEach(milestone => {
+            if (milestone.check() && !this.stats.achievedMilestones.includes(milestone.id)) {
+                this.stats.achievedMilestones.push(milestone.id);
+                this.showMilestoneNotification(milestone);
+            }
+        });
+    }
+
+    showMilestoneNotification(milestone) {
+        // Show a subtle notification for milestone achievement
+        console.log(`🏆 Milestone achieved: ${milestone.name} - ${milestone.desc}`);
+    }
+
+    updateWPMChart() {
+        const canvas = document.getElementById('wpm-history-chart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width = canvas.offsetWidth * 2;
+        const height = canvas.height = canvas.offsetHeight * 2;
+        ctx.scale(2, 2);
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        if (this.stats.testHistory.length === 0) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.font = '14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('No data yet', width / 4, height / 4);
+            return;
+        }
+
+        // Draw chart
+        const data = this.stats.testHistory.map(t => t.wpm);
+        const maxWPM = Math.max(...data, 60);
+        const padding = 40;
+        const chartWidth = width / 2 - padding * 2;
+        const chartHeight = height / 2 - padding * 2;
+
+        // Draw grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = padding + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width / 2 - padding, y);
+            ctx.stroke();
+
+            // Y-axis labels
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(maxWPM * (5 - i) / 5), padding - 5, y + 4);
+        }
+
+        // Draw line
+        ctx.strokeStyle = '#00D9FF';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach((wpm, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (wpm / maxWPM) * chartHeight;
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+
+        // Draw points
+        ctx.fillStyle = '#00D9FF';
+        data.forEach((wpm, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (wpm / maxWPM) * chartHeight;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+
+    updateAccuracyChart() {
+        const canvas = document.getElementById('accuracy-history-chart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width = canvas.offsetWidth * 2;
+        const height = canvas.height = canvas.offsetHeight * 2;
+        ctx.scale(2, 2);
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (this.stats.testHistory.length === 0) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.font = '14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('No data yet', width / 4, height / 4);
+            return;
+        }
+
+        const data = this.stats.testHistory.map(t => t.accuracy);
+        const padding = 40;
+        const chartWidth = width / 2 - padding * 2;
+        const chartHeight = height / 2 - padding * 2;
+
+        // Draw grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = padding + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width / 2 - padding, y);
+            ctx.stroke();
+
+            // Y-axis labels
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'right';
+            ctx.fillText(`${100 - (i * 20)}%`, padding - 5, y + 4);
+        }
+
+        // Draw area chart
+        ctx.fillStyle = 'rgba(102, 126, 234, 0.2)';
+        ctx.beginPath();
+        data.forEach((accuracy, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (accuracy / 100) * chartHeight;
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.lineTo(width / 2 - padding, padding + chartHeight);
+        ctx.lineTo(padding, padding + chartHeight);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw line
+        ctx.strokeStyle = '#667EEA';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach((accuracy, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (accuracy / 100) * chartHeight;
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+    }
+
+    updateActivityHeatmap() {
+        const container = document.getElementById('activity-heatmap');
+        if (!container) return;
+
+        const today = new Date();
+        const days = 84; // 12 weeks
+        let html = '<div class="heatmap-grid">';
+
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateKey = date.toISOString().split('T')[0];
+            const dayStats = this.stats.dailyStats[dateKey];
+            const tests = dayStats ? dayStats.tests : 0;
+
+            let intensity = 'empty';
+            if (tests > 0) intensity = 'low';
+            if (tests >= 3) intensity = 'medium';
+            if (tests >= 5) intensity = 'high';
+            if (tests >= 10) intensity = 'very-high';
+
+            html += `<div class="heatmap-cell ${intensity}" title="${dateKey}: ${tests} tests"></div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    updateProgressWPMChart() {
+        const canvas = document.getElementById('progress-wpm-chart');
+        if (!canvas) return;
+
+        // Reuse WPM chart logic
+        this.updateWPMChart();
+    }
+
+    updateProgressAccuracyChart() {
+        const canvas = document.getElementById('progress-accuracy-chart');
+        if (!canvas) return;
+
+        // Reuse accuracy chart logic
+        this.updateAccuracyChart();
+    }
+
+    updateMilestones() {
+        const container = document.getElementById('milestones-container');
+        if (!container) return;
+
+        const allMilestones = [
+            { id: 'first-test', name: 'First Steps', desc: 'Complete your first test', icon: '🎯' },
+            { id: 'wpm-20', name: 'Speed Walker', desc: 'Reach 20 WPM', icon: '🚶' },
+            { id: 'wpm-40', name: 'Speed Runner', desc: 'Reach 40 WPM', icon: '🏃' },
+            { id: 'wpm-60', name: 'Speed Demon', desc: 'Reach 60 WPM', icon: '⚡' },
+            { id: 'wpm-80', name: 'Speed Master', desc: 'Reach 80 WPM', icon: '🔥' },
+            { id: 'wpm-100', name: 'Speed Legend', desc: 'Reach 100 WPM', icon: '👑' },
+            { id: 'accuracy-95', name: 'Precision Pro', desc: 'Achieve 95% accuracy', icon: '🎯' },
+            { id: 'accuracy-98', name: 'Accuracy Master', desc: 'Achieve 98% accuracy', icon: '💎' },
+            { id: 'tests-10', name: 'Dedicated', desc: 'Complete 10 tests', icon: '📊' },
+            { id: 'tests-50', name: 'Committed', desc: 'Complete 50 tests', icon: '📈' },
+            { id: 'tests-100', name: 'Century Club', desc: 'Complete 100 tests', icon: '🏆' },
+        ];
+
+        let html = '<div class="milestones-grid">';
+        allMilestones.forEach(milestone => {
+            const achieved = this.stats.achievedMilestones.includes(milestone.id);
+            html += `
+                <div class="milestone-card ${achieved ? 'achieved' : 'locked'}">
+                    <div class="milestone-icon">${milestone.icon}</div>
+                    <div class="milestone-name">${milestone.name}</div>
+                    <div class="milestone-desc">${milestone.desc}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    updateRecentActivity() {
+        const container = document.getElementById('recent-activity-list');
+        if (!container) return;
+
+        if (this.stats.testHistory.length === 0) {
+            container.innerHTML = '<p class="no-activity">Complete some tests to see your recent activity here!</p>';
+            return;
+        }
+
+        // Get last 10 tests, reversed (most recent first)
+        const recentTests = [...this.stats.testHistory].reverse().slice(0, 10);
+
+        let html = '';
+        recentTests.forEach(test => {
+            const date = new Date(test.timestamp);
+            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            let testTypeName = 'Quick Test';
+            if (test.testType === 'character-lesson') testTypeName = 'Character Lesson';
+            else if (test.testType === 'word-lesson') testTypeName = 'Word Lesson';
+            else if (test.testType.includes('game')) testTypeName = 'Typing Game';
+
+            html += `
+                <div class="activity-item">
+                    <div class="activity-item-left">
+                        <div class="activity-type">${testTypeName}</div>
+                        <div class="activity-date">${dateStr} at ${timeStr}</div>
+                    </div>
+                    <div class="activity-stats">
+                        <div class="activity-stat-item">
+                            <span class="activity-stat-value">${test.wpm}</span>
+                            <span class="activity-stat-label">WPM</span>
+                        </div>
+                        <div class="activity-stat-item">
+                            <span class="activity-stat-value">${test.accuracy}%</span>
+                            <span class="activity-stat-label">ACC</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    resetStats() {
+        if (confirm('Are you sure you want to reset all statistics? This cannot be undone.')) {
+            localStorage.removeItem('typing-master-stats');
+            this.stats = {
+                totalTests: 0,
+                averageWPM: 0,
+                averageAccuracy: 0,
+                bestWPM: 0,
+                worstWPM: Infinity,
+                totalTime: 0,
+                totalKeystrokes: 0,
+                testHistory: [],
+                dailyStats: {},
+                lessonStats: {},
+                gameStats: {},
+                characterLessonProgress: 0,
+                wordLessonProgress: 0,
+                achievedMilestones: []
+            };
+            this.updateDisplay();
+        }
     }
 }
 
