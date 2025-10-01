@@ -3232,6 +3232,13 @@ select {
 .progress-info {
     font-size: 14px;
     color: #6b7280;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.progress-info span {
+    font-weight: 600;
+    color: #111827;
 }
 
 .progress-charts-section {

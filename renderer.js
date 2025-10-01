@@ -1524,7 +1524,7 @@ class StatisticsManager {
         // Update lesson progress
         if (charLessonProgressEl) {
             const charProgress = window.lessonData ?
-                Math.round((window.lessonData.currentLesson / 104) * 100) : 0;
+                Math.round((window.lessonData.maxUnlockedLesson / 104) * 100) : 0;
             charLessonProgressEl.textContent = `${charProgress}%`;
         }
 
@@ -1552,12 +1552,12 @@ class StatisticsManager {
 
         // Character lessons progress
         if (window.lessonData) {
-            const currentLesson = window.lessonData.currentLesson || 1;
+            const completedLessons = window.lessonData.maxUnlockedLesson || 1;
             const totalLessons = 104;
-            const percentage = Math.round((currentLesson / totalLessons) * 100);
+            const percentage = Math.round((completedLessons / totalLessons) * 100);
 
             if (charFillEl) charFillEl.style.width = `${percentage}%`;
-            if (charCurrentEl) charCurrentEl.textContent = currentLesson;
+            if (charCurrentEl) charCurrentEl.textContent = completedLessons;
             if (charTotalEl) charTotalEl.textContent = totalLessons;
         }
 
@@ -1868,16 +1868,156 @@ class StatisticsManager {
         const canvas = document.getElementById('progress-wpm-chart');
         if (!canvas) return;
 
-        // Reuse WPM chart logic
-        this.updateWPMChart();
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width = canvas.offsetWidth * 2;
+        const height = canvas.height = canvas.offsetHeight * 2;
+        ctx.scale(2, 2);
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        if (this.stats.testHistory.length === 0) {
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('No data yet - complete some tests to see your progress!', width / 4, height / 4);
+            return;
+        }
+
+        // Draw chart
+        const data = this.stats.testHistory.map(t => t.wpm);
+        const maxWPM = Math.max(...data, 60);
+        const padding = 40;
+        const chartWidth = width / 2 - padding * 2;
+        const chartHeight = height / 2 - padding * 2;
+
+        // Draw grid lines
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = padding + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width / 2 - padding, y);
+            ctx.stroke();
+
+            // Y-axis labels
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(maxWPM * (5 - i) / 5), padding - 5, y + 4);
+        }
+
+        // Draw line
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach((wpm, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (wpm / maxWPM) * chartHeight;
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+
+        // Draw points
+        ctx.fillStyle = '#3b82f6';
+        data.forEach((wpm, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (wpm / maxWPM) * chartHeight;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
     }
 
     updateProgressAccuracyChart() {
         const canvas = document.getElementById('progress-accuracy-chart');
         if (!canvas) return;
 
-        // Reuse accuracy chart logic
-        this.updateAccuracyChart();
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width = canvas.offsetWidth * 2;
+        const height = canvas.height = canvas.offsetHeight * 2;
+        ctx.scale(2, 2);
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (this.stats.testHistory.length === 0) {
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('No data yet - complete some tests to see your progress!', width / 4, height / 4);
+            return;
+        }
+
+        const data = this.stats.testHistory.map(t => t.accuracy);
+        const padding = 40;
+        const chartWidth = width / 2 - padding * 2;
+        const chartHeight = height / 2 - padding * 2;
+
+        // Draw grid lines
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = padding + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width / 2 - padding, y);
+            ctx.stroke();
+
+            // Y-axis labels
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'right';
+            ctx.fillText(`${100 - (i * 20)}%`, padding - 5, y + 4);
+        }
+
+        // Draw area chart
+        ctx.fillStyle = 'rgba(139, 92, 246, 0.15)';
+        ctx.beginPath();
+        data.forEach((accuracy, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (accuracy / 100) * chartHeight;
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.lineTo(padding + chartWidth, padding + chartHeight);
+        ctx.lineTo(padding, padding + chartHeight);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw line
+        ctx.strokeStyle = '#8b5cf6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach((accuracy, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (accuracy / 100) * chartHeight;
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+
+        // Draw points
+        ctx.fillStyle = '#8b5cf6';
+        data.forEach((accuracy, index) => {
+            const x = padding + (chartWidth / (data.length - 1 || 1)) * index;
+            const y = padding + chartHeight - (accuracy / 100) * chartHeight;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
     }
 
     updateMilestones() {
